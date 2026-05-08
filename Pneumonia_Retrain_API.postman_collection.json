@@ -1,0 +1,339 @@
+{
+    "info": {
+        "_postman_id": "retrain-api-collection",
+        "name": "Pneumonia System - Model Retrain API",
+        "description": "Collection for testing model retrain functionality",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "AI Service",
+            "item": [
+                {
+                    "name": "Check AI Service Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8000/",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8000",
+                            "path": [
+                                ""
+                            ]
+                        },
+                        "description": "Kiểm tra AI service có chạy không"
+                    }
+                },
+                {
+                    "name": "Predict (Sample)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": ""
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "http://localhost:8000/predict",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8000",
+                            "path": [
+                                "predict"
+                            ]
+                        },
+                        "description": "Test predict endpoint (select an xray image)"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Review Management",
+            "item": [
+                {
+                    "name": "Get Training Data Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/review/training-data-stats",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "review",
+                                "training-data-stats"
+                            ]
+                        },
+                        "description": "Lấy thống kê dữ liệu training\n- totalReviews\n- usedForTraining\n- unusedForTraining\n- pneumoniaCount, normalCount"
+                    }
+                },
+                {
+                    "name": "Get Unused Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/review/unused-for-training",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "review",
+                                "unused-for-training"
+                            ]
+                        },
+                        "description": "Lấy danh sách reviews chưa được dùng cho training"
+                    }
+                },
+                {
+                    "name": "Submit Expert Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"diagnosisId\": 1,\n  \"doctorId\": 1,\n  \"finalLabel\": \"Pneumonia\",\n  \"doctorComment\": \"Rõ ràng là viêm phổi\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8080/api/review/submit",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "review",
+                                "submit"
+                            ]
+                        },
+                        "description": "Bác sĩ submit review cho 1 diagnosis case"
+                    }
+                },
+                {
+                    "name": "Get Pending Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/review/pending",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "review",
+                                "pending"
+                            ]
+                        },
+                        "description": "Lấy danh sách các diagnosis chưa được review"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin - Model Retrain",
+            "item": [
+                {
+                    "name": "Get Model Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/model-stats",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "model-stats"
+                            ]
+                        },
+                        "description": "Dashboard - Lấy thống kê model: total reviews, used, unused, pneumonia count, normal count"
+                    }
+                },
+                {
+                    "name": "Retrain with Unused Reviews",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/retrain-unused",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "retrain-unused"
+                            ]
+                        },
+                        "description": "Trigger retrain model với chỉ các reviews chưa được dùng\n\nResponse:\n- success (boolean)\n- message (string)\n- samples_processed (int)\n- timestamp (ISO 8601)"
+                    }
+                },
+                {
+                    "name": "Retrain with ALL Reviews",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/retrain-all",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "retrain-all"
+                            ]
+                        },
+                        "description": "Trigger retrain model với TẤT CẢ reviews (including previously used ones)\n\nUse case: Weekly full retrain to improve accuracy"
+                    }
+                },
+                {
+                    "name": "Get Unused Reviews List",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/unused-reviews",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "unused-reviews"
+                            ]
+                        },
+                        "description": "Lấy danh sách chi tiết các reviews chưa được dùng cho training"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Testing Workflow",
+            "item": [
+                {
+                    "name": "1. Check Current Stats",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/model-stats",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "model-stats"
+                            ]
+                        },
+                        "description": "Step 1: Check current stats\nNote the unusedForTraining count"
+                    }
+                },
+                {
+                    "name": "2. Get Unused Reviews",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/unused-reviews",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "unused-reviews"
+                            ]
+                        },
+                        "description": "Step 2: View the unused reviews that will be used for training"
+                    }
+                },
+                {
+                    "name": "3. Trigger Retrain",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/retrain-unused",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "retrain-unused"
+                            ]
+                        },
+                        "description": "Step 3: Trigger the retrain process"
+                    }
+                },
+                {
+                    "name": "4. Check Stats After Retrain",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8080/api/admin/model-stats",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8080",
+                            "path": [
+                                "api",
+                                "admin",
+                                "model-stats"
+                            ]
+                        },
+                        "description": "Step 4: Verify that usedForTraining count increased and unusedForTraining decreased"
+                    }
+                }
+            ]
+        }
+    ]
+}
