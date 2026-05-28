@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,6 +242,8 @@ public class UserController {
             profile.put("fullName", user.getFullName());
             profile.put("phone", user.getPhone());
             profile.put("address", user.getAddress());
+            profile.put("gender", user.getGender());
+            profile.put("dateOfBirth", user.getDateOfBirth());
             profile.put("role", user.getRole());
             profile.put("status", user.getStatus());
             profile.put("createdAt", user.getCreatedAt());
@@ -275,6 +278,13 @@ public class UserController {
                 user.setPhone(body.get("phone"));
             if (body.containsKey("address"))
                 user.setAddress(body.get("address"));
+            if (body.containsKey("gender"))
+                user.setGender(body.get("gender"));
+            if (body.containsKey("dateOfBirth")) {
+                String dateOfBirth = body.get("dateOfBirth");
+                user.setDateOfBirth(
+                        (dateOfBirth == null || dateOfBirth.isBlank()) ? null : LocalDate.parse(dateOfBirth));
+            }
 
             userRepository.save(user);
             return ResponseEntity.ok(Map.of("message", "Cập nhật profile thành công"));

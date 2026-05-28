@@ -2,8 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import {
     Box, Card, CardContent, Typography, TextField, Button,
-    Alert, CircularProgress, Grid, Avatar, Divider, Dialog,
-    DialogTitle, DialogContent, DialogActions, Paper, Stack
+    CircularProgress, Grid, Avatar, Divider, Dialog,
+    DialogTitle, DialogContent, DialogActions, Paper, Stack, MenuItem, Chip
 } from '@mui/material';
 import { AuthContext } from '../context/AuthContext';
 import {
@@ -15,8 +15,12 @@ import {
     Phone as PhoneIcon,
     Home as HomeIcon,
     Email as EmailIcon,
-    Security as SecurityIcon
+    Security as SecurityIcon,
+    Wc as GenderIcon,
+    Cake as DOBIcon
 } from '@mui/icons-material';
+import { API_BASE_URL } from '../config/api';
+import ToastNotification from '../components/ToastNotification';
 
 function UserProfile() {
     const { user } = useContext(AuthContext);
@@ -30,10 +34,12 @@ function UserProfile() {
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
-        address: ''
+        address: '',
+        gender: '',
+        dateOfBirth: ''
     });
 
-    const API_BASE = 'http://localhost:8080/api';
+    const API_BASE = `${API_BASE_URL}/api`;
 
     useEffect(() => {
         loadProfile();
@@ -41,7 +47,7 @@ function UserProfile() {
 
     const loadProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) {
                 setMessage({ type: 'error', text: 'Vui lòng đăng nhập lại để tiếp tục.' });
                 setLoading(false);
@@ -55,7 +61,9 @@ function UserProfile() {
             setFormData({
                 fullName: res.data.fullName || '',
                 phone: res.data.phone || '',
-                address: res.data.address || ''
+                address: res.data.address || '',
+                gender: res.data.gender || '',
+                dateOfBirth: res.data.dateOfBirth || ''
             });
         } catch (error) {
             setMessage({ type: 'error', text: error.response?.data?.error || 'Không thể tải thông tin hồ sơ' });
@@ -71,7 +79,7 @@ function UserProfile() {
 
     const handleSaveProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await axios.put(`${API_BASE}/admin/users/me`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -90,207 +98,291 @@ function UserProfile() {
     );
 
     return (
-        <Box sx={{ maxWidth: 900, mx: 'auto', px: 2, py: 4 }}>
+        <Box sx={{ maxWidth: '1200px', width: '100%', mx: 'auto', px: { xs: 2, sm: 3 }, py: 5 }}>
             {/* Tiêu đề trang */}
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e293b', letterSpacing: '-0.5px' }}>
+            <Box sx={{ mb: 5, textAlign: 'center' }}>
+                <Typography variant="h4" sx={{ fontWeight: 850, color: '#0f172a', letterSpacing: '-0.75px' }}>
                     Thiết lập tài khoản
                 </Typography>
-                <Typography variant="body1" sx={{ color: '#64748b', mt: 1 }}>
-                    Quản lý thông tin cá nhân và bảo mật tài khoản của bạn
+                <Typography variant="body1" sx={{ color: '#64748b', mt: 1, fontSize: '0.95rem' }}>
+                    Quản lý thông tin cá nhân và cấu hình bảo mật tài khoản cá nhân của bạn
                 </Typography>
             </Box>
 
-            {message && (
-                <Alert 
-                    severity={message.type} 
-                    onClose={() => setMessage(null)} 
-                    sx={{ mb: 3, borderRadius: 2, fontWeight: 500 }}
-                >
-                    {message.text}
-                </Alert>
-            )}
+            <ToastNotification
+                open={Boolean(message)}
+                message={message?.text || ''}
+                severity={message?.type || 'info'}
+                onClose={() => setMessage(null)}
+            />
 
             {profile && (
-                <Grid container spacing={3}>
+                <Grid container spacing={4} alignItems="flex-start">
                     {/* Cột trái: Avatar & Trạng thái */}
-                    {/* Cột trái: Avatar & Trạng thái - Đã chuyển sang layout ngang */}
-<Grid item xs={12} md={4}>
-    <Card sx={{ 
-        borderRadius: 4, 
-        boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
-        p: 3,
-        height: '100%', // Đảm bảo cao bằng cột bên phải
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center'
-    }}>
-        {/* Phần trên: Avatar + Tên nằm ngang */}
-        <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row', md: 'column', lg: 'row' }, 
-            alignItems: 'center', 
-            gap: 2, 
-            mb: 3 
-        }}>
-            <Avatar
-                sx={{
-                    width: { xs: 80, lg: 90 }, 
-                    height: { xs: 80, lg: 90 },
-                    fontSize: '2rem', 
-                    bgcolor: '#3b82f6',
-                    boxShadow: '0 8px 16px rgba(59, 130, 246, 0.25)'
-                }}
-            >
-                {profile.username?.charAt(0).toUpperCase()}
-            </Avatar>
-            <Box sx={{ textAlign: { xs: 'center', sm: 'left', md: 'center', lg: 'left' } }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                    {profile.username}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#64748b' }}>
-                    {profile.email}
-                </Typography>
-            </Box>
-        </Box>
-        
-        <Divider sx={{ mb: 3, borderStyle: 'dashed' }} />
+                    <Grid item xs={12} md={3}>
+                        <Card sx={{
+                            borderRadius: 4,
+                            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.03), 0 8px 10px -6px rgba(0,0,0,0.03)',
+                            border: '1px solid #f1f5f9',
+                            p: 2.25,
+                            height: 'auto',
+                            alignSelf: 'flex-start',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'flex-start',
+                            background: 'linear-gradient(to bottom, #ffffff, #f8fafc)'
+                        }}>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: { xs: 'column', sm: 'row', md: 'column', lg: 'row' },
+                                alignItems: 'center',
+                                gap: 2,
+                                mb: 2
+                            }}>
+                                <Avatar
+                                    sx={{
+                                        width: { xs: 72, lg: 76 },
+                                        height: { xs: 72, lg: 76 },
+                                        fontSize: '2rem',
+                                        fontWeight: 700,
+                                        bgcolor: '#2563eb',
+                                        boxShadow: '0 10px 20px rgba(37, 99, 235, 0.2)'
+                                    }}
+                                >
+                                    {profile.username?.charAt(0).toUpperCase()}
+                                </Avatar>
+                                <Box sx={{ textAlign: { xs: 'center', sm: 'left', md: 'center', lg: 'left' } }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.3 }}>
+                                        {profile.username}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: '#64748b', mt: 0.5, wordBreak: 'break-all' }}>
+                                        {profile.email}
+                                    </Typography>
+                                </Box>
+                            </Box>
 
-        {/* Phần dưới: Vai trò & Trạng thái nằm ngang song song */}
-        <Stack direction="row" spacing={2}>
-            <Paper variant="outlined" sx={{ py: 1.5, px: 2, borderRadius: 3, bgcolor: '#f8fafc', flex: 1, textAlign: 'center' }}>
-                <Typography variant="caption" display="block" sx={{ color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, fontSize: '0.65rem', mb: 0.5 }}>
-                    Vai trò
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.8rem' }}>
-                    {getRoleLabel(profile.role)}
-                </Typography>
-            </Paper>
+                            <Divider sx={{ mb: 2, borderStyle: 'dashed', borderColor: '#cbd5e1' }} />
 
-            <Paper variant="outlined" sx={{ py: 1.5, px: 2, borderRadius: 3, bgcolor: '#f8fafc', flex: 1, textAlign: 'center' }}>
-                <Typography variant="caption" display="block" sx={{ color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, fontSize: '0.65rem', mb: 0.5 }}>
-                    Trạng thái
-                </Typography>
-                <Typography variant="body2" sx={{ 
-                    fontWeight: 700, 
-                    fontSize: '0.8rem',
-                    color: profile.status === 'LOCKED' ? '#ef4444' : '#10b981',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 0.5
-                }}>
-                    {profile.status === 'LOCKED' ? '● Khóa' : '● Online'}
-                </Typography>
-            </Paper>
-        </Stack>
-    </Card>
-</Grid>
+                            <Stack direction="row" spacing={2}>
+                                <Paper variant="none" sx={{ py: 1.8, px: 2, borderRadius: 3, bgcolor: '#ffffff', border: '1px solid #e2e8f0', flex: 1, textAlign: 'center' }}>
+                                    <Typography variant="caption" display="block" sx={{ color: '#94a3b8', textTransform: 'uppercase', fontWeight: 800, fontSize: '0.65rem', mb: 0.5, letterSpacing: '0.5px' }}>
+                                        Vai trò
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', fontSize: '0.85rem' }}>
+                                        {getRoleLabel(profile.role)}
+                                    </Typography>
+                                </Paper>
+
+                                <Paper variant="none" sx={{ py: 1.8, px: 2, borderRadius: 3, bgcolor: '#ffffff', border: '1px solid #e2e8f0', flex: 1, textAlign: 'center' }}>
+                                    <Typography variant="caption" display="block" sx={{ color: '#94a3b8', textTransform: 'uppercase', fontWeight: 800, fontSize: '0.65rem', mb: 0.5, letterSpacing: '0.5px' }}>
+                                        Trạng thái
+                                    </Typography>
+                                    <Box sx={{
+                                        fontWeight: 700,
+                                        fontSize: '0.85rem',
+                                        color: profile.status === 'LOCKED' ? '#dc2626' : '#16a34a',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: 0.8
+                                    }}>
+                                        <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: profile.status === 'LOCKED' ? '#dc2626' : '#16a34a' }} />
+                                        {profile.status === 'LOCKED' ? 'Khóa' : 'Online'}
+                                    </Box>
+                                </Paper>
+                            </Stack>
+                        </Card>
+                    </Grid>
 
                     {/* Cột phải: Form thông tin chi tiết */}
-                    <Grid item xs={12} md={8}>
-                        <Card sx={{ borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-                            <CardContent sx={{ p: 3 }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <BadgeIcon color="primary" /> Thông tin chi tiết
+                    <Grid item xs={12} md={9}>
+                        <Card sx={{
+                            borderRadius: 4,
+                            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.03), 0 8px 10px -6px rgba(0,0,0,0.03)',
+                            border: '1px solid #f1f5f9',
+                            ml: { md: 1 }
+                        }}>
+                            <CardContent sx={{ p: 4 }}>
+                                <Box sx={{ mb: 4 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                                        <BadgeIcon sx={{ color: '#2563eb' }} /> Thông tin chi tiết
                                     </Typography>
-                                    {!editing && (
-                                        <Button 
-                                            variant="contained" 
-                                            startIcon={<EditIcon />} 
+                                </Box>
+
+                                {/* Layout các trường nhập liệu */}
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+                                    <Grid container columnSpacing={4} rowSpacing={3.5}>
+                                        <Grid item xs={12} md={6}>
+                                            <Typography variant="subtitle2" sx={{ mb: 1.2, color: '#334155', fontWeight: 700, fontSize: '0.85rem' }}>Họ và tên</Typography>
+                                            {editing ? (
+                                                <TextField fullWidth size="small" name="fullName" value={formData.fullName} onChange={handleInputChange} inputProps={{ lang: 'vi', inputMode: 'text', autoCapitalize: 'off', autoCorrect: 'off', spellCheck: false, autoComplete: 'off' }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
+                                            ) : (
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.5, px: 2, bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #f1f5f9', width: '100%' }}>
+                                                    <BadgeIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                                                    <Typography sx={{ color: '#1e293b', fontWeight: 500, ml: 'auto', textAlign: 'right' }}>{profile.fullName || 'Chưa cập nhật'}</Typography>
+                                                </Box>
+                                            )}
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            <Typography variant="subtitle2" sx={{ mb: 1.2, color: '#334155', fontWeight: 700, fontSize: '0.85rem' }}>Giới tính</Typography>
+                                            {editing ? (
+                                                <TextField
+                                                    fullWidth
+                                                    size="small"
+                                                    name="gender"
+                                                    select
+                                                    value={formData.gender}
+                                                    onChange={handleInputChange}
+                                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
+                                                >
+                                                    <MenuItem value="">-- Chọn --</MenuItem>
+                                                    <MenuItem value="male">Nam</MenuItem>
+                                                    <MenuItem value="female">Nữ</MenuItem>
+                                                    <MenuItem value="other">Khác</MenuItem>
+                                                </TextField>
+                                            ) : (
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.2, px: 2, bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #f1f5f9', width: '100%' }}>
+                                                    <GenderIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                                                    <Box sx={{ ml: 'auto' }}>
+                                                        {formData.gender === 'male' && <Chip label="Nam" size="small" sx={{ bgcolor: '#e0f2fe', color: '#0369a1', fontWeight: 700, borderRadius: 1.5 }} />}
+                                                        {formData.gender === 'female' && <Chip label="Nữ" size="small" sx={{ bgcolor: '#fce7f3', color: '#b71c1c', fontWeight: 700, borderRadius: 1.5 }} />}
+                                                        {formData.gender === 'other' && <Chip label="Khác" size="small" sx={{ bgcolor: '#f1f5f9', color: '#475569', fontWeight: 700, borderRadius: 1.5 }} />}
+                                                        {!formData.gender && <Typography sx={{ color: '#94a3b8', fontStyle: 'italic' }}>Chưa cập nhật</Typography>}
+                                                    </Box>
+                                                </Box>
+                                            )}
+                                        </Grid>
+                                    </Grid>
+
+                                    <Grid container columnSpacing={4} rowSpacing={3.5}>
+                                        <Grid item xs={12} md={6}>
+                                            <Typography variant="subtitle2" sx={{ mb: 1.2, color: '#334155', fontWeight: 700, fontSize: '0.85rem' }}>Ngày tháng năm sinh</Typography>
+                                            {editing ? (
+                                                <TextField fullWidth size="small" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleInputChange} InputLabelProps={{ shrink: true }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
+                                            ) : (
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.5, px: 2, bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #f1f5f9', width: '100%' }}>
+                                                    <DOBIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                                                    <Typography sx={{ color: '#1e293b', fontWeight: 500, ml: 'auto', textAlign: 'right' }}>{formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}</Typography>
+                                                </Box>
+                                            )}
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            <Typography variant="subtitle2" sx={{ mb: 1.2, color: '#334155', fontWeight: 700, fontSize: '0.85rem' }}>Số điện thoại</Typography>
+                                            {editing ? (
+                                                <TextField fullWidth size="small" name="phone" value={formData.phone} onChange={handleInputChange} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
+                                            ) : (
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.5, px: 2, bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #f1f5f9', width: '100%' }}>
+                                                    <PhoneIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                                                    <Typography sx={{ color: '#1e293b', fontWeight: 500, ml: 'auto', textAlign: 'right' }}>{profile.phone || 'Chưa cập nhật'}</Typography>
+                                                </Box>
+                                            )}
+                                        </Grid>
+                                    </Grid>
+
+                                    <Grid container columnSpacing={4} rowSpacing={3.5}>
+                                        <Grid item xs={12} md={6}>
+                                            <Typography variant="subtitle2" sx={{ mb: 1.2, color: '#334155', fontWeight: 700, fontSize: '0.85rem' }}>Email (Cố định)</Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.5, px: 2, bgcolor: '#e2e8f0', borderRadius: 2.5, opacity: 0.8, width: '100%' }}>
+                                                <EmailIcon sx={{ color: '#64748b' }} fontSize="small" />
+                                                <Typography sx={{ color: '#334155', fontWeight: 500, ml: 'auto', textAlign: 'right' }}>{profile.email}</Typography>
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            <Typography variant="subtitle2" sx={{ mb: 1.2, color: '#334155', fontWeight: 700, fontSize: '0.85rem' }}>Địa chỉ cư trú</Typography>
+                                            {editing ? (
+                                                <TextField fullWidth size="small" name="address" value={formData.address} onChange={handleInputChange} multiline rows={1} inputProps={{ lang: 'vi', inputMode: 'text', autoCapitalize: 'off', autoCorrect: 'off', spellCheck: false, autoComplete: 'off' }} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
+                                            ) : (
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, py: 1.5, px: 2, bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #f1f5f9', width: '100%' }}>
+                                                    <HomeIcon sx={{ color: '#94a3b8' }} fontSize="small" />
+                                                    <Typography sx={{ color: '#1e293b', fontWeight: 500, ml: 'auto', textAlign: 'right' }}>{profile.address || 'Chưa cập nhật'}</Typography>
+                                                </Box>
+                                            )}
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+
+                                {/* Khu vực nút bấm điều hướng */}
+                                <Box sx={{ mt: 5, display: 'flex', justifyContent: 'flex-end' }}>
+                                    {!editing ? (
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<EditIcon />}
                                             onClick={() => setEditing(true)}
-                                            sx={{ borderRadius: 2, px: 3, textTransform: 'none' }}
+                                            sx={{
+                                                borderRadius: 2.5,
+                                                px: 4,
+                                                py: 1,
+                                                textTransform: 'none',
+                                                fontWeight: 600,
+                                                bgcolor: '#2563eb',
+                                                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+                                                '&:hover': { bgcolor: '#1d4ed8' }
+                                            }}
                                         >
-                                            Chỉnh sửa
+                                            Chỉnh sửa thông tin
                                         </Button>
+                                    ) : (
+                                        <Box sx={{ display: 'flex', gap: 2 }}>
+                                            <Button
+                                                variant="text"
+                                                color="inherit"
+                                                startIcon={<CancelIcon />}
+                                                onClick={() => setEditing(false)}
+                                                sx={{ borderRadius: 2.5, px: 3, textTransform: 'none', fontWeight: 600, color: '#64748b' }}
+                                            >
+                                                Hủy bỏ
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                startIcon={<SaveIcon />}
+                                                onClick={handleSaveProfile}
+                                                sx={{
+                                                    borderRadius: 2.5,
+                                                    px: 4,
+                                                    textTransform: 'none',
+                                                    fontWeight: 600,
+                                                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                                                }}
+                                            >
+                                                Lưu thay đổi
+                                            </Button>
+                                        </Box>
                                     )}
                                 </Box>
 
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12}>
-                                        <Typography variant="subtitle2" sx={{ mb: 1, color: '#475569', fontWeight: 600 }}>Họ và tên</Typography>
-                                        {editing ? (
-                                            <TextField fullWidth size="small" name="fullName" value={formData.fullName} onChange={handleInputChange} />
-                                        ) : (
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <BadgeIcon sx={{ color: '#94a3b8' }} fontSize="small" />
-                                                <Typography>{profile.fullName || "Chưa cập nhật"}</Typography>
-                                            </Box>
-                                        )}
-                                    </Grid>
+                                <Divider sx={{ my: 4, borderColor: '#f1f5f9' }} />
 
-                                    <Grid item xs={12} sm={6}>
-                                        <Typography variant="subtitle2" sx={{ mb: 1, color: '#475569', fontWeight: 600 }}>Số điện thoại</Typography>
-                                        {editing ? (
-                                            <TextField fullWidth size="small" name="phone" value={formData.phone} onChange={handleInputChange} />
-                                        ) : (
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <PhoneIcon sx={{ color: '#94a3b8' }} fontSize="small" />
-                                                <Typography>{profile.phone || "Chưa cập nhật"}</Typography>
-                                            </Box>
-                                        )}
-                                    </Grid>
-
-                                    <Grid item xs={12} sm={6}>
-                                        <Typography variant="subtitle2" sx={{ mb: 1, color: '#475569', fontWeight: 600 }}>Email (Cố định)</Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, opacity: 0.7 }}>
-                                            <EmailIcon sx={{ color: '#94a3b8' }} fontSize="small" />
-                                            <Typography>{profile.email}</Typography>
-                                        </Box>
-                                    </Grid>
-
-                                    <Grid item xs={12}>
-                                        <Typography variant="subtitle2" sx={{ mb: 1, color: '#475569', fontWeight: 600 }}>Địa chỉ cư trú</Typography>
-                                        {editing ? (
-                                            <TextField fullWidth size="small" name="address" value={formData.address} onChange={handleInputChange} multiline rows={2} />
-                                        ) : (
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <HomeIcon sx={{ color: '#94a3b8' }} fontSize="small" />
-                                                <Typography>{profile.address || "Chưa cập nhật"}</Typography>
-                                            </Box>
-                                        )}
-                                    </Grid>
-                                </Grid>
-
-                                {editing && (
-                                    <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                                        <Button 
-                                            variant="outlined" 
-                                            color="inherit" 
-                                            startIcon={<CancelIcon />} 
-                                            onClick={() => setEditing(false)}
-                                            sx={{ borderRadius: 2 }}
-                                        >
-                                            Hủy bỏ
-                                        </Button>
-                                        <Button 
-                                            variant="contained" 
-                                            color="success" 
-                                            startIcon={<SaveIcon />} 
-                                            onClick={handleSaveProfile}
-                                            sx={{ borderRadius: 2, px: 4 }}
-                                        >
-                                            Lưu thay đổi
-                                        </Button>
-                                    </Box>
-                                )}
-
-                                <Divider sx={{ my: 4 }} />
-
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                {/* Khu vực bảo mật */}
+                                <Box sx={{
+                                    display: 'flex',
+                                    flexDirection: { xs: 'column', sm: 'row' },
+                                    justifyContent: 'space-between',
+                                    alignItems: { xs: 'flex-start', sm: 'center' },
+                                    gap: 2
+                                }}>
                                     <Box>
-                                        <Typography variant="h6" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <SecurityIcon color="error" /> Bảo mật tài khoản
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <SecurityIcon sx={{ color: '#ef4444' }} /> Bảo mật tài khoản
                                         </Typography>
-                                        <Typography variant="body2" color="textSecondary">Đổi mật khẩu định kỳ để bảo vệ tài khoản</Typography>
+                                        <Typography variant="body2" sx={{ color: '#64748b', mt: 0.5 }}>Đổi mật khẩu định kỳ giúp tăng cường an toàn dữ liệu cá nhân</Typography>
                                     </Box>
-                                    <Button 
-                                        variant="outlined" 
-                                        color="error" 
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
                                         startIcon={<LockIcon />}
                                         onClick={() => setPasswordDialog(true)}
-                                        sx={{ borderRadius: 2 }}
+                                        sx={{
+                                            borderRadius: 2.5,
+                                            textTransform: 'none',
+                                            fontWeight: 600,
+                                            px: 2.5,
+                                            borderColor: '#fee2e2',
+                                            '&:hover': { bgcolor: '#fef2f2', borderColor: '#fca5a5' }
+                                        }}
                                     >
                                         Đổi mật khẩu
                                     </Button>
@@ -301,19 +393,19 @@ function UserProfile() {
                 </Grid>
             )}
 
-            {/* Dialog Đổi mật khẩu - Tinh chỉnh giao diện */}
-            <Dialog open={passwordDialog} onClose={() => setPasswordDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-                <DialogTitle sx={{ fontWeight: 800, textAlign: 'center', pt: 3 }}>Thay đổi mật khẩu</DialogTitle>
-                <DialogContent sx={{ py: 2 }}>
-                    <Stack spacing={2.5} sx={{ mt: 1 }}>
-                        <TextField label="Mật khẩu hiện tại" type="password" fullWidth size="small" />
-                        <TextField label="Mật khẩu mới" type="password" fullWidth size="small" />
-                        <TextField label="Xác nhận mật khẩu mới" type="password" fullWidth size="small" />
+            {/* Dialog Đổi mật khẩu */}
+            <Dialog open={passwordDialog} onClose={() => setPasswordDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 4, p: 1 } }}>
+                <DialogTitle sx={{ fontWeight: 850, color: '#0f172a', textAlign: 'center', pt: 3, pb: 1, fontSize: '1.25rem' }}>Thay đổi mật khẩu</DialogTitle>
+                <DialogContent sx={{ py: 1 }}>
+                    <Stack spacing={2.5} sx={{ mt: 1.5 }}>
+                        <TextField label="Mật khẩu hiện tại" type="password" fullWidth size="small" sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
+                        <TextField label="Mật khẩu mới" type="password" fullWidth size="small" sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
+                        <TextField label="Xác nhận mật khẩu mới" type="password" fullWidth size="small" sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }} />
                     </Stack>
                 </DialogContent>
-                <DialogActions sx={{ p: 3, pt: 0 }}>
-                    <Button onClick={() => setPasswordDialog(false)} fullWidth color="inherit">Hủy</Button>
-                    <Button variant="contained" fullWidth onClick={() => setPasswordDialog(false)}>Cập nhật</Button>
+                <DialogActions sx={{ p: 3, pt: 2, gap: 1.5 }}>
+                    <Button onClick={() => setPasswordDialog(false)} fullWidth color="inherit" sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2.5 }}>Hủy</Button>
+                    <Button variant="contained" fullWidth onClick={() => setPasswordDialog(false)} sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2.5 }}>Cập nhật</Button>
                 </DialogActions>
             </Dialog>
         </Box>

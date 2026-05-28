@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,19 +12,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
     private String username;
 
-    @Column(unique = true, nullable = false, length = 150)
+    @Column(unique = true, nullable = false, length = 150, columnDefinition = "NVARCHAR(150)")
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 255, columnDefinition = "NVARCHAR(255)")
     private String password;
 
     @Column(name = "role_id")
     private Integer roleId; // khớp với cột role_id trong bảng
 
-    @Column(length = 50)
+    @Column(length = 50, columnDefinition = "NVARCHAR(50)")
     private String role = "PATIENT"; // PATIENT, DOCTOR, hoặc ADMIN
 
     @Column(nullable = false)
@@ -33,23 +34,29 @@ public class User {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // ==================== NEW FIELDS ====================
-    @Column(length = 20)
+    @Column(length = 20, columnDefinition = "NVARCHAR(20)")
     private String status = "ACTIVE"; // ACTIVE hoặc LOCKED
 
-    @Column(length = 20)
+    @Column(length = 20, columnDefinition = "NVARCHAR(20)")
     private String phone;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String address;
 
     @Column(name = "locked_at")
     private LocalDateTime lockedAt;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String lockedReason;
 
-    @Column(length = 255)
+    @Column(length = 255, columnDefinition = "NVARCHAR(255)")
     private String fullName;
+
+    @Column(length = 20, columnDefinition = "NVARCHAR(20)")
+    private String gender;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     // ==================== GETTER - SETTER ====================
 
@@ -163,5 +170,21 @@ public class User {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

@@ -3,7 +3,7 @@ import {
     Box, Card, CardContent, Typography, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper, Dialog, DialogTitle,
     DialogContent, DialogActions, TextField, Select, MenuItem, FormControl,
-    InputLabel, Alert, CircularProgress, Chip, IconButton, Grid, Divider,
+    InputLabel, CircularProgress, Chip, IconButton, Grid, Divider,
     InputAdornment, Stack, TablePagination
 } from '@mui/material';
 import {
@@ -20,6 +20,8 @@ import {
     Group
 } from '@mui/icons-material';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+import ToastNotification from './ToastNotification';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -36,7 +38,7 @@ const UserManagement = () => {
     const [usersPage, setUsersPage] = useState(0);
     const [usersRowsPerPage, setUsersRowsPerPage] = useState(10);
 
-    const API_BASE = 'http://localhost:8080/api/admin/users';
+    const API_BASE = `${API_BASE_URL}/api/admin/users`;
 
     useEffect(() => {
         fetchUsers();
@@ -217,24 +219,25 @@ const UserManagement = () => {
             </Stack>
 
             {/* Notification */}
-            {message && (
-                <Alert severity={message.type} onClose={() => setMessage(null)} sx={{ mb: 3, borderRadius: 2 }}>
-                    {message.text}
-                </Alert>
-            )}
+            <ToastNotification
+                open={Boolean(message)}
+                message={message?.text || ''}
+                severity={message?.type || 'info'}
+                onClose={() => setMessage(null)}
+            />
 
             {/* Statistics */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={6} md={3}>
+            <Grid container spacing={0} sx={{ mb: 4, gap: 2, alignItems: 'stretch' }}>
+                <Grid item xs={12} sm={6} md={3} sx={{ flex: '1 1 auto' }}>
                     {renderStatCard('TỔNG SỐ', stats?.total, <Group />, 'primary')}
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} sx={{ flex: '1 1 auto' }}>
                     {renderStatCard('QUẢN TRỊ', stats?.admin, <AdminPanelSettings />, 'error')}
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} sx={{ flex: '1 1 auto' }}>
                     {renderStatCard('BÁC SĨ', stats?.doctor, <MedicalServices />, 'info')}
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} sx={{ flex: '1 1 auto' }}>
                     {renderStatCard('BỆNH NHÂN', stats?.patient, <AccessibleForward />, 'success')}
                 </Grid>
             </Grid>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box, Card, CardContent, Typography, Button, Grid, LinearProgress,
-    Alert, Table, TableBody, TableCell, TableContainer, TableHead,
+    Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, Paper, Dialog, DialogTitle, DialogContent, DialogActions,
     CircularProgress, Chip, alpha, Fade
 } from '@mui/material';
@@ -15,6 +15,8 @@ import {
     HistoryOutlined as RecentIcon
 } from '@mui/icons-material';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
+import ToastNotification from '../components/ToastNotification';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -25,7 +27,7 @@ const AdminDashboard = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [retrainType, setRetrainType] = useState(null);
 
-    const API_BASE = 'http://localhost:8080/api';
+    const API_BASE = `${API_BASE_URL}/api`;
 
     useEffect(() => {
         loadStats();
@@ -105,21 +107,22 @@ const AdminDashboard = () => {
                     </Button>
                 </Box>
 
-                {message && (
-                    <Alert severity={message.type} sx={{ mb: 3, borderRadius: '12px', fontWeight: 500 }} onClose={() => setMessage(null)}>
-                        {message.text}
-                    </Alert>
-                )}
+                <ToastNotification
+                    open={Boolean(message)}
+                    message={message?.text || ''}
+                    severity={message?.type || 'info'}
+                    onClose={() => setMessage(null)}
+                />
 
                 {/* Stat Cards */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={0} sx={{ mb: 4, gap: 2 }}>
                     {[
                         { label: 'Tổng Reviews', value: stats?.totalReviews, color: '#2563eb', bg: '#eff6ff' },
                         { label: 'Đã Huấn Luyện', value: stats?.usedForTraining, color: '#10b981', bg: '#ecfdf5' },
                         { label: 'Dữ Liệu Mới', value: stats?.unusedForTraining, color: '#f59e0b', bg: '#fffbeb' },
                         { label: 'Pneumonia | Normal', value: `${stats?.pneumoniaCount || 0} / ${stats?.normalCount || 0}`, color: '#ef4444', bg: '#fef2f2' }
                     ].map((item, index) => (
-                        <Grid item xs={12} sm={6} md={3} key={index}>
+                        <Grid item xs={12} sm={6} md={3} key={index} sx={{ flex: '1 1 calc(25% - 8px)' }}>
                             <Card sx={{ borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' }}>
                                 <CardContent sx={{ bgcolor: item.bg }}>
                                     <Typography variant="subtitle2" sx={{ color: '#64748b', fontWeight: 700 }}>{item.label}</Typography>
@@ -139,13 +142,13 @@ const AdminDashboard = () => {
                             </Typography>
                             <Typography sx={{ fontWeight: 800, color: '#2563eb' }}>{Math.round(getProgressPercentage())}%</Typography>
                         </Box>
-                        <LinearProgress 
-                            variant="determinate" 
-                            value={getProgressPercentage()} 
+                        <LinearProgress
+                            variant="determinate"
+                            value={getProgressPercentage()}
                             sx={{ height: 12, borderRadius: 6, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { borderRadius: 6 } }}
                         />
                         <Typography variant="caption" sx={{ mt: 1.5, display: 'block', color: '#64748b', textAlign: 'right' }}>
-                             {stats?.usedForTraining} trên {stats?.totalReviews} mẫu đã được tích hợp vào Model
+                            {stats?.usedForTraining} trên {stats?.totalReviews} mẫu đã được tích hợp vào Model
                         </Typography>
                     </CardContent>
                 </Card>
@@ -200,7 +203,7 @@ const AdminDashboard = () => {
                                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <RecentIcon color="action" /> Dữ liệu mới chưa Retrain
                                 </Typography>
-                                <TableContainer sx={{ maxHeight: 350 }}>
+                                <TableContainer sx={{ maxHeight: { xs: 280, sm: 320, md: 350 }, overflowX: 'auto' }}>
                                     <Table stickyHeader size="small">
                                         <TableHead>
                                             <TableRow>
@@ -214,10 +217,10 @@ const AdminDashboard = () => {
                                                 <TableRow key={review.id} hover>
                                                     <TableCell sx={{ color: '#64748b' }}>#{review.id}</TableCell>
                                                     <TableCell>
-                                                        <Chip 
-                                                            label={review.finalLabel === 'Pneumonia' ? 'Viêm phổi' : 'Bình thường'} 
+                                                        <Chip
+                                                            label={review.finalLabel === 'Pneumonia' ? 'Viêm phổi' : 'Bình thường'}
                                                             size="small"
-                                                            sx={{ 
+                                                            sx={{
                                                                 fontWeight: 700,
                                                                 bgcolor: review.finalLabel === 'Pneumonia' ? '#fee2e2' : '#dcfce7',
                                                                 color: review.finalLabel === 'Pneumonia' ? '#b91c1c' : '#15803d'
@@ -250,14 +253,14 @@ const AdminDashboard = () => {
                         <Typography variant="body1" sx={{ mb: 2 }}>
                             Hành động này sẽ cập nhật trọng số của Model dựa trên các đánh giá mới của bác sĩ.
                         </Typography>
-                        <Alert severity="warning" variant="outlined" sx={{ borderRadius: '12px' }}>
-                            Quá trình có thể mất 10-30 giây. <b>Vui lòng không đóng trình duyệt.</b>
-                        </Alert>
+                        <Typography variant="body2" sx={{ color: '#475569', mt: 1 }}>
+                            Quá trình có thể mất 10-30 giây. Vui lòng không đóng trình duyệt.
+                        </Typography>
                     </DialogContent>
                     <DialogActions sx={{ p: 2 }}>
                         <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 700 }}>Hủy</Button>
-                        <Button 
-                            variant="contained" 
+                        <Button
+                            variant="contained"
                             onClick={() => handleRetrain(retrainType)}
                             sx={{ borderRadius: '10px', bgcolor: '#1e293b', fontWeight: 700 }}
                         >

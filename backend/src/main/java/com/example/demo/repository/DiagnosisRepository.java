@@ -23,7 +23,11 @@ public interface DiagnosisRepository extends JpaRepository<DiagnosisHistory, Lon
                      "(SELECT e FROM ExpertReview e WHERE e.diagnosis.id = d.id)")
        List<DiagnosisHistory> findDiagnosesWithReview();
 
+       // Đếm số ca chưa review
+       @Query("SELECT COUNT(d) FROM DiagnosisHistory d WHERE NOT EXISTS " +
+                     "(SELECT e FROM ExpertReview e WHERE e.diagnosis.id = d.id)")
+       long countDiagnosesWithoutReview();
+
        int deleteAllByUserId(Long userId);
 
-       
 }

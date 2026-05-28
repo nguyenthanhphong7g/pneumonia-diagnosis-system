@@ -10,7 +10,7 @@ import { Box, List, ListItemIcon, ListItemText, ListItemButton, Typography, Chip
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 
-function Sidebar() {
+function Sidebar({ onItemClick }) {
   const location = useLocation();
   const { user } = useContext(AuthContext);
 
@@ -57,6 +57,7 @@ function Sidebar() {
                 key={item.path}
                 component={Link}
                 to={item.path}
+                onClick={onItemClick}
                 sx={{
                   borderRadius: '12px',
                   mb: 1,
@@ -64,11 +65,11 @@ function Sidebar() {
                   py: 1.5,
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   position: 'relative',
-                  
+
                   // Màu sắc và nền khi Active
                   color: isActive ? '#2563eb' : '#64748b',
                   bgcolor: isActive ? 'rgba(37, 99, 235, 0.04)' : 'transparent',
-                  
+
                   '&:hover': {
                     bgcolor: isActive ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc',
                     color: '#2563eb',
@@ -99,28 +100,27 @@ function Sidebar() {
                 >
                   {item.icon}
                 </ListItemIcon>
-                
+
                 <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{
-                    fontWeight: isActive ? 700 : 600,
-                    fontSize: '0.9rem',
-                    letterSpacing: '-0.01em',
-                  }}
+                  primary={
+                    <Typography sx={{ fontWeight: isActive ? 700 : 600, fontSize: '0.9rem', letterSpacing: '-0.01em' }}>
+                      {item.label}
+                    </Typography>
+                  }
                 />
 
                 {/* Badge nhỏ cho phần Chẩn đoán */}
                 {item.badge && isActive && (
-                  <Chip 
-                    label={item.badge} 
-                    size="small" 
-                    sx={{ 
-                      height: 18, 
-                      fontSize: '0.6rem', 
+                  <Chip
+                    label={item.badge}
+                    size="small"
+                    sx={{
+                      height: 18,
+                      fontSize: '0.6rem',
                       fontWeight: 900,
                       bgcolor: '#2563eb',
                       color: '#fff'
-                    }} 
+                    }}
                   />
                 )}
               </ListItemButton>
@@ -130,16 +130,17 @@ function Sidebar() {
 
       {/* Tùy chọn Hệ thống (Phần dưới) */}
       <Box sx={{ px: 2, mb: 2 }}>
-         <ListItemButton
-            sx={{
-                borderRadius: '12px',
-                color: '#64748b',
-                '&:hover': { bgcolor: '#f8fafc', color: '#2563eb' }
-            }}
-         >
-            <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}><SettingsIcon /></ListItemIcon>
-            <ListItemText primary="Cài đặt" primaryTypographyProps={{ fontWeight: 600, fontSize: '0.9rem' }} />
-         </ListItemButton>
+        <ListItemButton
+          onClick={onItemClick}
+          sx={{
+            borderRadius: '12px',
+            color: '#64748b',
+            '&:hover': { bgcolor: '#f8fafc', color: '#2563eb' }
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}><SettingsIcon /></ListItemIcon>
+          <ListItemText primary={<Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>Cài đặt</Typography>} />
+        </ListItemButton>
       </Box>
 
       {/* Version Footer */}
@@ -154,10 +155,10 @@ function Sidebar() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-            <Box sx={{ width: 8, height: 8, bgcolor: '#22c55e', borderRadius: '50%' }} />
-            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>
-                Hệ thống Online
-            </Typography>
+          <Box sx={{ width: 8, height: 8, bgcolor: '#22c55e', borderRadius: '50%' }} />
+          <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>
+            Hệ thống Online
+          </Typography>
         </Box>
         <Typography sx={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 600 }}>
           Pneumonia AI System v1.0.0

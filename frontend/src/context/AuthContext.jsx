@@ -1,37 +1,39 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState } from 'react';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+const normalizeRole = (role) => (role ? String(role).toUpperCase() : 'PATIENT');
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUsername = localStorage.getItem('username');
-    const savedRole = localStorage.getItem('role');
-    const savedUserId = localStorage.getItem('userId');
+export const AuthProvider = ({ children }) => {
+  const [token, setToken] = useState(() => sessionStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    const savedToken = sessionStorage.getItem('token');
+    const savedUsername = sessionStorage.getItem('username');
+    const savedRole = normalizeRole(sessionStorage.getItem('role'));
+    const savedUserId = sessionStorage.getItem('userId');
 
     if (savedToken && savedUsername) {
-      setToken(savedToken);
-      setUser({ username: savedUsername, role: savedRole, userId: savedUserId });
+      return { username: savedUsername, role: savedRole, userId: savedUserId };
     }
-  }, []);
+
+    return null;
+  });
 
   const login = (newToken, username, role = 'PATIENT', userId) => {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('username', username);
-    localStorage.setItem('role', role);
-    localStorage.setItem('userId', userId);
+    const normalizedRole = normalizeRole(role);
+    sessionStorage.setItem('token', newToken);
+    sessionStorage.setItem('username', username);
+    sessionStorage.setItem('role', normalizedRole);
+    sessionStorage.setItem('userId', userId);
     setToken(newToken);
-    setUser({ username, role, userId });
+    setUser({ username, role: normalizedRole, userId });
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userId');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('userId');
     setToken(null);
     setUser(null);
   };

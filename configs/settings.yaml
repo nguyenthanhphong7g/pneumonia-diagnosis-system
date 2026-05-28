@@ -1,0 +1,49 @@
+# MLOps Configuration - Based on MadeWithML Course
+# Reference: https://madewithml.com/courses/mlops/
+
+PROJECT:
+  name: "pneumonia-diagnosis-system"
+  description: "AI-powered pneumonia detection using X-ray images"
+  version: "1.0.0"
+  
+DATA:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  image_size: [224, 224]
+  augmentation:
+    enabled: true
+    rotation_range: 20
+    zoom_range: 0.2
+    horizontal_flip: true
+
+MODEL:
+  vit_model: "google/vit-large-patch16-224-in21k"
+  densenet_model: "fixed_model.keras"
+  serving:
+    - type: "ViT+LR"
+      path: "models/serving/vit_lr_ensemble.pkl"
+      description: "ViT features + Logistic Regression (fast prediction)"
+    - type: "DenseNet169"
+      path: "models/serving/densenet169.keras"
+      description: "DenseNet for GradCAM explainability"
+  
+TRAINING:
+  epochs: 50
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: "adam"
+  early_stopping_patience: 10
+  
+LOGGING:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/mlops.log"
+  
+MLFLOW:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "pneumonia-diagnosis"
+  backend_store_uri: "sqlite:///mlflow_store.db"
+  default_artifact_root: "mlflow_artifacts"

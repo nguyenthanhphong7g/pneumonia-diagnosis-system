@@ -7,7 +7,7 @@ import {
 } from '@mui/icons-material';
 import { Box, List, ListItemIcon, ListItemText, ListItemButton, Typography, alpha, Paper } from '@mui/material';
 
-function SidebarPatient() {
+function SidebarPatient({ onItemClick }) {
   const location = useLocation();
 
   const menuItems = [
@@ -73,6 +73,7 @@ function SidebarPatient() {
               key={item.path}
               component={Link}
               to={item.path}
+              onClick={onItemClick}
               sx={{
                 borderRadius: '12px',
                 mb: 1,
@@ -110,11 +111,11 @@ function SidebarPatient() {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontWeight: isActive ? 700 : 600,
-                  fontSize: '0.9rem',
-                }}
+                primary={
+                  <Typography sx={{ fontWeight: isActive ? 700 : 600, fontSize: '0.9rem' }}>
+                    {item.label}
+                  </Typography>
+                }
               />
             </ListItemButton>
           );
