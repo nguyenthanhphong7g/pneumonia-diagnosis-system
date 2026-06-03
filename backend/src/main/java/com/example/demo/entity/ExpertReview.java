@@ -35,4 +35,10 @@ public class ExpertReview {
 
     @Column(nullable = false)
     private LocalDateTime reviewedAt = LocalDateTime.now();
+
+    // Trả về tên bác sĩ (fullName nếu có, nếu không thì username)
+    public String getDoctorName() {
+        if (doctor == null) return null;
+        return doctor.getFullName() != null ? doctor.getFullName() : doctor.getUsername();
+    }
 }

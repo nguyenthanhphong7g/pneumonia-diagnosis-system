@@ -1,21 +1,30 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../config/api';
 import {
   Container, Typography, TextField, Button, Card, CardContent,
-  Alert, Box, CircularProgress, Paper, Divider
+  Box, CircularProgress, Paper, Divider
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import LockIcon from '@mui/icons-material/Lock';
+import ToastNotification from '../components/ToastNotification';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,25 +32,27 @@ function Login() {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/login', {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         username,
         password
       });
 
       login(res.data.token, res.data.username, res.data.role, res.data.userId);
-      alert('Đăng nhập thành công!');
-      // Navigate based on role
-      if (res.data.role === 'DOCTOR') {
-        navigate('/review');
-      } else {
+      setSnackbar({ open: true, message: 'Đăng nhập thành công!', severity: 'success' });
+      setTimeout(() => {
         navigate('/');
-      }
+      }, 700);
 
     } catch (err) {
       setError(err.response?.data?.error || 'Đăng nhập thất bại');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSnackbarClose = (_, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbar((s) => ({ ...s, open: false }));
   };
 
   return (
@@ -98,9 +109,12 @@ function Login() {
             </Box>
 
             {error && (
-              <Alert severity="error" sx={{ mb: 2, borderRadius: 1 }}>
-                {error}
-              </Alert>
+              <ToastNotification
+                open={Boolean(error)}
+                message={error}
+                severity="error"
+                onClose={() => setError('')}
+              />
             )}
 
             <form onSubmit={handleLogin}>
@@ -113,7 +127,7 @@ function Login() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 sx={{ mb: 2 }}
-                inputProps={{ autoComplete: 'username' }}
+                slotProps={{ htmlInput: { autoComplete: 'username' } }}
               />
 
               <TextField
@@ -126,7 +140,7 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 sx={{ mb: 1 }}
-                inputProps={{ autoComplete: 'current-password' }}
+                slotProps={{ htmlInput: { autoComplete: 'current-password' } }}
               />
 
               <Button
@@ -149,6 +163,13 @@ function Login() {
             </form>
 
             <Divider sx={{ my: 2 }} />
+
+            <ToastNotification
+              open={snackbar.open}
+              message={snackbar.message}
+              severity={snackbar.severity}
+              onClose={handleSnackbarClose}
+            />
 
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" sx={{ color: '#64748b', mb: 1.5 }}>

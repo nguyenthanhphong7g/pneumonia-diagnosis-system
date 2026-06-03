@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: pneumonia
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_USER: postgres
+      DB_PASS: example
+    ports:
+      - "8080:8080"
+    # Spring Boot will auto‑create tables via JPA (ddl-auto: update)
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+  ai-service:
+    build: ./ai-service
+    depends_on:
+      - backend
+    environment:
+      # add AI‑service env vars if needed
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./ai-service/models:/app/models
+      - ./ai-service/dataset:/app/dataset
+
+volumes:
+  pgdata:

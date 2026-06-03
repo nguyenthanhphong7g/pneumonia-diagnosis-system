@@ -3,8 +3,10 @@ package com.example.demo.controller;
 import com.example.demo.entity.DiagnosisHistory;
 import com.example.demo.entity.ExpertReview;
 import com.example.demo.entity.User;
+import com.example.demo.entity.ModelMetrics;
 import com.example.demo.repository.DiagnosisRepository;
 import com.example.demo.repository.ExpertReviewRepository;
+import com.example.demo.repository.ModelMetricsRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.TrainingDataService;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +36,38 @@ public class ExpertReviewController {
     private UserRepository userRepository;
 
     @Autowired
+    private ModelMetricsRepository modelMetricsRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
     private TrainingDataService trainingDataService;
+
+    private String resolveModelName(Integer modelId) {
+        if (modelId == null) {
+            return null;
+        }
+
+        return modelMetricsRepository.findById(modelId)
+                .map(ModelMetrics::getModelName)
+                .orElse(null);
+    }
+
+    private void enrichModelName(DiagnosisHistory diagnosis) {
+        if (diagnosis == null) {
+            return;
+        }
+
+        diagnosis.setModelName(resolveModelName(diagnosis.getModelId()));
+    }
 
     // API 1: Lấy danh sách ca cần review (chưa có review)
     @GetMapping("/pending")
     public ResponseEntity<?> getPendingReviews() {
         try {
             List<DiagnosisHistory> pending = diagnosisRepository.findDiagnosesWithoutReview();
+            pending.forEach(this::enrichModelName);
 
             if (pending.isEmpty()) {
                 return ResponseEntity.ok(Map.of("message", "Không có ca nào cần review"));
@@ -137,31 +163,76 @@ public class ExpertReviewController {
             String jwt = token.replace("Bearer ", "").trim();
             Long doctorId = jwtUtil.extractUserId(jwt);
 
+            List<ExpertReview> history = expertReviewRepository.findByDoctorIdOrderByReviewedAtDesc(doctorId);
+            // Enrich model name for each diagnosis in the history
+            history.forEach(review -> enrichModelName(review.getDiagnosis()));
+
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // API: Lấy thống kê tổng quát cho dashboard bác sĩ
+    @GetMapping("/stats-summary")
+    public ResponseEntity<?> getStatsSummary(@RequestHeader("Authorization") String token) {
+        try {
+            String jwt = token.replace("Bearer ", "").trim();
+            Long doctorId = jwtUtil.extractUserId(jwt);
+            LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+            LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+
+            // 1. Tổng số ca đã duyệt bởi bác sĩ này
+            long totalReviewed = expertReviewRepository.countByDoctorId(doctorId);
+
+            // 2. Số ca duyệt trong ngày
+            long todayCompleted = expertReviewRepository.countByDoctorIdAndReviewedAtBetween(doctorId,
+                    startOfDay, endOfDay);
+
+            // 3. Số ca đang chờ duyệt (toàn hệ thống)
+            long pendingCount = diagnosisRepository.countDiagnosesWithoutReview();
+
+            // 4. Tính Agree Rate (Số ca bác sĩ kết luận giống AI / Tổng số ca bác sĩ đã
+            // duyệt)
             List<ExpertReview> reviews = expertReviewRepository.findByDoctorIdOrderByReviewedAtDesc(doctorId);
+            long agreedCount = reviews.stream()
+                    .filter(r -> r.getDiagnosis() != null && r.getFinalLabel() != null &&
+                            r.getFinalLabel().equalsIgnoreCase(r.getDiagnosis().getLabel()))
+                    .count();
 
-            List<Map<String, Object>> result = reviews.stream().map(review -> {
-                Map<String, Object> item = new HashMap<>();
-                item.put("id", review.getId());
-                item.put("reviewedAt", review.getReviewedAt());
-                item.put("finalLabel", review.getFinalLabel());
-                item.put("doctorComment", review.getDoctorComment());
-                item.put("doctorName", review.getDoctor() != null ? review.getDoctor().getUsername() : null);
+            double agreeRate = totalReviewed > 0 ? (double) agreedCount / totalReviewed * 100 : 0;
 
-                DiagnosisHistory diagnosis = review.getDiagnosis();
-                if (diagnosis != null) {
-                    item.put("diagnosisId", diagnosis.getId());
-                    item.put("imagePath", diagnosis.getImagePath());
-                    item.put("label", diagnosis.getLabel());
-                    item.put("confidence", diagnosis.getConfidence());
-                    item.put("createdAt", diagnosis.getCreatedAt());
-                }
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("totalReviewed", totalReviewed);
+            stats.put("todayCompleted", todayCompleted);
+            stats.put("pending", pendingCount);
+            stats.put("agreeRate", Math.round(agreeRate * 10) / 10.0);
 
-                return item;
-            }).toList();
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // API: Lấy thống kê số ca đã duyệt trong ngày
+    @GetMapping("/count-today")
+    public ResponseEntity<?> getTodayReviewCount(@RequestHeader("Authorization") String token) {
+        try {
+            String jwt = token.replace("Bearer ", "").trim();
+            Long doctorId = jwtUtil.extractUserId(jwt);
+            LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+            LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+
+            long count = expertReviewRepository.countByDoctorIdAndReviewedAtBetween(doctorId,
+                    startOfDay, endOfDay);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("count", count);
+            result.put("date", java.time.LocalDate.now());
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
     }

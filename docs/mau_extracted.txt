@@ -1,0 +1,2512 @@
+ĐẠI HỌC HUẾ
+TRƯỜNG ĐẠI HỌC KHOA HỌC
+KHOA CÔNG NGHỆ THÔNG TIN
+———————***———————
+KHÓA LUẬN
+TỐT NGHIỆP ĐẠI HỌC
+Đề tài:
+XÂY DỰNG CHATBOT CỬA HÀNG ĐỒ UỐNG
+CÓ HỖ TRỢ CÁC CHỨC NĂNG CÁ NHÂN HÓA
+TRẢI NGHIỆM KHÁCH HÀNG
+Sinh viên thực hiện: TRẦN THỊ THANH HUỆ
+Khóa: K45 - HỆ CHÍNH QUY
+Huế, tháng 06 năm 2025
+
+ĐẠI HỌC HUẾ
+TRƯỜNG ĐẠI HỌC KHOA HỌC
+KHOA CÔNG NGHỆ THÔNG TIN
+———————***———————
+KHÓA LUẬN
+TỐT NGHIỆP ĐẠI HỌC
+NGÀNH CÔNG NGHỆ THÔNG TIN
+Đề tài:
+XÂY DỰNG CHATBOT CỬA HÀNG ĐỒ UỐNG
+CÓ HỖ TRỢ CÁC CHỨC NĂNG CÁ NHÂN HÓA
+TRẢI NGHIỆM KHÁCH HÀNG
+Sinh viên thực hiện: TRẦN THỊ THANH HUỆ
+Khóa: K45 - HỆ CHÍNH QUY
+Giáo viên hướng dẫn: TS. ĐOÀN THỊ HỒNG PHƯỚC
+Huế, tháng 06 năm 2025
+
+LỜI CAM ĐOAN
+Chúng tôi xin cam đoan đồ án này là công trình nghiên cứu riêng của chúng tôi,
+không sao chép ở bất kỳ công trình khoa học nào trước đây. Những phần có sử dụng
+tài liệu trong đồ án sẽ ghi rõ tên tài liệu trong phần tài liệu tham khảo. Các kết quả
+nêu trong đồ án có nguồn gốc rõ ràng và được trích dẫn đầy đủ.
+Chúng tôi xin hoàn toàn chịu trách nhiệm về đồ án này.
+Thừa Thiên Huế, ngày. . . tháng 06 năm 2025
+Sinh Viên
+Trần Thị Thanh Huệ
+i
+
+LỜI CẢM ƠN
+Chúng tôi xin chân thành cảm ơn Khoa Công Nghệ Thông Tin, Trường Đại học
+Khoa Học Huế đã tạo điều kiện thuận lợi cho chúng tôi học tập và thực hiện đề tài tốt
+nghiệp này. Trong suốt 4 năm học tập tại Trường Đại học Khoa Học Huế, nhận được
+sự hướng dẫn, giảng dạy và giúp đỡ tận tình, nhiệt huyết của các thầy, cô giáo là niềm
+vinh dự lớn lao của chúng tôi và gia đình. Ngày hôm nay, chúng tôi muốn gửi lời cảm
+ơn chân thành nhất đến tất cả các thầy, các cô trong nhà trường, những giảng viên mà
+chúng tôi vô cùng kính trọng.
+Khóa luận này được hoàn thành nhờ sự hướng dẫn, tận tình chỉ bảo của cô giáo -
+TS. Đoàn Thị Hồng Phước. Cô luôn tạo điều kiện và có những góp ý thiết thực giúp
+tôi hoàn thành tốt nhiệm vụ. Chúng tôi muốn gửi lời tri ân chân thành và sâu sắc nhất
+đến cô Đoàn Thị Hồng Phước: Kính chúc cô luôn mạnh khỏe, thành công với công
+việc đáng kính mà cô đã và đang làm.
+Chúng tôi muốn gửi lời cảm ơn đến gia đình và người thân đã nuôi dưỡng, luôn
+bên cạnh, thấu hiểu và tin tưởng, giúp tôi yên tâm học tập và làm việc.
+Mặc dù đã cố gắng hoàn thành khóa luận trong phạm vi và khả năng cho phép của
+mình, nhưng chắc chắn sẽ không tránh khỏi những thiếu sót. Chúng tôi kính mong
+nhận được sự cảm thông, chỉ bảo, góp ý tận tình của quý thầy cô.
+Xin chân thành cảm ơn!
+ii
+
+DANH MỤC KÝ HIỆU V À CÁC CHỮ VIẾT TẮT
+Từ viết tắt Diễn giải Dịch nghĩa (hoặc giải thích)
+LLM(s) Large Language Model(s) Mô hình ngôn ngữ lớn
+RAG Retrieval-Augmented Generation Truy xuất tăng cường bằng
+sinh văn bản
+GraphRAG Graph Retrieval-Augmented
+Generation (RAG with KG)
+Mở rộng RAG với đồ thị tri
+thức
+AI Artificial Intelligence Trí tuệ nhân tạo
+NLP Natural Language Processing Xử lý ngôn ngữ tự nhiên
+IoU Intersection over Union Độ đo mức độ giao nhau của
+bounding box
+MBR Minimum Bayes Risk Rủi ro Bayes tối thiểu
+KG Knowledge Graph Đồ thị tri thức
+ViT Vision Transformer Mô hình Transformer áp
+dụng cho xử lý ảnh
+Faiss Facebook AI Similarity Search Thư viện tìm kiếm vector
+CNN Convolutional Neural Network Loại mạng neural tích chập
+GT Ground Truth Dữ liệu hoặc nhãn thực
+tế/đúng
+iii
+
+Danh sách bảng
+2.1 Một số mô hình ngôn ngữ lớn tiêu biểu . . . . . . . . . . . . . . . . . . . . 17
+3.1 So sánh hiệu suất và tỷ lệ lỗi của các mô hình phát hiện khuôn mặt. . . . . . 50
+3.2 So sánh hiệu suất giữa các mô hình nhận diện khuôn mặt tại ngưỡng tối ưu. 53
+3.3 Cấu trúc tập dữ liệu . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+3.4 So sánh kết quả đánh giá giữa RAG và GraphRAG . . . . . . . . . . . . . . 66
+3.5 So sánh kết quả đánh giá chất lượng câu trả lời giữa RAG và GraphRAG . . 68
+3.6 Phân tích nguyên nhân các câu trả lời 1 điểm . . . . . . . . . . . . . . . . . 68
+3.7 Kết quả đánh giá tìm kiếm thông tin sản phẩm . . . . . . . . . . . . . . . . 80
+3.8 Ví dụ một số cặp sản phẩm có hình ảnh tương đồng trong tập dữ liệu đánh giá 82
+iv
+
+Danh sách hình vẽ
+1.1 Minh họa hệ thống chatbot rule-based (Nguồn: [24]) . . . . . . . . . . . . 8
+2.1 Minh họa kiến trúc RetinaFace (Nguồn: [5]) . . . . . . . . . . . . . . . . 11
+2.2 Minh họa phương pháp của Arcface (Nguồn: [4]) . . . . . . . . . . . . . . 14
+2.3 Minh họa kiến trúc mô hình Transformer (Nguồn: [28]) . . . . . . . . . . . 18
+2.4 Minh họa quy trình hoạt động của hệ thống RAG (Nguồn:[10]) . . . . . . . 22
+2.5 Minh họa 3 biến thể của RAG (Nguồn:[10]) . . . . . . . . . . . . . . . . . 23
+2.6 Minh họa Property Graphs (Nguồn:[13]) . . . . . . . . . . . . . . . . . . 24
+2.7 Minh họa quy trình xây dựng hệ thống GraphRAG (Nguồn: [8]) . . . . . . 28
+2.8 Minh họa thuật toán Leiden (Nguồn: [27]) . . . . . . . . . . . . . . . . . . 30
+2.9 ViT dùng cơ chế tự chú ý để làm nổi bật đặc trưng ảnh (Nguồn: [6]) . . . . 34
+2.10 Minh họa quá trình trích xuất đặc trưng ảnh với ViT (Nguồn: [6]) . . . . . 34
+2.11 Minh họa quá trình biểu diễn ngữ nghĩa của các từ W trong câu đầu vào
+thành vector O của PhoBERT (Nguồn:[22]) . . . . . . . . . . . . . . . . . 36
+2.12 Quy trình lưu trữ và tìm kiếm vector với Faiss (Nguồn: [9]) . . . . . . . . . 38
+3.1 Sơ đồ quan hệ thực thể của cơ sở dữ liệu cửa hàng đồ uống . . . . . . . . . 42
+3.2 Quy trình tương tác giữa người dùng với hệ thống chatbot . . . . . . . . . 44
+3.3 Minh họa đầu vào (input), đầu ra (output) của chức năng xác minh người dùng 45
+3.4 Minh họa mô hình phát hiện và trích xuất đặc trưng khuôn mặt . . . . . . . 46
+3.5 Minh họa quy trình lưu trữ và xác minh danh tính người dùng . . . . . . . 47
+3.6 Minh họa ảnh gốc và ảnh được gán nhãn vùng khuôn mặt . . . . . . . . . 49
+3.7 Minh họa độ đo IoU (Nguồn: [33]) . . . . . . . . . . . . . . . . . . . . . 50
+3.8 Minh họa khoảng cách tâm giữa Ground truth và Predict (Nguồn: [35]) . . 50
+3.9 Giao diện xác minh người dùng – Đang nhận diện . . . . . . . . . . . . . . 54
+3.10 Giao diện xác minh người dùng – Đã xác minh được người dùng . . . . . . 55
+3.11 Quy trình xử lí truy vấn người dùng trong RAG. . . . . . . . . . . . . . . . 57
+3.12 Lời nhắc cho LLM ra quyết định chọn một trong hai công cụuse_sql_tool
+và use_vector_tool để điều hướng truy vấn . . . . . . . . . . . . . . 58
+3.13 Lời nhắc LLM tạo câu SQL theo truy vấn người dùng . . . . . . . . . . . . 59
+3.14 Lời nhắc LLM tổng hợp thông tin và đưa ra câu trả lời cuối cùng . . . . . . 60
+3.15 Minh họa một số mẫu câu hỏi trong tập đánh giá khả năng truy xuất của RAG 64
+v
+
+3.16 Một số câu hỏi trong tập dữ liệu đánh giá chất lượng sinh câu trả lời của RAG 67
+3.17 Giao diện chính để người dùng tương tác với chatbot . . . . . . . . . . . . 69
+3.18 Minh họa đầu vào(input), đầu ra(output) của chức năng tìm kiếm thông tin
+sản phẩm tương tự bằng hình ảnh. . . . . . . . . . . . . . . . . . . . . . . 70
+3.19 Minh họa quy trình tìm kiếm thông tin sản phẩm tương tự dựa trên vector đặc
+trưng ảnh sản phẩm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72
+3.20 Minh họa quy trình tìm kiếm thông tin sản phẩm tương tự dựa trên mô tả hình
+ảnh được sinh bởi LLM . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72
+3.21 Lời nhắc LLM mô tả hình ảnh đầu vào . . . . . . . . . . . . . . . . . . . . 74
+3.22 Minh họa quy trình tổng hợp thông tin và tạo câu trả lời bằng LLM . . . . . 77
+3.23 Lời nhắc cho LLM tạo câu trả lời . . . . . . . . . . . . . . . . . . . . . . . 78
+3.24 Minh họa cấu trúc tổ chức dữ liệu . . . . . . . . . . . . . . . . . . . . . . 79
+3.25 Ảnh trong tập đánh giá so với ảnh gốc của sản phẩm Banana Chocolate
+Smoothie . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 79
+3.26 Giao diện khi người dùng gửi truy vấn bằng hình ảnh . . . . . . . . . . . . 83
+vi
+
+MỤC LỤC
+MỞ ĐẦU 1
+NỘI DUNG 5
+CHƯƠNG 1: TỔNG QUAN 5
+1.1 Giới thiệu về hệ thống chatbot . . . . . . . . . . . . . . . . . . . . . . . 5
+1.2 Tầm quan trọng của cá nhân hóa trong tương tác người – máy . . . . . 6
+1.3 Những thách thức trong phát triển và triển khai hệ thống chatbot . . . 7
+1.4 Các hướng tiếp cận . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+1.5 Tiểu kết chương 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+CHƯƠNG 2: CƠ SỞ LÝ THUYẾT 10
+2.1 Phát hiện và nhận diện khuôn mặt . . . . . . . . . . . . . . . . . . . . . 10
+2.1.1 Phát hiện khuôn mặt với RetinaFace . . . . . . . . . . . . . . . . . 10
+2.1.1.1 Giới thiệu về RetinaFace . . . . . . . . . . . . . . . . . . . . 10
+2.1.1.2 Kiến trúc của RetinaFace . . . . . . . . . . . . . . . . . . . . 11
+2.1.2 Nhận diện khuôn mặt với ArcFace . . . . . . . . . . . . . . . . . . 13
+2.1.2.1 Tổng quan về ArcFace . . . . . . . . . . . . . . . . . . . . . . 13
+2.1.2.2 Phương pháp của Arcface . . . . . . . . . . . . . . . . . . . . 14
+2.2 Truy xuất tăng cường bằng sinh văn bản (Retrieval-Augmented Gener-
+ation - RAG . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+2.2.1 Mô hình ngôn ngữ lớn (LLM) – Nền tảng của RAG . . . . . . . . . 16
+2.2.1.1 LLM là gì? . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+2.2.1.2 Kiến trúc nền tảng của LLM . . . . . . . . . . . . . . . . . . 17
+2.2.1.3 Ưu nhược điểm của LLM . . . . . . . . . . . . . . . . . . . . 19
+2.2.2 Kiến trúc và quy trình hoạt động của hệ thống RAG . . . . . . . . . 20
+2.2.2.1 Giới thiệu RAG . . . . . . . . . . . . . . . . . . . . . . . . . 20
+2.2.2.2 Các thành phần chính trong RAG . . . . . . . . . . . . . . . . 20
+2.2.2.3 Quy trình hoạt động của hệ thống RAG . . . . . . . . . . . . . 21
+2.2.3 Các biến thể của RAG . . . . . . . . . . . . . . . . . . . . . . . . . 22
+2.3 GraphRAG: Mở rộng RAG với đồ thị tri thức . . . . . . . . . . . . . . . 24
+2.3.1 Đồ thị tri thức - Knowledge Graph . . . . . . . . . . . . . . . . . . 24
+2.3.1.1 Knowledge Graph là gì . . . . . . . . . . . . . . . . . . . . . 24
+2.3.1.2 Data Graphs . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+2.3.2 Quy trình xây dựng hệ thống GraphRAG . . . . . . . . . . . . . . . 27
+2.3.2.1 Giới thiệu về Graphrag . . . . . . . . . . . . . . . . . . . . . 27
+2.3.2.2 Phương pháp xây dựng Graphrag . . . . . . . . . . . . . . . . 28
+2.4 Tìm kiếm trong không gian vector . . . . . . . . . . . . . . . . . . . . . 31
+2.4.1 Tổng quan về phương pháp tìm kiếm trong không gian vector . . . . 31
+2.4.2 Mô hình Vision Transformer cho trích xuất đặc trưng ảnh . . . . . 33
+vii
+
+2.4.3 Biểu diễn ngữ nghĩa của văn bản với PhoBERT . . . . . . . . . . . 35
+2.4.4 Lưu trữ và tìm kiếm vector với Faiss . . . . . . . . . . . . . . . . . 36
+2.4.5 Kết hợp kết quả tìm kiếm và chọn lọc theo tiêu chí Minimum Bayes
+Risk (MBR) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+2.5 Tiểu kết chương 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+CHƯƠNG 3: XÂY DỰNG HỆ THỐNG CHATBOT CỬA HÀNG ĐỒ UỐNG V À
+CÁC CHỨC NĂNG CÁ NHÂN HÓA 41
+3.1 Mô tả cơ sở dữ liệu cửa hàng đồ uống . . . . . . . . . . . . . . . . . . . 41
+3.2 Quy trình tương tác người dùng với hệ thống . . . . . . . . . . . . . . . 43
+3.3 Chức năng xác minh danh tính người dùng thông qua khuôn mặt . . . 44
+3.3.1 Mô tả chức năng . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+3.3.2 Quy trình xác minh danh tính người dùng . . . . . . . . . . . . . . 46
+3.3.2.1 Mô hình phát hiện và trích xuất đặc trưng khuôn mặt . . . . . 46
+3.3.2.2 Lưu trữ và xác minh danh tính người dùng . . . . . . . . . . . 47
+3.3.3 Đánh giá hiệu quả xác thực danh tính người dùng . . . . . . . . . . 48
+3.3.3.1 Mô tả tập dữ liệu đữ liệu đánh giá . . . . . . . . . . . . . . . 48
+3.3.3.2 Đánh giá hiệu quả phất hiện khuôn mặt . . . . . . . . . . . . 49
+3.3.3.2 Đánh giá hiệu quả xác minh khuôn mặt . . . . . . . . . . . . 51
+3.3.4 Thiết kế giao diện xác minh người dùng . . . . . . . . . . . . . . . 53
+3.4 Quy trình triển khai và đánh giá hiệu quả hệ thống RAG và GraphRAG 55
+3.4.1 Xây dựng cơ sở dữ liệu vector và xử lí truy vấn trong RAG . . . . . 55
+3.4.1.1 Chuyển đổi dữ liệu quan hệ sang cơ sở dữ liệu vector . . . . . 55
+3.4.1.2 Xử lý truy vấn của người dùng . . . . . . . . . . . . . . . . . 57
+3.4.2 Xây dựng cơ sở dữ liệu đồ thị và xử lí truy vấn trong GraphRAG . . 60
+3.4.2.1 Xây dựng cơ sở dữ liệu đồ thị trong GraphRAG . . . . . . . . 60
+3.4.2.2 Xử lý truy vấn trong GraphRAG . . . . . . . . . . . . . . . . . 61
+3.4.3 Đánh giá hiệu quả truy xuất tài liệu (Retrieval) . . . . . . . . . . . 62
+3.4.3.1 Thiết lập thí nghiệm . . . . . . . . . . . . . . . . . . . . . . . 63
+3.4.3.2 Các độ đo đánh giá . . . . . . . . . . . . . . . . . . . . . . . 64
+3.4.3.3 Kết quả thí nghiệm . . . . . . . . . . . . . . . . . . . . . . . 65
+3.4.4 Chất lượng sinh câu trả lời (Generation) . . . . . . . . . . . . . . . 66
+3.4.4.1 Thiết lập thí nghiệm . . . . . . . . . . . . . . . . . . . . . . . 66
+3.4.4.2 Kết quả thí nghiệm . . . . . . . . . . . . . . . . . . . . . . . 67
+3.4.5 Thiết kế giao diện tương tác với chatbot . . . . . . . . . . . . . . . 68
+3.5 Quy trình triển khai và đánh giá chức năng tìm kiếm thông tin sản phẩm
+tương tự bằng hình ảnh . . . . . . . . . . . . . . . . . . . . . . . . . . . 70
+3.5.1 Mô tả chức năng . . . . . . . . . . . . . . . . . . . . . . . . . . . . 70
+3.5.2 Tìm kiếm thông tin sản phẩm tương tự dựa trên vector đặc trưng ảnh 71
+3.5.3 Tìm kiếm thông tin sản phẩm tương tự dựa trên mô tả ảnh được sinh
+từ LLM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72
+viii
+
+3.5.4 Kết hợp các phương pháp tìm kiếm và chọn top-k thông tin tốt nhất
+để tạo câu trả lời . . . . . . . . . . . . . . . . . . . . . . . . . . . 74
+3.5.4.1 Quy trình hợp nhất và chọn lọc thông tin theo tiêu chí Minimum
+Bayes Risk . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 74
+3.5.4.2 Tổng hợp thông tin và tạo câu trả lời bằng LLM . . . . . . . . 77
+3.5.5 Đánh giá hiệu năng tìm kiếm sản phẩm tương tự bằng hình ảnh . . . 78
+3.5.5.1 Mô tả tập dữ liệu đánh giá . . . . . . . . . . . . . . . . . . . 78
+3.5.5.2 Thiết lập thí nghiệm . . . . . . . . . . . . . . . . . . . . . . . 79
+3.5.5.3 Kết quả thí nghiệm . . . . . . . . . . . . . . . . . . . . . . . 80
+3.5.5.4 Phân tích và thảo luận . . . . . . . . . . . . . . . . . . . . . 81
+3.5.6 Giao diện chức năng tìm kiếm sản phẩm tương tự bằng hình ảnh . . . 83
+3.6 Tiểu kết chương 3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 84
+CHƯƠNG 4: KẾT LUẬN V À HƯỚNG PHÁT TRIỂN 85
+TÀI LIỆU THAM KHẢO 87
+ix
+
+MỞ ĐẦU
+1. Lý do chọn đề tài
+Trong thời đại chuyển đổi số và thương mại điện tử phát triển mạnh mẽ, trải nghiệm
+khách hàng đang dần trở thành yếu tố then chốt quyết định sự thành công của doanh
+nghiệp. Các hệ thống hỗ trợ tự động như chatbot không chỉ giúp doanh nghiệp tiết
+kiệm chi phí vận hành mà còn góp phần duy trì khả năng phục vụ liên tục, tức thời và
+nhất quán. Tuy nhiên, các chatbot truyền thống chủ yếu dựa trên các quy tắc định sẵn
+để trò chuyện với người dùng và cung cấp câu trả lời theo kịch bản, dẫn đến việc thiếu
+khả năng hiểu ngữ cảnh cũng như kém thích ứng theo hành vi và nhu cầu cụ thể của
+từng người dùng. Điều này gây ra trải nghiệm tương tác đơn điệu, thiếu chiều sâu và
+dễ dẫn đến cảm giác nhàm chán. Khoảng cách giữa kỳ vọng của khách hàng và năng
+lực thực tế của các chatbot truyền thống đang trở thành rào cản lớn trong việc nâng
+cao chất lượng dịch vụ.
+Các hệ thống chatbot thế hệ mới đã xuất hiện nhờ vào sự phát triển vượt bậc của
+các mô hình ngôn ngữ lớn (LLMs). Không còn chỉ giới hạn trong việc trả lời câu hỏi
+đơn giản, các chatbot hiện đại có khả năng sinh phản hồi linh hoạt, hiểu và duy trì
+ngữ cảnh hội thoại, đồng thời truy xuất tri thức theo thời gian thực nhờ tích hợp các
+kỹ thuật như Retrieval-Augmented Generation (RAG), Graph RAG. Điều này mở ra
+tiềm năng lớn trong việc cá nhân hóa tương tác và nâng cao chất lượng trải nghiệm
+người dùng.
+Xuất phát từ thực tiễn đó, nhóm chúng tôi lựa chọn đề tài “Xây dựng hệ thống
+chatbot cửa hàng đồ uống hỗ trợ các chức năng cá nhân hóa trải nghiệm khách hàng”,
+với mong muốn triển khai một mô hình chatbot thông minh, kết hợp giữa xử lý ngôn
+ngữ tự nhiên, học sâu và thị giác máy tính. Hệ thống được thiết kế nhằm hỗ trợ khách
+hàng nhận tư vấn trực tiếp thông qua thiết bị đặt tại quầy order hoặc thiết bị di động
+cá nhân bằng cách quét mã QR tại quầy, từ đó nâng cao sự chủ động và tiện lợi
+trong tương tác. Cách tiếp cận này vừa giúp giảm tải cho nhân viên, vừa mang lại trải
+nghiệm cá nhân hóa, nhanh chóng và linh hoạt cho khách hàng, đặc biệt phù hợp với
+xu hướng tiêu dùng hiện đại trong ngành dịch vụ ăn uống.
+1
+
+Việc thực hiện đề tài không chỉ giúp nhóm vận dụng các kiến thức đã học vào
+một bài toán thực tiễn có tính ứng dụng cao, mà còn rèn luyện tư duy hệ thống, kỹ
+năng triển khai sản phẩm công nghệ theo hướng hiện đại và phù hợp với nhu cầu thị
+trường.
+2. Mục tiêu của khóa luận
+Khóa luận hướng đến việc nghiên cứu và triển khai một hệ thống chatbot hiện đại
+có khả năng hiểu ngữ cảnh và phản hồi linh hoạt dựa trên nhu cầu cá nhân của từng
+người dùng. Tích hợp các chức năng như xác minh danh tích khách hàng thông qua
+khuôn mặt để nhận biến được khách hàng thân quen và tìm kiếm thông tin sản phẩm
+tương tự bằng hình ảnh nhằm nâng cao trải nghiệm người dùng trong môi trường
+tương tác tự động.
+3. Đối tượng và phạm vi nghiên cứu của khóa luận
+• Đối tượng nghiên cứu:
+– Tìm hiểu và ứng dụng công nghệ RAG (Retrieval-Augmented Genera-
+tion), Graph RAG cho bài toán hỏi–đáp tư vấn dịch vụ cửa hàng đồ uống.
+– Xây dựng module xác minh danh tính người dùng bằng khuôn mặt sử
+dụng mô hình phát hiện và nhận diện khuôn mặt để cá nhân hóa trải nghiệm
+tương tác.
+– Xây dựng chức năng tìm kiếm thông tin sản phẩm tương tự bằng hình
+ảnh để hỗ trợ việc truy xuất thông tin sản phẩm một cách trực quan và tiện
+lợi.
+• Phạm vi nghiên cứu: Tập trung vào nghiên cứu và xây dựng chatbot cho bài
+toán hỏi–đáp tư vấn dịch vụ cửa hàng đồ uống.
+2
+
+4. Phân công nhiệm vụ trong nhóm thực hiện khóa luận
+Khóa luận được thực hiện bởi hai thành viên trong nhóm. Mỗi người đảm nhiệm
+một số nội dung chuyên sâu, phù hợp với định hướng nghiên cứu và thế mạnh cá nhân,
+góp phần hoàn thiện hệ thống chatbot một cách hiệu quả và toàn diện. Cụ thể:
+• Sinh viên Trần Văn Hoàng: Phụ trách nghiên cứu và triển khai chức năng tìm
+kiếm sản phẩm tương tự bằng hình ảnhbằng cách ứng dụng các kỹ thuật thị
+giác máy tính và mô hình học sâu hiện đại như Vision Transformer và tìm kiếm
+vector bằng Faiss. Ngoài ra, Hoàng chịu trách nhiệm tích hợp công nghệ RAG
+để xây dựng chatbot hỏi đáp thông tin cửa hàng đồ uống.
+• Sinh viên Trần Thị Thanh Huệ: Chịu trách nhiệm nghiên cứu và phát triển
+chức năng xác minh danh tính người dùng thông qua khuôn mặt , với các
+mô hình như RetinaFace và ArcFace nhằm phục vụ mục tiêu cá nhân hóa trải
+nghiệm người dùng. Đồng thời, Huệ đảm nhiệm tích hợp Graph RAG để khai
+thác dữ liệu từ đồ thị tri thức từ đó so sánh kết quả đánh giá với RAG.
+Việc phân công nhiệm vụ rõ ràng giúp từng thành viên tập trung phát triển chuyên
+sâu các thành phần trong hệ thống, đồng thời phối hợp hiệu quả để hoàn thiện sản
+phẩm mang tính thực tiễn và ứng dụng cao.
+5. Cấu trúc khóa luận
+Ngoài phần Mở đầu, nội dung chính của khóa luận được tổ chức thành bốn chương,
+phản ánh tiến trình nghiên cứu và phát triển hệ thống chatbot cá nhân hóa trong ứng
+dụng tại cửa hàng đồ uống. Cụ thể như sau:
+CHƯƠNG 1 - Tổng quan : Chương đầu tiên cung cấp cái nhìn khái quát về lĩnh
+vực chatbot, nêu bật vai trò của các hệ thống hội thoại trong giao tiếp người – máy,
+đặc biệt trong môi trường dịch vụ. Tầm quan trọng của yếu tố cá nhân hóa được phân
+tích nhằm làm rõ động lực nghiên cứu. Bên cạnh đó, chương cũng điểm qua các thách
+thức kỹ thuật trong việc phát triển chatbot hướng cá nhân, cũng như các phương pháp
+tiếp cận đang được quan tâm hiện nay.
+3
+
+CHƯƠNG 2 - Cơ sở lý thuyết : Chương này trình bày nền tảng khoa học và công
+nghệ phục vụ cho việc xây dựng hệ thống. Nội dung bao gồm các kỹ thuật xử lý
+khuôn mặt (RetinaFace, ArcFace), mô hình sinh câu trả lời kết hợp truy xuất thông tin
+(RAG, GraphRAG), các phương pháp biểu diễn và tìm kiếm trong không gian vector
+(PhoBERT, Vision Transformer, Faiss), cùng kỹ thuật chọn lọc kết quả theo tiêu chí
+Minimum Bayes Risk. Những nội dung này tạo cơ sở lý luận cho các bước phát triển
+và đánh giá hệ thống ở các chương sau.
+CHƯƠNG 3 - Xây dựng và đánh giá hệ thống : Chương này mô tả quá trình hiện
+thực hóa hệ thống chatbot cá nhân hóa trong ngữ cảnh cửa hàng đồ uống. Hệ thống
+bao gồm ba chức năng chính: xác minh người dùng bằng khuôn mặt, truy xuất và sinh
+phản hồi dựa trên văn bản, và tìm kiếm sản phẩm tương tự thông qua ảnh. Từng chức
+năng được trình bày từ thiết kế, triển khai kỹ thuật đến đánh giá thực nghiệm thông
+qua các bộ chỉ số định lượng. Ngoài ra, chương cũng đề cập đến giao diện người dùng,
+đảm bảo khả năng tương tác hiệu quả với hệ thống.
+CHƯƠNG 4 - Kết luận và hướng phát triển : Chương cuối tổng hợp các kết quả
+đạt được trong suốt quá trình nghiên cứu, đồng thời đưa ra những nhận định tổng quan
+về hiệu quả và khả năng ứng dụng của hệ thống. Trên cơ sở đó, một số hướng mở rộng
+được đề xuất để nâng cao độ chính xác trong tìm kiếm ảnh tương tự, cải thiện hiệu
+năng truy xuất thông tin, mở rộng mô hình cá nhân hóa dựa trên hành vi người dùng,
+và tích hợp hệ thống vào các môi trường triển khai thực tiễn.
+4
+
+NỘI DUNG
+CHƯƠNG 1: TỔNG QUAN
+1.1 Giới thiệu về hệ thống chatbot
+Khái niệm: Chatbot, viết tắt của “chatting robot”, là một hệ thống được thiết kế để
+mô phỏng các cuộc trò chuyện giữa con người và máy tính thông qua văn bản hoặc
+giọng nói [1]. Đây là một ứng dụng tiêu biểu của trí tuệ nhân tạo(AI) và xử lý ngôn
+ngữ tự nhiên (NLP), cho phép máy tính hiểu và phản hồi lại các yêu cầu bằng ngôn
+ngữ tự nhiên.
+Mục tiêu và vai trò: Mục tiêu chính của hệ thống chatbot là hỗ trợ người dùng
+thực hiện các tác vụ thông qua hội thoại tự nhiên, chẳng hạn như truy vấn thông tin,
+đặt lịch, hỗ trợ kỹ thuật, tư vấn sản phẩm hoặc cung cấp dịch vụ khách hàng. Việc sử
+dụng chatbot không chỉ giảm thiểu sự phụ thuộc vào nhân sự mà còn giúp hệ thống
+có khả năng phục vụ liên tục 24/7 với hiệu suất cao.
+Ngoài ra, chatbot còn đóng vai trò quan trọng trong cá nhân hóa trải nghiệm người
+dùng, nâng cao mức độ hài lòng và hỗ trợ thu thập dữ liệu hành vi để cải tiến dịch vụ.
+Với xu hướng số hóa toàn diện, chatbot ngày càng trở thành một thành phần cốt lõi
+trong chiến lược chuyển đổi số của doanh nghiệp và tổ chức
+Phạm vi ứng dụng hiện nay: Chatbot ngày nay được ứng dụng trong nhiều lĩnh
+vực khác nhau như:
+• Chăm sóc khách hàng: Trả lời câu hỏi thường gặp, tiếp nhận khiếu nại và hỗ
+trợ người dùng.
+• Thương mại điện tử: Tư vấn sản phẩm, gợi ý mua sắm, theo dõi đơn hàng và
+phản hồi giao dịch.
+• Giáo dục: Hỗ trợ học tập, nhắc nhở lịch học, kiểm tra nhanh kiến thức.
+• Tài chính – ngân hàng: Cung cấp thông tin tài khoản, tra cứu lịch sử giao dịch
+và tư vấn dịch vụ.
+5
+
+1.2 Tầm quan trọng của cá nhân hóa trong tương tác người
+– máy
+Trong bối cảnh chuyển đổi số diễn ra mạnh mẽ, cá nhân hóa (personalization) ngày
+càng đóng vai trò trung tâm trong việc phát triển các hệ thống tương tác người – máy.
+Cá nhân hóa không chỉ là một tính năng bổ sung, mà đã trở thành yêu cầu thiết yếu để
+nâng cao trải nghiệm người dùng, tăng cường hiệu quả giao tiếp và tối ưu hóa chức
+năng của hệ thống. Nhiều nghiên cứu đã chỉ ra rằng các hệ thống có khả năng thích
+ứng với nhu cầu, hành vi và sở thích cụ thể của người dùng có thể dẫn đến mức độ hài
+lòng cao hơn, mức độ tương tác sâu hơn, cũng như tỷ lệ giữ chân người dùng lớn hơn
+[3].
+Theo [14], cá nhân hóa được định nghĩa là quá trình điều chỉnh nội dung, hành vi
+hoặc phản hồi của hệ thống dựa trên đặc điểm cá nhân, lịch sử tương tác, mục tiêu và
+ngữ cảnh sử dụng của từng người dùng. Trong các hệ thống đối thoại như chatbot, trợ
+lý ảo, hay các nền tảng khuyến nghị, cá nhân hóa cho phép hệ thống chuyển từ giao
+tiếp một chiều, mang tính chung chung sang các cuộc đối thoại đa chiều, mang màu
+sắc cá nhân, gần gũi và tự nhiên hơn. Điều này giúp người dùng cảm thấy được thấu
+hiểu, từ đó tăng mức độ tin tưởng và gắn bó với hệ thống.
+Hơn nữa, cá nhân hóa cũng đóng vai trò quan trọng trong việc nâng cao hiệu quả
+vận hành của hệ thống. Trong thương mại điện tử, hệ thống khuyến nghị cá nhân hóa
+có thể làm tăng tỷ lệ chuyển đổi đơn hàng nhờ gợi ý phù hợp với lịch sử mua sắm [11].
+Trong giáo dục, các hệ thống học tập thích ứng có thể điều chỉnh lộ trình và nội dung
+học theo từng người học [7]. Trong chăm sóc sức khỏe, cá nhân hóa giúp hệ thống
+đưa ra khuyến nghị điều trị phù hợp với hồ sơ y tế cá nhân [20].
+Trong phạm vi khóa luận này, cá nhân hóa được xem xét thông qua hai công nghệ
+hỗ trợ tiêu biểu. Thứ nhất, xác minh danh tính bằng khuôn mặt là một bước quan trọng
+trong việc nhận diện người dùng và truy xuất hồ sơ tương tác để cung cấp phản hồi
+phù hợp. Thứ hai, tìm kiếm sản phẩm bằng hình ảnh là một phương pháp cá nhân hóa
+dựa trên nội dung trực quan, vốn ngày càng phổ biến trong các nền tảng thương mại
+điện tử. Các hệ thống như DeepFashion [19] cho thấy khả năng kết hợp nhận dạng
+6
+
+hình ảnh với truy xuất sản phẩm mang lại trải nghiệm cá nhân hóa hiệu quả và tự
+nhiên hơn.
+1.3 Những thách thức trong phát triển và triển khai hệ
+thống chatbot
+Mặc dù chatbot mang lại nhiều tiềm năng trong việc nâng cao hiệu quả giao tiếp
+người–máy, quá trình phát triển và triển khai một hệ thống chatbot thực tế vẫn đối mặt
+với nhiều thách thức phức tạp, cả về kỹ thuật, vận hành và đạo đức.
+• Chatbot thường gặp khó khăn trong việc hiểu đúng ý định của người dùng.
+Ngôn ngữ tự nhiên mang tính đa nghĩa, mơ hồ và phụ thuộc mạnh vào ngữ cảnh,
+nên việc trích xuất chính xác ý định (intent) và thực thể (entity) là một nhiệm
+vụ khó[1]. Các biến thể về cách diễn đạt, lỗi chính tả, từ viết tắt, tiếng lóng và
+thậm chí yếu tố cảm xúc có thể làm giảm hiệu suất trả lời của chatbot.
+• Chất lượng của chatbot phụ thuộc lớn vào dữ liệu huấn luyện. Đối với các
+hệ thống học máy, việc xây dựng tập dữ liệu lớn, đầy đủ ngữ cảnh và được gán
+nhãn chính xác là điều kiện tiên quyết để đảm bảo hiệu năng của mô hình. Tuy
+nhiên, việc thu thập và xử lý dữ liệu không chỉ tốn kém về chi phí mà còn đặt ra
+bài toán về quyền riêng tư và bảo mật.
+• Chatbot dễ bị giới hạn trong xử lý hội thoại dài hạn hoặc tương tác đa vòng.
+Hầu hết các chatbot hiện tại vẫn còn yếu trong việc ghi nhớ trạng thái hội thoại
+và duy trì tính nhất quán xuyên suốt cuộc đối thoại, đặc biệt khi hội thoại kéo
+dài hoặc thay đổi chủ đề đột ngột.
+• Vấn đề đạo đức và bảo mật là một thách thức nghiêm trọng. Chatbot có thể
+vô tình tiết lộ thông tin cá nhân của người dùng, đưa ra phản hồi mang tính thiên
+vị hoặc tiếp nhận những nội dung độc hại nếu không được kiểm soát chặt chẽ.
+Việc sử dụng chatbot trong các lĩnh vực nhạy cảm như y tế, giáo dục, tài chính
+càng đòi hỏi các tiêu chuẩn cao về bảo vệ dữ liệu và tuân thủ quy định pháp lý.
+Việc phát triển và triển khai chatbot không chỉ là bài toán về kỹ thuật xử lý
+7
+
+ngôn ngữ tự nhiên, mà còn đòi hỏi sự kết hợp giữa công nghệ, quản lý dữ liệu,
+giao diện người dùng và đạo đức ứng dụng. Những thách thức này là động lực
+để cộng đồng nghiên cứu tiếp tục phát triển các mô hình hiệu quả hơn, toàn diện
+hơn và có khả năng ứng dụng thực tiễn cao hơn trong tương lai.
+1.4 Các hướng tiếp cận
+Theo [1], các hệ thống chatbot có thể được xây dựng theo nhiều hướng tiếp cận, tùy
+thuộc vào kỹ thuật xử lý ngôn ngữ và chiến lược phản hồi.
+(a) Rule-based (Dựa trên luật): Hệ thống sử dụng tập luật hoặc mẫu được định
+nghĩa trước để so khớp với đầu vào và trả về phản hồi tương ứng. Phù hợp với các tác
+vụ lặp lại, phạm vi hẹp như hỗ trợ kỹ thuật hoặc FAQ. Tuy nhiên, phương pháp này
+thiếu linh hoạt, không xử lý tốt ngữ cảnh dài hoặc truy vấn ngoài kịch bản.
+Hình 1.1: Minh họa hệ thống chatbot rule-based (Nguồn: [24])
+(b) Dựa trên học máy (Machine Learning): Trong hướng tiếp cận này, chatbot
+được xây dựng dựa trên các mô hình học sâu như Recurrent Neural Networks (RNN),
+Long Short-Term Memory (LSTM), Seq2Seq hoặc Transformer, kết hợp với các kỹ
+thuật xử lý ngôn ngữ tự nhiên (NLP) để hiểu và sinh ra câu trả lời.
+Có hai loại phổ biến:
+Retrieval-based: Chatbot lựa chọn câu trả lời phù hợp nhất từ một tập hợp phản
+hồi đã được xác định trước, thông qua tính toán độ tương đồng ngữ nghĩa giữa câu hỏi
+8
+
+và các mẫu có sẵn [30].
+Generative-based: Hệ thống sinh ra câu trả lời mới hoàn toàn dựa trên mô hình
+học ngôn ngữ, không phụ thuộc vào tập dữ liệu phản hồi có sẵn. Đây là cơ sở cho các
+chatbot sử dụng mô hình ngôn ngữ lớn (Large Language Models) như GPT [34].
+Phương pháp học máy mang lại tính linh hoạt cao, khả năng mở rộng và thích nghi
+với nhiều ngữ cảnh hội thoại khác nhau. Tuy nhiên, nó đòi hỏi lượng dữ liệu huấn
+luyện lớn, tài nguyên tính toán đáng kể và có nguy cơ tạo ra phản hồi không phù hợp
+hoặc thiếu chính xác nếu không được kiểm soát cẩn thận
+(c) Retrieval-Augmented Generation (RAG) và GraphRAG: RAG kết hợp truy
+xuất thông tin từ cơ sở tri thức bên ngoài và sinh phản hồi bằng LLM nhằm cải thiện
+tính cập nhật và độ chính xác [18]. GraphRAG mở rộng RAG bằng cách trích xuất
+thực thể và quan hệ để xây dựng đồ thị tri thức, từ đó hỗ trợ trả lời các truy vấn nhiều
+bước hoặc phức tạp tốt hơn [26].
+(d) Hybrid (Kết hợp): Để tận dụng ưu điểm của cả hai phương pháp nêu trên,
+nhiều hệ thống chatbot hiện đại áp dụng hướng tiếp cận lai, trong đó kết hợp quy tắc
+và học máy. Ví dụ, chatbot có thể sử dụng luật cố định cho các tình huống nhạy cảm
+hoặc thường gặp, đồng thời áp dụng mô hình học máy cho các đoạn hội thoại mở hoặc
+có tính biến động cao. Cách tiếp cận này vừa đảm bảo tính ổn định và kiểm soát, vừa
+nâng cao khả năng tương tác tự nhiên và thích ứng với người dùng [1].
+1.5 Tiểu kết chương 1
+Chương 1 đã cung cấp một cái nhìn toàn diện về hệ thống chatbot trong bối cảnh
+chuyển đổi số, làm rõ vai trò và tiềm năng của công nghệ này trong việc nâng cao trải
+nghiệm người dùng. Đồng thời, chương cũng nêu bật những thách thức cốt lõi mà các
+hệ thống chatbot hiện nay đang đối mặt, từ hạn chế trong hiểu ngữ cảnh đến những
+vấn đề về đạo đức và bảo mật. Những nội dung này không chỉ làm rõ bức tranh tổng
+thể về chatbot mà còn đặt nền tảng quan trọng cho các chương sau, nơi các giải pháp
+kỹ thuật và định hướng phát triển sẽ được trình bày chi tiết hơn.
+9
+
+CHƯƠNG 2: CƠ SỞ LÝ THUYẾT
+2.1 Phát hiện và nhận diện khuôn mặt
+2.1.1 Phát hiện khuôn mặt với RetinaFace
+2.1.1.1 Giới thiệu về RetinaFace
+RetinaFace là một phương pháp phát hiện khuôn mặt một giai đoạn (single-stage
+face detector) được đề xuất trong bài báo “RetinaFace: Single-stage Dense Face Lo-
+calisation in the Wild” (2019)[5]. Khác với nhiều hệ thống phát hiện khuôn mặt truyền
+thống vốn tách riêng nhiệm vụ phát hiện và căn chỉnh khuôn mặt (face alignment),
+RetinaFace thực hiện đồng thời nhiều nhiệm vụ bao gồm: Phát hiện bounding box của
+khuôn mặt. Dự đoán các điểm mốc (facial landmarks) như mắt, mũi, miệng. Tái dựng
+hình dạng 3D khuôn mặt với các tọa độ lưới hình học (3D face mesh). Mô hình được
+xây dựng trên nền tảng của hệ phát hiện đối tượng RetinaNet và được mở rộng với
+kiến trúc Feature Pyramid Network (FPN) và các đầu ra đa nhiệm (multi-task heads),
+cho phép mô hình học được các biểu diễn mạnh mẽ về không gian và hình học khuôn
+mặt.
+RetinaFace được thiết kế để xử lý hình ảnh "in the wild" - hình ảnh thu được trong
+các điều kiện tự nhiên, không được kiểm soát (góc nghiêng, ánh sáng phức tạp, che
+khuất, độ phân giải thấp). Điểm đặc biệt của RetinaFace là khả năng học biểu diễn
+hình học khuôn mặt 3D trực tiếp từ dữ liệu không có gán nhãn lưới 3D thông qua cơ
+chế tự giám sát (self-supervised learning), mở rộng khả năng hiểu và khái quát hóa
+hình dạng khuôn mặt theo không gian ba chiều.
+Bên cạnh đó, RetinaFace còn cải tiến đáng kể hiệu năng so với các hệ thống phát
+hiện khuôn mặt trước đây nhờ kết hợp các kỹ thuật: Focal Loss giúp xử lý mất cân
+bằng mẫu giữa khuôn mặt và nền. Tối ưu hóa huấn luyện đa nhiệm, giúp cải thiện độ
+chính xác các tác vụ đồng thời. Thiết kế anchor phù hợp với hình dạng và tỷ lệ khuôn
+mặt thực tế. Nhờ các cải tiến này, RetinaFace trở thành một trong những mô hình phát
+hiện khuôn mặt chính xác và hiệu quả nhất trong môi trường tự nhiên, đóng vai trò
+10
+
+quan trọng trong nhiều hệ thống ứng dụng như nhận diện khuôn mặt, theo dõi đối
+tượng, phân tích cảm xúc.
+2.1.1.2 Kiến trúc của RetinaFace
+Hình 2.1: Minh họa kiến trúc RetinaFace (Nguồn: [5])
+RetinaFace kế thừa ý tưởng từ RetinaNet – một mô hình phát hiện đối tượng một
+giai đoạn (one-stage object detector), và mở rộng với các thành phần chuyên biệt cho
+bài toán phát hiện khuôn mặt:
+• Backbone: là thành phần chịu trách nhiệm trích xuất đặc trưng không gian và
+ngữ nghĩa từ ảnh đầu vào. Trong RetinaFace, kiến trúc phổ biến ResNet-50 được
+sử dụng làm backbone nhờ khả năng học các đặc trưng sâu và ổn định trên tập
+dữ liệu lớn. Mỗi tầng trong mạng ResNet sẽ tạo ra các đặc trưng ở độ phân giải
+khác nhau.
+• FPN (Feature Pyramid Network): để phát hiện khuôn mặt hiệu quả ở nhiều kích
+thước khác nhau, RetinaFace sử dụng cấu trúc Feature Pyramid Network (FPN)
+nhằm tạo ra một tập đặc trưng đa tỉ lệ. Nhờ FPN, RetinaFace đạt được khả năng
+multi-scale detection, phát hiện khuôn mặt hiệu quả ngay cả trong điều kiện bị
+che khuất, xoay góc lớn hoặc rất nhỏ.. FPN kết hợp các đặc trưng từ các tầng
+sâu và nông bằng cách:
+– Truyền ngược (top-down pathway): phóng to các đặc trưng từ tầng cao
+hơn và kết hợp với tầng thấp hơn bằng phép cộng phần tử (element-wise
+11
+
+addition).
+– Tạo ra các tầng P3 đến P7 tương ứng với các đặc trưng ở các cấp độ khác
+nhau, được sử dụng để dự đoán bounding box, landmarks và xác suất khuôn
+mặt ở tỉ lệ phù hợp với P3 nhắm tới các khuôn mặt nhỏ, P4 phát hiện khuôn
+mặt trung bình, P5 phát hiện khuôn mặt lớn, P6, P7 để xử lý đối tượng rất
+lớn hoặc làm tầng tham chiếu ngữ cảnh.
+• Contextual Modules: một trong những điểm cải tiến quan trọng trong RetinaFace
+là việc tích hợp các mô-đun ngữ cảnh (contextual modules) vào mỗi tầng đặc
+trưng trong FPN. Các mô-đun này được xây dựng dựa trên kiến trúc convolution
+mở rộng (dilated convolutions), nhằm mở rộng trường nhìn (receptive field) mà
+không làm giảm độ phân giải không gian.
+• Anchor-based Dense Prediction: RetinaFace kế thừa cơ chế anchor-based từ
+RetinaNet để thực hiện dự đoán dày đặc trên các tầng đặc trưng P3–P7 của
+FPN. Tại mỗi vị trí trên bản đồ đặc trưng, mô hình sinh ra nhiều anchor boxes
+với các tỷ lệ (1:1, 1:1.5, 1:2) và kích thước khác nhau, nhằm bao phủ đầy đủ các
+kiểu khuôn mặt. Kiến trúc anchor-based giúp mô hình phát hiện khuôn mặt hiệu
+quả ở nhiều kích thước và vị trí, đồng thời tích hợp linh hoạt các nhiệm vụ phụ.
+Cơ chế này cũng tận dụng focal loss để xử lý mất cân bằng giữa anchor dương
+và âm, cải thiện đáng kể độ chính xác.
+• Multi-task Heads: Tại mỗi tầng đặc trưng, mô hình triển khai ba nhánh dự đoán:
+Classification Head - ước lượng xác suất chứa khuôn mặt. Bounding Box Head
+- dự đoán khung chứa (x, y, w, h). Landmark Head - dự đoán tọa độ của 5 điểm
+landmark (2D) gồm: hai mắt, chóp mũi, hai khóe miệng. Mỗi điểm landmark
+được biểu diễn bằng cặp tọa độ (x, y), tổng cộng 10 giá trị cho mỗi anchor.
+• Loss Function: RetinaFace sử dụng hàm mất mát tổng hợp từ ba thành phần
+chính tương ứng với ba nhiệm vụ với công thức như sau:
+L = Lcls(pi, p∗
+i ) + λ1p∗
+i Lbox(ti, t∗
+i ) + λ2p∗
+i Lpts(li, l∗
+i ) + λ3p∗
+i Lpixel (1)
+Trong đó:
+12
+
+– Lcls(pi, p∗
+i ): Hàm focal loss cho nhiệm vụ phân loại (classification).
+– Lbox(ti, t∗
+i ): Hàm Smooth L1 loss cho hồi quy bounding box.
+– Lpts(li, l∗
+i ): Hàm Smooth L1 loss cho hồi quy landmark (5 điểm mốc khuôn
+mặt).
+– Lpixel: Hàm pixel-wise loss phục vụ các tác vụ mở rộng như tái dựng khuôn
+mặt 3D (nếu có).
+– pi: Xác suất mô hình dự đoán anchor i chứa khuôn mặt.
+– p∗
+i ∈ {0, 1}: Nhãn thực tế của anchor i (1 nếu là mặt, 0 nếu không).
+– ti, t∗
+i : Vector tọa độ bounding box được dự đoán và nhãn thực tại anchor i.
+– li, l∗
+i : Vector tọa độ landmark được dự đoán và nhãn thực tại anchor i.
+– λ1, λ2, λ3: Hệ số trọng số điều chỉnh mức ảnh hưởng của từng nhánh loss.
+• Anchor Matching: Anchor được gán nhãn theo IoU là Positive nếu IoU > 0.5,
+Negative nếu IoU < 0.4, Ignored nếu 0.4 ≤ IoU ≤ 0.5. Chỉ các anchor positive
+mới được dùng huấn luyện landmark và regression.
+• Multi-task Training: RetinaFace được huấn luyện đồng thời ba tác vụ: phân loại,
+hồi quy bounding box và landmark. Tối ưu bằng SGD hoặc Adam, kết hợp các
+kỹ thuật augmentation giúp tăng khả năng tổng quát. Huấn luyện đa nhiệm giúp
+mô hình học được biểu diễn đặc trưng chung, hội tụ nhanh và ổn định hơn.
+2.1.2 Nhận diện khuôn mặt với ArcFace
+2.1.2.1 Tổng quan về ArcFace
+ArcFace (Additive Angular Margin Loss for Deep Face Recognition)[4] là một
+phương pháp đột phá trong lĩnh vực nhận diện khuôn mặt. Mục tiêu chính của Ar-
+cFace là nâng cao độ phân biệt của vector đặc trưng khuôn mặt bằng cách tối ưu trực
+tiếp khoảng cách góc giữa embedding và trọng số lớp trên mặt cầu đơn vị. Khác với
+Softmax truyền thống chỉ điều chỉnh dựa trên tích vô hướng, ArcFace bổ sung biên
+góc cộng thêm (additive angular margin), buộc các vector thuộc cùng một danh tính
+13
+
+phải nằm gần nhau hơn (góc nhỏ hơn) và đồng thời đẩy các nhóm vector của các danh
+tính khác xa nhau (góc lớn hơn) với một ngưỡng rõ ràng.
+Phương pháp này đạt được những cải thiện đáng kể về tính phân biệt (discrimi-
+native power) mà vẫn duy trì tính ổn định trong quá trình huấn luyện. Nhờ cơ chế
+biên góc, ArcFace không cần đến các chiến lược lựa chọn cặp mẫu khó (hard sample
+mining) phức tạp như Triplet Loss, đồng thời cung cấp một minh giải hình học rõ ràng
+về ranh giới quyết định (decision boundary) trên mặt cầu đơn vị.
+2.1.2.2 Phương pháp của Arcface
+Hình 2.2: Minh họa phương pháp của Arcface (Nguồn: [4])
+1. Backbone Network
+• ArcFace sử dụng một mạng trích xuất đặc trưng sâu (feature extractor) như
+ResNet-50, ResNet-100, hoặc MobileFaceNet để chuyển ảnh khuôn mặt
+đầu vào thành một vector đặc trưng có độ dài cố định. Ảnh đầu vào được
+căn chỉnh và chuẩn hóa về kích thước 112×112×3.
+• Tầng cuối backbone bao gồm global average pooling và một fully con-
+nected layer không bias để tạo vector đặc trưng xi ∈ Rd, với d = 512
+2. Chuẩn hóa L2 (L2 Normalization)
+• Mục đích: Để đảm bảo embedding và trọng số lớp đều nằm trên mặt cầu
+đơn vị, ta áp dụng chuẩn hóa L2, giúp tích vô hướng giữa các vector tương
+đương với cosine của góc giữa chúng.
+14
+
+• Với embedding chưa chuẩn hóa xi ∈ Rd sinh ra từ backbone, ta tính:
+fi = xi
+∥xi∥2
+, ∥fi∥2 = 1. (2)
+• Tương tự, mỗi vector trọng số wj ∈ Rd của lớp phân loại cuối được chuẩn
+hóa:
+Wj = wj
+∥wj∥2
+, ∥Wj∥2 = 1. (3)
+• Khi cả embedding và trọng số đã được chuẩn hóa, tích vô hướng cho mỗi
+cặp (i, j) cho kết quả:
+WT
+j fi = cos(θij),
+trong đó θij là góc giữa fi và Wj trên mặt cầu đơn vị.
+3. Additive Angular Margin
+• Mục đích: Bổ sung biên góc m vào góc của lớp đúng để tăng độ phân biệt
+giữa các lớp.
+• Công thức:
+cos(θyi + m) = cos( θyi) cos(m) − sin(θyi) sin(m), (4)
+Trong đó:
+– yi là nhãn lớp đúng của mẫu i.
+– m ∈ [0.3, 0.7] (radian) là biên góc cộng thêm.
+• Trong không gian mặt cầu đơn vị, biên gócm tạo ra ranh giới quyết định rõ
+ràng giữa các lớp, giúp embedding của cùng một lớp tập trung hơn và các
+lớp khác tách biệt hơn
+4. Logit Scaling
+• Mục đích: Giá trị cosine nằm trong khoảng [−1, 1] dẫn đến gradient nhỏ,
+cần hệ số s để khuếch đại logits và đảm bảo gradient đủ mạnh khi huấn
+luyện.
+• Áp dụng:
+15
+
+– Logits của lớp đúng: s · cos(θyi + m).
+– Logits của các lớp khác: s · cos(θj).
+• Giá trị điển hình:s thường được chọn trong khoảng [30, 64].
+5. Hàm mất mát (Additive Angular Margin Softmax Loss): Hàm mất mát ArcFace
+mở rộng softmax thông thường bằng logits đã áp margin và scale:
+L = − 1
+N
+NX
+i=1
+log es cos(θyi +m)
+es cos(θyi +m) +P
+j̸=yi
+es cos(θj) . (5)
+Trong đó:
+• N là kích thước mini-batch.
+• s là hệ số scale, điều chỉnh độ lớn gradient.
+• m là additive angular margin.
+Hàm mất mát chỉ thay đổi logits của lớp đúng, giữ logits các lớp khác không
+đổi, tạo ranh giới góc rõ ràng.
+6. Ranh giới quyết định (Decision Boundary): Khi tối ưu loss (5), mẫu i được phân
+vào lớp yi nếu:
+cos(θyi + m) > cos(θj), ∀j ̸= yi.
+Biên góc m tạo ra một vùng an toàn (margin) giữa các lớp trên mặt cầu, tối ưu
+hóa hiệu suất nhận diện.
+2.2 Truy xuất tăng cường bằng sinh văn bản (Retrieval-
+Augmented Generation - RAG
+2.2.1 Mô hình ngôn ngữ lớn (LLM) – Nền tảng của RAG
+2.2.1.1 LLM là gì?
+Mô hình ngôn ngữ lớn (LLM)[31] là một dạng mô hình học sâu được huấn luyện
+trên tập dữ liệu văn bản có quy mô rất lớn nhằm nắm bắt các đặc trưng phức tạp của
+ngôn ngữ tự nhiên, bao gồm cú pháp, ngữ nghĩa, ngữ cảnh và cấu trúc câu. Nhờ khả
+16
+
+năng học biểu diễn ngôn ngữ từ dữ liệu đa dạng, các LLM có thể sinh văn bản mạch
+lạc như con người và thực hiện hiệu quả nhiều tác vụ xử lý ngôn ngữ tự nhiên ( NLP)
+như dịch máy, tóm tắt văn bản, phân loại văn bản, trả lời câu hỏi, hoặc trò chuyện tự
+động.
+So với các mô hình truyền thống, LLM thường được huấn luyện theo phương pháp
+không giám sát hoặc bán giám sát, tức là mô hình học từ ngữ cảnh và cấu trúc nội
+tại của văn bản thay vì chỉ dựa vào các dữ liệu đã gán nhãn sẵn. Điều này giúp LLM
+khai thác tri thức tiềm ẩn trong dữ liệu một cách linh hoạt, mở rộng khả năng áp dụng
+trong nhiều tình huống thực tế.
+Hiện nay, nhiều mô hình LLM đã được phát triển với quy mô, mục tiêu và khả
+năng khác nhau. Bảng 2.1 dưới đây tổng hợp một số mô hình ngôn ngữ lớn tiêu
+biểu[31], cùng thông tin về tổ chức phát triển, số lượng tham số và đặc điểm nổi bật.
+Bảng 2.1: Một số mô hình ngôn ngữ lớn tiêu biểu
+Mô hình Tổ chức phát
+triển Tham số Ghi chú
+GPT-3 OpenAI 175B Sinh văn bản đa nhiệm, nền
+tảng cho ChatGPT.
+GPT-4 OpenAI ∼1.7T Mô hình đa phương thức, khả
+năng suy luận mạnh.
+BERT Google 110M–340M Mã hóa ngữ cảnh hai chiều,
+phổ biến trong NLP .
+PaLM 2 Google >540B Mô hình đa ngôn ngữ, hỗ trợ
+nhiều tác vụ.
+LLaMA Meta AI 7B–65B Mã nguồn mở, tối ưu cho môi
+trường giới hạn tài nguyên.
+Mistral Mistral AI 7B–12.9B Mô hình nhẹ, hiệu quả cao.
+2.2.1.2 Kiến trúc nền tảng của LLM
+Phần lớn các mô hình ngôn ngữ lớn hiện nay đều được xây dựng dựa trên kiến trúc
+Transformer minh họa ở Hình 2.3, được giới thiệu lần đầu bởi Vaswani et al. vào năm
+2017 trong công trình “Attention Is All You Need” [28]. Khác với các mô hình tuần tự
+truyền thống như RNN hay LSTM, Transformer sử dụng cơ chế self-attention nhằm
+17
+
+mô hình hóa mối quan hệ giữa các từ trong câu một cách linh hoạt, bất kể khoảng
+cách vị trí. Nhờ đó, Transformer không chỉ cải thiện hiệu suất mô hình mà còn cho
+phép huấn luyện song song hiệu quả trên phần cứng hiện đại như GPU.
+Hình 2.3: Minh họa kiến trúc mô hình Transformer (Nguồn: [28])
+Như hình2.3, kiến trúc Transformer gồm hai khối chính:Encoder và Decoder,
+mỗi khối bao gồm nhiều lớp lặp lại với cấu trúc đồng nhất.
+Tùy theo mục đích và nhiệm vụ cụ thể, các mô hình ngôn ngữ lớn được liệt kê ở
+bảng 2.1 có thể được phân nhóm theo ba dạng kiến trúc chính sau:
+• Encoder-only: Tập trung vào việc hiểu và biểu diễn ngữ nghĩa của văn bản.
+Loại kiến trúc này phù hợp cho các tác vụ như phân loại văn bản, trích xuất thực
+thể, và tìm kiếm ngữ nghĩa. Mô hình tiêu biểu:BERT.
+• Decoder-only: Được tối ưu để sinh văn bản tự nhiên, thường ứng dụng trong hội
+thoại, hoàn thành câu, và tổng hợp thông tin. Các mô hình như GPT-3, GPT-4,
+LLaMA, và Mistral thuộc nhóm này.
+18
+
+• Encoder–Decoder (Sequence-to-Sequence): Kết hợp cả hai khối encoder và
+decoder để xử lý đầu vào và sinh đầu ra. Kiến trúc này đặc biệt hiệu quả trong
+các tác vụ dịch máy, tóm tắt văn bản, hoặc trả lời câu hỏi. Mô hình tiêu biểu:
+PaLM 2.
+2.2.1.3 Ưu nhược điểm của LLM
+Mô hình ngôn ngữ lớn (LLM) đã đóng góp to lớn trong sự phát triển của các hệ
+thống xử lý ngôn ngữ tự nhiên, nhờ vào khả năng sinh ra văn bản tự nhiên và thực
+hiện đa dạng các tác vụ. Tuy nhiên, mô hình này cũng tồn tại một số nhược điểm cần
+được lưu ý trong việc ứng dụng thực tiễn.
+Ưu điểm:
+• Khả năng sinh văn bản tự nhiên: LLM có thể sinh ra các câu văn trôi chảy, tự
+nhiên, và dễ hiểu, gần giống với cách con người giao tiếp.
+• Đa nhiệm: Mô hình có thể thực hiện nhiều tác vụ xử lý ngôn ngữ khác nhau mà
+không cần huấn luyện lại cho mỗi tác vụ cụ thể, giúp tiết kiệm thời gian và tài
+nguyên.
+• Hiểu ngữ cảnh dài: LLM có khả năng xử lý và tạo ra văn bản dựa trên ngữ
+cảnh dài, giúp mô hình hiểu và giải quyết các vấn đề ngữ nghĩa phức tạp.
+Nhược điểm:
+• Ảo giác dữ liệu (Hallucination) LLM có thể sinh ra thông tin sai lệch hoặc
+không có căn cứ, đặc biệt trong những tác vụ yêu cầu độ chính xác cao như trả
+lời câu hỏi hoặc tóm tắt văn bản.
+• Thiếu khả năng hiểu sâu: Mặc dù LLM có thể tạo ra văn bản hợp lý, nhưng
+chúng không thực sự hiểu ngữ nghĩa như con người, dẫn đến việc sinh ra kết quả
+không chính xác hoặc thiếu logic.
+• Khả năng tổng hợp thông tin yếu: LLM có thể gặp khó khăn trong việc duy
+trì và tổng hợp thông tin xuyên suốt các tác vụ hoặc câu hỏi liên tiếp, dẫn đến
+19
+
+tình trạng "lost in the middle", khi thông tin phần giữa của ngữ cảnh bị bỏ qua
+hoặc mất liên kết với phần đầu và cuối.
+2.2.2 Kiến trúc và quy trình hoạt động của hệ thống RAG
+2.2.2.1 Giới thiệu RAG
+Trong những năm gần đây, các mô hình ngôn ngữ lớn (Large Language Models –
+LLM), như ChatGPT, Gemini,.., đã đạt được những thành tựu nổi bật trong việc xử lý
+ngôn ngữ tự nhiên. Tuy nhiên, những mô hình này vẫn gặp phải một số hạn chế đáng
+chú ý, đặc biệt là trong các tác vụ yêu cầu kiến thức chuyên sâu hoặc thông tin cập
+nhật theo thời gian thực. Các vấn đề như hiện tượng "ảo giác" (hallucination), thông
+tin lỗi thời và thiếu tính minh bạch trong lập luận đã ảnh hưởng đến độ tin cậy của các
+mô hình này trong các ứng dụng thực tế.
+Retrieval-Augmented Generation (RAG) [10] được xem là một giải pháp triển
+vọng nhằm khắc phục những hạn chế trên. Thay vì chỉ dựa vào tri thức học được
+trong quá trình huấn luyện, RAG kết hợp mô hình ngôn ngữ với khả năng truy xuất
+thông tin từ các cơ sở tri thức bên ngoài, như tài liệu chuyên ngành, cơ sở dữ liệu hoặc
+kho văn bản. Nhờ vậy, RAG không chỉ cải thiện độ chính xác của câu trả lời mà còn
+duy trì sự mạch lạc và linh hoạt trong quá trình sinh ngôn ngữ.
+So với các mô hình LLM truyền thống, RAG có ưu thế vượt trội trong những tình
+huống đòi hỏi độ chính xác cao về tri thức, chẳng hạn như trong tư vấn pháp lý, y
+tế, giáo dục, chăm sóc khách hàng hay thương mại điện tử. Trong các ứng dụng như
+chatbot hỗ trợ người dùng, RAG đóng vai trò quan trọng trong việc cung cấp những
+câu trả lời đáng tin cậy, phù hợp với ngữ cảnh và luôn được cập nhật theo thời gian
+thực, điều mà các mô hình chỉ dựa vào dữ liệu huấn luyện tĩnh khó có thể đạt được.
+2.2.2.2 Các thành phần chính trong RAG
+Theo [10], hệ thống RAG bao gồm các thành phần chính phối hợp chặt chẽ để thực
+hiện truy xuất và sinh văn bản, gồm:
+20
+
+• Bộ chỉ mục (Indexing module): Chịu trách nhiệm phân chia tập dữ liệu đầu vào
+thành các đoạn nhỏ (chunks) và biểu diễn chúng dưới dạng vector embedding
+thông qua một mô hình mã hóa (encoder). Các vector này được lưu trữ trong cơ
+sở dữ liệu vector để hỗ trợ truy xuất nhanh và hiệu quả.
+• Bộ truy xuất (Retriever): Chịu trách nhiệm nhận đầu vào là truy vấn, mã hóa
+truy vấn thành vector embedding, và so sánh với các vector trong cơ sở dữ liệu
+để truy xuất các đoạn tài liệu có độ tương đồng cao nhất với truy vấn.
+• Mô hình sinh văn bản (Generator) : Là mô hình ngôn ngữ lớn (LLM) nhận
+đầu vào là câu hỏi kết hợp với các đoạn tài liệu được truy xuất, xử lý ngữ cảnh
+mở rộng để sinh ra câu trả lời chính xác và có căn cứ.
+• Cơ sở dữ liệu vector (Vector store) : Là thành phần lưu trữ các vector embed-
+ding của tài liệu, cho phép truy xuất gần đúng (approximate nearest neighbor
+search) nhanh chóng, thường sử dụng các công cụ như FAISS.
+Phần tiếp theo sẽ trình bày chi tiết về quy trình hoạt động của hệ thống RAG, mô
+tả cách các thành phần này phối hợp trong thực tế để thực hiện truy xuất tăng cường
+sinh văn bản.
+2.2.2.3 Quy trình hoạt động của hệ thống RAG
+Hệ thống Retrieval-Augmented Generation (RAG) vận hành theo một quy trình ba
+bước chính, được minh họa trong Hình 2.5, nhằm kết hợp hiệu quả khả năng truy
+xuất tri thức từ nguồn dữ liệu bên ngoài với sức mạnh sinh ngôn ngữ của mô hình lớn
+(LLM) [10]:
+1. Chỉ mục hóa dữ liệu (Indexing): Tập dữ liệu đầu vào được phân đoạn thành
+các đoạn nhỏ (chunks) nhằm đảm bảo tính chi tiết và phù hợp cho việc truy
+xuất. Mỗi đoạn được biểu diễn dưới dạng vector embedding nhờ mô hình mã
+hóa chuyên dụng (encoder). Các vector embedding này được lưu trữ trong cơ sở
+dữ liệu vector (vector database), hỗ trợ truy xuất nhanh dựa trên độ tương đồng
+ngữ nghĩa.
+21
+
+2. Truy xuất thông tin (Retrieval) : Khi nhận được truy vấn từ người dùng, hệ
+thống mã hóa truy vấn thành vector embedding tương ứng. Vector truy vấn này
+được dùng để so sánh với các vector trong cơ sở dữ liệu, từ đó truy xuất các đoạn
+tài liệu có ngữ nghĩa gần nhất (top-k chunks). Các đoạn này sẽ cung cấp kiến
+thức nền tảng giúp tăng độ chính xác và tính thực tiễn cho câu trả lời.
+3. Sinh văn bản (Generation): Các đoạn tài liệu truy xuất được kết hợp cùng truy
+vấn gốc tạo thành ngữ cảnh đầu vào cho mô hình ngôn ngữ lớn (LLM). LLM
+dựa vào ngữ cảnh này để sinh ra câu trả lời phù hợp, chính xác và dựa trên tri
+thức thực tế, khắc phục hạn chế thiếu hụt kiến thức khi chỉ sử dụng LLM thuần
+túy.
+Quy trình này không chỉ tận dụng sức mạnh truy xuất thông tin từ các bộ chỉ mục
+vector mà còn khai thác khả năng sinh ngôn ngữ tự nhiên của các mô hình lớn, giúp
+nâng cao hiệu quả và độ tin cậy của hệ thống truy xuất tăng cường bằng sinh văn bản.
+Hình 2.4:Minh họa quy trình hoạt động của hệ thống RAG (Nguồn:[10])
+2.2.3 Các biến thể của RAG
+Dựa trên kiến trúc đã trình bày ở Hình 2.4, các hệ thống RAG còn có thể được
+phân chia thành nhiều biến thể nhằm cải thiện hiệu quả truy xuất và sinh ngôn ngữ.
+Theo [10], ba biến thể tiêu biểu hiện nay bao gồm: Naive RAG, Advanced RAG và
+Modular RAG được minh họa ở Hình 2.5.
+22
+
+• Naive RAG: Biến thể đơn giản nhất. Truy vấn từ người dùng được sử dụng để
+truy xuất tài liệu liên quan từ vector store, sau đó truy vấn và tài liệu được kết
+hợp thành prompt đầu vào cho mô hình ngôn ngữ lớn (LLM) đã được huấn luyện
+sẵn. Mô hình này sau đó tạo ra câu trả lời dựa trên ngữ cảnh truy hồi được.
+• Advanced RAG: Biến thể này bổ sung các bước xử lý nâng cao ở hai giai đoạn:
+– Tiền truy xuất (Pre-retrieval): Bao gồm các kỹ thuật như định tuyến truy
+vấn (query routing), viết lại truy vấn (query rewriting) và mở rộng truy vấn
+(query expansion) nhằm nâng cao chất lượng tài liệu truy xuất.
+– Hậu truy xuất (Post-retrieval): Áp dụng các bước như xếp hạng lại (rerank),
+tóm tắt (summary) và kết hợp tài liệu (fusion) để tinh chỉnh kết quả trước
+khi đưa vào LLM.
+• Modular RAG: Đây là kiến trúc linh hoạt và có khả năng mở rộng cao nhất.
+Hệ thống được cấu thành từ các mô-đun như Retrieve, Read, Rerank, Rewrite,
+Routing, Memory, Fusion, Demonstrate, Search và Predict. Các mô-đun này có
+thể kết hợp theo nhiều mẫu xử lý (patterns) tùy theo yêu cầu tác vụ.
+Hình 2.5:Minh họa 3 biến thể của RAG (Nguồn:[10])
+23
+
+2.3 GraphRAG: Mở rộng RAG với đồ thị tri thức
+2.3.1 Đồ thị tri thức - Knowledge Graph
+2.3.1.1 Knowledge Graph là gì
+Knowledge Graph (KG)[13] là một mô hình biểu diễn tri thức theo dạng đồ thị, nơi
+các thực thể (entities) và các mối quan hệ (relationships) được mô tả bằng các nút
+(nodes) và các cạnh (edges) có hướng. Không giống như các mô hình cơ sở dữ liệu
+truyền thống vốn tập trung vào bảng và quan hệ hai chiều, KG cung cấp một cách
+nhìn ngữ nghĩa và trực quan hơn, cho phép mô tả phức tạp về thế giới thực.
+Một Knowledge Graph thường bao gồm: các thực thể - đại diện cho con người,
+địa điểm, tổ chức, sự kiện, khái niệm, v.v., các mối quan hệ - biểu thị cách các thực
+thể liên kết hoặc tương tác với nhau, thuộc tính (attribute) - gắn với thực thể hoặc mối
+quan hệ, mô tả đặc tính cụ thể, schema - định nghĩa các lớp (classes), kiểu quan hệ,
+ràng buộc, và luật suy diễn.
+2.3.1.2 Data Graphs
+1. Model: Property Graphs
+Hình 2.6:Minh họa Property Graphs (Nguồn:[13])
+• Mô hình Property Graph là một trong những cách phổ biến nhất để biểu
+diễn Knowledge Graph trong thực tế, đặc biệt được Neo4j lựa chọn làm nền
+tảng cho việc lưu trữ và truy vấn dữ liệu dạng đồ thị. Mô hình này được
+thiết kế để hỗ trợ biểu diễn các thực thể và quan hệ một cách linh hoạt,
+đồng thời cung cấp khả năng mở rộng cho nhiều ứng dụng phức tạp.
+24
+
+• Một Property Graph được định nghĩa hình thức là một bộ 6 thành phần:
+G = (V, E, ℓV , ℓE, PV , PE)
+Trong đó:
+– V : tập các đỉnh (nodes), đại diện cho các thực thể trong miền tri thức.
+– E ⊆ V × V : tập các cung có hướng (edges), biểu diễn mối quan hệ giữa
+các thực thể.
+– ℓV : V → LV : hàm ánh xạ nhãn cho các đỉnh.
+– ℓE : E → LE: hàm ánh xạ nhãn cho các cung.
+– PV : V → P : hàm ánh xạ thuộc tính cho các đỉnh, mỗi thuộc tính là
+một cặp (khóa, giá trị).
+– PE : E → P : hàm ánh xạ thuộc tính cho các cung.
+• Ví dụ: Hình 2.6 thể hiện một đoạn đồ thị đơn giản sử dụng mô hìnhProp-
+erty Graph để mô tả các chuyến bay giữa hai thành phố. Các node đại diện
+cho hai thành phố Santiago với nhãn Capital City và Arica Port City , với
+các thuộc tính vị trí địa lý (lat, long). Cạnh giữa hai nút mang nhãn
+flight và có thuộc tính company = LATAM , biểu diễn các chuyến bay
+do hãng hàng không LATAM vận hành.
+2. Querying: Cypher
+• Truy vấn bằng mẫu đồ thị khai báo: Điểm cốt lõi của Cypher là việc truy
+vấn dựa trên mẫu đồ thị khai báo, trong đó người dùng mô tả mẫu con đồ
+thị cần tìm kiếm trong toàn bộ đồ thị dữ liệu mà không cần chỉ định cách
+duyệt cụ thể. Cách mô tả mẫu đồ thị giúp hình dung trực quan các node và
+mối quan hệ giữa chúng.
+• Ví dụ: từ Hình 2.6 có mẫu Cypher như sau:
+(:CapitalCity {name: "Santiago", lat : -33.4489, long: -70.6693})
+-[:flight {name: LA380, company: "LATAM"}]->
+(:PortCity {name: "Arica", lat : -18.4783, long: -70.3126})
+• Các câu truy vấn Cypher bao gồm các mệnh đề chính:
+25
+
+– MATCH: Xác định mẫu con đồ thị cần tìm.
+– WHERE: Áp dụng điều kiện lọc lên nút hoặc quan hệ.
+– RETURN: Xác định kết quả trả về.
+– Các mệnh đề như CREATE, MERGE, SET, DELETE cho phép thao
+tác tạo mới, cập nhật hoặc xóa dữ liệu trong đồ thị.
+• Cypher tách biệt rõ phần mô tả mẫu cần tìm (đặc tả dữ liệu) khỏi phần thực
+thi chi tiết, giúp hệ thống cơ sở dữ liệu tối ưu hoá cách thực hiện truy vấn
+trong khi vẫn giữ nguyên ý định của người dùng.
+3. Xác thực cấu trúc đồ thị - Validation
+• Mô hình Property Graph cho phép biểu diễn linh hoạt các thực thể và quan
+hệ, đặc biệt phù hợp với dữ liệu lớn và không đầy đủ. Tuy nhiên, trong
+nhiều ứng dụng thực tế việc đảm bảo rằng các node dữ liệu tuân thủ một
+cấu trúc tối thiểu là rất quan trọng. Điều này nhằm phục vụ cho việc khai
+thác dữ liệu chính xác bằng các ngôn ngữ truy vấn như Cypher, đảm bảo
+đầu ra của các truy vấn là đầy đủ và có thể sử dụng được.
+• Biểu đồ hình dạng - Shapes Graphs: là một cách tiếp cận hiệu quả để xác
+thực cấu trúc dữ liệu. Mỗi shape được gán cho một tập các node mục tiêu
+trong đồ thị, và xác định các ràng buộc cần thỏa mãn, như: số lượng tối
+thiểu, tối đa các quan hệ, kiểu dữ liệu của thuộc tính, hoặc mối liên hệ với
+các shape khác.
+• Tính tương thích - Conformance: một node được xem là tương thích với
+một shape nếu nó thỏa mãn toàn bộ các ràng buộc của shape đó. Quá trình
+kiểm tra tương thích có thể đệ quy, vì sự hợp lệ của một node có thể phụ
+thuộc vào việc các node liên kết cũng phải tương thích với shape tương
+ứng.
+4. Ngữ cảnh - Context
+• Trong đồ thị tri thức, một dữ kiện (fact) thường chỉ đúng trong một ngữ
+cảnh nhất định. Mô hình hóa ngữ cảnh giúp tăng tính chính xác, cho phép
+26
+
+truy vấn linh hoạt theo điều kiện ngữ nghĩa trong Cypher hoặc các hệ thống
+tương tự.
+• Các cách phổ biến để mô hình hóa ngữ cảnh trong đồ thị:
+– Biểu diễn trực tiếp - Direct Representation: gắn ngữ cảnh như thuộc
+tính thông thường
+– Tái diễn đạt - Reification: biến cạnh thành thực thể để mô tả ngữ cảnh
+– Biểu diễn bậc cao - Higher-arity Representation: mở rộng mô hình đồ
+thị cho phép gắn ngữ cảnh lên nhóm cạnh hoặc cạnh đơn lẻ.
+– Annotations: dùng cấu trúc đại số để gắn và suy luận ngữ cảnh tự động.
+2.3.2 Quy trình xây dựng hệ thống GraphRAG
+2.3.2.1 Giới thiệu về Graphrag
+Các mô hình ngôn ngữ lớn (LLM) kết hợp với phương pháp Retrieval-Augmented
+Generation (RAG) đã đạt được những kết quả nổi bật trong các tác vụ truy xuất và trả
+lời câu hỏi. Tuy nhiên, phương pháp RAG truyền thống chỉ hiệu quả khi xử lý các truy
+vấn cụ thể, nơi thông tin có thể được lấy từ các đoạn văn bản trực tiếp liên quan. Đối
+với các truy vấn có tính chất toàn cục RAG tỏ ra thiếu hiệu quả vì nó không thể tổng
+hợp kiến thức phân tán trong một tập tài liệu lớn.
+Để giải quyết vấn đề này, GraphRAG[8] được đề xuất như một phương pháp mới
+sử dụng biểu đồ tri thức làm tầng biểu diễn trung gian giữa truy xuất và sinh văn bản.
+Phương pháp này cho phép LLM tổng hợp thông tin từ toàn bộ tập văn bản bằng cách
+xây dựng các biểu đồ thực thể và thực hiện tóm tắt theo từng cụm cộng đồng trong
+biểu đồ. Cách tiếp cận này không những giúp mô hình tập trung vào những vùng có
+liên quan đến truy vấn mà còn cho phép mở rộng ngữ cảnh mà không vượt quá giới
+hạn bộ nhớ.
+27
+
+2.3.2.2 Quy trình xây dựng hệ thống GraphRAG
+Hình 2.7:Minh họa quy trình xây dựng hệ thống GraphRAG (Nguồn: [8])
+GraphRAG khởi đầu bằng việc chuyển đổi tập văn bản thô thành biểu đồ tri thức
+có cấu trúc, thông qua một chuỗi các bước xử lý gồm phân đoạn văn bản, trích xuất
+thông tin bằng LLM và tổ chức dữ liệu.
+1. Từ tài liệu nguồn đến các đoạn văn bản ( Source Documents − →Text
+Chunks): Các tài liệu trong tập dữ liệu được chia thành các đoạn nhỏ (chunks)
+để đảm bảo mỗi đoạn vừa với giới hạn bộ nhớ của mô hình ngôn ngữ. Kích
+thước đoạn là một siêu tham số quan trọng: đoạn càng dài thì số lần gọi mô hình
+càng ít (giảm chi phí), nhưng nguy cơ mất thông tin ở phần đầu đoạn càng cao
+do hiệu ứng trôi ngữ cảnh. Việc cân bằng giữa độ dài đoạn và độ bao phủ thông
+tin được điều chỉnh tùy theo mục tiêu sử dụng.
+2. Trích xuất thực thể và quan hệ (Text Chunks − →Entities Relationships) :
+Trong bước này, mô hình ngôn ngữ lớn (LLM) được yêu cầu trích xuất các thực
+thể quan trọng và mối quan hệ giữa các thực thể đó từ một đoạn văn bản nhất
+định. Các lời nhắc (prompt) có thể được điều chỉnh phù hợp với lĩnh vực của tập
+văn bản bằng cách lựa chọn các ví dụ minh họa phù hợp với ngữ cảnh (few-shot
+exemplars) cho học trong ngữ cảnh (in-context learning).
+28
+
+3. Xây dựng đồ thị tri thức (Entities Relationships − →Knowledge Graph):
+Các thực thể và quan hệ trích xuất từ nhiều đoạn được hợp nhất để xây dựng
+biểu đồ tri thức. Mỗi thực thể trở thành một nút (node). Mỗi quan hệ trở thành
+một cạnh (edge). Hệ thống áp dụng phương pháp khớp chính xác theo chuỗi ký
+tự để hợp nhất các thực thể trùng lặp, tuy nhiên có thể mở rộng sang khớp mềm
+(fuzzy matching) nếu cần thiết.
+4. Phân cụm cộng đồng trong đồ thị tri thức (Knowledge Graph − →Graph
+Communities): Sau khi xây dựng xong biểu đồ tri thức, bước tiếp theo trong
+quy trình GraphRAG là phân cụm biểu đồ thành các cộng đồng ngữ nghĩa – tập
+hợp các nút có liên kết mạnh mẽ với nhau. Việc phân cụm giúp tổ chức biểu đồ
+theo cấu trúc phân cấp, phục vụ cho việc tóm tắt và suy luận theo mô hình chia
+để trị.
+• Để thực hiện phân cụm, GraphRAG sử dụng thuật toán Leiden, một cải
+tiến đáng kể so với thuật toán Louvain, nhắm tới tối ưu độ đo modularityQ
+– là thước đo mức độ mà một đồ thị được chia thành các cộng đồng có mật
+độ liên kết cao bên trong và mật độ liên kết thấp giữa các cộng đồng khác
+nhau. Công thức được định nghĩa như sau:
+Q = 1
+2m
+X
+i,j
+
+Aij − kikj
+2m
+
+δ(ci, cj) (6)
+Trong đó:
+– Aij: trọng số của cạnh nối giữa nút i và nút j (bằng 1 nếu có cạnh, 0
+nếu không có – trong trường hợp đồ thị không trọng số).
+– ki: tổng trọng số các cạnh nối đến nút i (độ của nút i).
+– m: tổng trọng số của toàn bộ các cạnh trong đồ thị, tức là:
+m = 1
+2
+X
+i,j
+Aij
+– ci: cộng đồng mà nút i thuộc về.
+– δ(ci, cj): hàm delta Kronecker, bằng 1 nếu ci = cj (hai nút thuộc cùng
+một cộng đồng), ngược lại bằng 0.
+29
+
+Modularity càng cao chứng tỏ việc phân chia cộng đồng càng chất lượng,
+vì các nút trong cùng một cộng đồng có nhiều liên kết hơn mức mong đợi
+trong một mạng ngẫu nhiên tương ứng.
+• Thuật toán Leiden
+Hình 2.8:Minh họa thuật toán Leiden (Nguồn: [27])
+Thuật toán Leiden được thiết kế để tối ưu modularity một cách hiệu quả
+và an toàn hơn Louvain. Nó đảm bảo rằng các cộng đồng kết quả là liên
+thông và tránh bị kẹt tại cực trị địa phương. Cấu trúc thuật toán gồm ba
+bước chính, lặp lại theo vòng lặp đệ quy:
+– Di chuyển cục bộ (Local moving): Dịch chuyển từng nút vào cộng đồng
+lân cận để tăng modularity.
+– Làm sạch cộng đồng (Refinement): Kiểm tra tính liên thông của từng
+cộng đồng và phân tách nếu cần.
+– Rút gọn đồ thị (Aggregation): Mỗi cộng đồng trở thành một nút trong
+biểu đồ rút gọn; sau đó lặp lại quá trình.
+5. Tóm tắt cộng đồng (Graph Communities− →Community Summaries): Sau
+khi phân cụm biểu đồ tri thức thành các cộng đồng, bước tiếp theo trong quy
+trình GraphRAG là sử dụng LLM để tạo các bản tóm tắt dạng báo cáo cho từng
+cộng đồng. Mỗi tóm tắt cộng đồng cung cấp một cái nhìn ngắn gọn, ngữ nghĩa
+và có tổ chức về nội dung chính của cộng đồng đó, từ đó hỗ trợ các tác vụ tìm
+kiếm, truy vấn hoặc hiểu tổng quan về tập dữ liệu mà không cần đọc toàn bộ
+văn bản gốc.
+30
+
+6. Truy vấn và sinh phản hồi toàn cục (Community Summaries − →Commu-
+nity Answers − →Global Answer): Khi nhận truy vấn, hệ thống sử dụng tóm
+tắt cộng đồng ở các cấp khác nhau để tạo câu trả lời toàn cục qua các bước sau:
+• Chuẩn bị tóm tắt cộng đồng: Các tóm tắt được xáo trộn ngẫu nhiên và chia
+thành các đoạn nhỏ theo giới hạn token, giúp phân phối đều thông tin, tránh
+tập trung quá nhiều trong một đoạn.
+• Sinh câu trả lời trung gian: Mỗi đoạn được xử lý song song bởi LLM để
+tạo câu trả lời trung gian kèm điểm đánh giá độ hữu ích (0-100). Các câu
+trả lời có điểm 0 sẽ bị loại bỏ.
+• Tổng hợp câu trả lời toàn cục: Các câu trả lời trung gian được sắp xếp theo
+điểm hữu ích giảm dần, rồi lần lượt đưa vào ngữ cảnh mới cho đến khi đạt
+giới hạn token. LLM dùng ngữ cảnh này để sinh câu trả lời cuối cùng trả
+về cho người dùng.
+2.4 Tìm kiếm trong không gian vector
+2.4.1 Tổng quan về phương pháp tìm kiếm trong không
+gian vector
+Tìm kiếm trong không gian vector (vector search) là một phương pháp truy xuất
+thông tin hiện đại, trong đó cả truy vấn và dữ liệu đều được biểu diễn dưới dạng các
+vector số học trong không gian nhiều chiều. Phương pháp này đóng vai trò nền tảng
+trong các hệ thống tìm kiếm ngữ nghĩa, truy xuất đa phương thức, cũng như trong các
+mô hình kết hợp giữa truy xuất và sinh văn bản, điển hình là Retrieval-Augmented
+Generation (RAG).
+Nguyên lý hoạt động. Khác với các phương pháp truyền thống dựa trên khớp từ
+khóa (keyword matching) hoặc khớp chuỗi ( string matching), phương pháp tìm kiếm
+trong không gian vector thực hiện ánh xạ mỗi đối tượng dữ liệu (chẳng hạn như văn
+bản, hình ảnh, âm thanh) sang một vector đặc trưng (embedding) thông qua các mô
+hình học sâu như BERT, PhoBERT, Vision Transformer (ViT) hoặc CLIP . Các vector
+31
+
+này mang thông tin ngữ nghĩa hoặc đặc trưng thị giác của đối tượng.
+Tương tự, truy vấn của người dùng cũng được mã hóa vào cùng không gian vector
+thông qua một mô hình mã hóa phù hợp. Quá trình tìm kiếm được thực hiện bằng cách
+đo lường độ tương đồng giữa vector truy vấn và các vector dữ liệu đã lưu trữ trong cơ
+sở dữ liệu. Một số phép đo phổ biến được sử dụng bao gồm:
+• Cosine similarity: đo góc giữa hai vector, phản ánh mức độ tương đồng về
+hướng.
+• Euclidean distance (L2): đo khoảng cách hình học giữa hai điểm trong không
+gian.
+• Inner product (tích vô hướng):thường được sử dụng trong các hệ thống gợi ý
+và tối ưu hóa học máy.
+Chiến lược tìm kiếm và tối ưu hiệu suất. Có hai phương pháp chính được sử
+dụng trong việc tìm kiếm láng giềng gần nhất:
+• Tìm kiếm láng giềng gần nhất chính xác (Exact Nearest Neighbor - NN):
+đảm bảo tìm đúngK vector gần nhất với truy vấn. Tuy nhiên, phương pháp này
+thường yêu cầu tính toán khoảng cách với toàn bộ hoặc phần lớn các vector trong
+cơ sở dữ liệu, dẫn đến chi phí tính toán và thời gian xử lý rất lớn khi kích thước
+dữ liệu hoặc số chiều vector tăng cao.
+• Tìm kiếm láng giềng gần nhất xấp xỉ (Approximate Nearest Neighbor -
+ANN): nhằm khắc phục hạn chế về hiệu suất của phương pháp chính xác, các
+thuật toán ANN được phát triển để tìm ra các vector có khả năng cao là gần nhất,
+chấp nhận một mức sai lệch nhỏ để đổi lấy tốc độ truy xuất vượt trội. Một số
+thuật toán ANN phổ biến gồm Inverted File Index (IVF), Product Quantization
+(PQ), Hierarchical Navigable Small World (HNSW),...
+Lợi ích và ứng dụng: Tìm kiếm vector mang lại nhiều ưu điểm vượt trội so với
+phương pháp dựa trên từ khóa truyền thống, bao gồm:
+32
+
+• Khả năng tìm kiếm ngữ nghĩa (semantic search) đối với văn bản, không phụ
+thuộc vào từ khóa trùng khớp.
+• Truy xuất hình ảnh tương tự dựa trên đặc trưng thị giác.
+• Hỗ trợ truy xuất đa phương thức: tìm ảnh bằng văn bản hoặc truy xuất văn bản
+từ ảnh.
+• Được tích hợp trong các hệ thống hiện đại như RAG, chatbot, hệ thống gợi ý sản
+phẩm và trợ lý ảo.
+2.4.2 Mô hình Vision Transformer cho trích xuất đặc trưng
+ảnh
+Vision Transformer (ViT) là một mô hình học sâu hiện đại áp dụng kiến trúc Trans-
+former vốn rất thành công trong xử lý ngôn ngữ tự nhiên vào lĩnh vực thị giác máy
+tính. Được giới thiệu bởi Dosovitskiy et al. trong bài báo “An Image is Worth 16x16
+Words” (2020) [6], ViT đã chứng minh khả năng vượt trội khi được huấn luyện trên
+các tập dữ liệu lớn, thậm chí vượt qua nhiều mô hình CNN truyền thống trong các tác
+vụ phân loại ảnh.
+Không giống như các mạng CNN truyền thống sử dụng tầng tích chập, ViT loại
+bỏ hoàn toàn các tầng này và thay vào đó là các khối Transformer encoder để xử lý
+ảnh. Điều này giúp ViT tận dụng được cơ chế self-attention nổi bật của Transformer,
+giúp mô hình học được các mối quan hệ toàn cục trong ảnh mà không bị giới hạn bởi
+các vùng lân cận gần nhau như trong CNN, minh họa ở Hình .
+33
+
+Hình 2.9:ViT dùng cơ chế tự chú ý để làm nổi bật đặc trưng ảnh (Nguồn: [6])
+Quy trình trích xuất đặc trưng ảnh với mô hình ViT được minh họa ở hình 2.10
+bao gồm các bước sau:
+Hình 2.10:Minh họa quá trình trích xuất đặc trưng ảnh với ViT (Nguồn: [6])
+1. Chia ảnh thành các patch: Ảnh đầu vào có kích thước H × W × C được chia
+đều thành N = HW
+P 2 patch không chồng lặp, mỗi patch có kích thướcP × P × C.
+2. Nhúng patch thành vector: Mỗi patch được làm phẳng thành vector có chiều
+dài P 2 · C, sau đó được đưa qua một lớp tuyến tính để ánh xạ vào không gian
+nhúng có kích thước D, tạo thành chuỗi [x1, x2, ..., xN ].
+34
+
+3. Thêm class token và mã hóa vị trí: Một vector học được gọi là [CLS] được
+nối vào đầu chuỗi vector, tạo thành [xcls, x1, x2, ..., xN ]. Sau đó, các vector này
+được cộng thêm với positional encoding để giữ lại thông tin vị trí không gian,
+giúp mô hình nhận thức được mối quan hệ không gian giữa các patch trong ảnh.
+4. Xử lý bằng các khối Transformer encoder: Chuỗi vector được đưa qua nhiều
+lớp Transformer encoder, mỗi lớp sử dụng cơ chế self-attention để học được mối
+quan hệ giữa các patch ở mọi khoảng cách. Điều này cho phép mô hình có thể
+"chú ý" đến các khu vực quan trọng của ảnh, bất kể vị trí của chúng, từ đó nâng
+cao khả năng nhận dạng các đặc trưng phức tạp trong ảnh. Mỗi lớp cũng có
+mạng con feed-forward, kết hợp với residual connection và layer normalization
+để ổn định quá trình huấn luyện.
+5. Trích xuất đặc trưng từ class token:Sau khi xử lý, vector [CLS] mang thông
+tin tổng quát của toàn bộ ảnh. Với sự hỗ trợ của cơ chế self-attention, vector này
+có thể chứa thông tin quan trọng về toàn bộ mối quan hệ trong ảnh. Vector này
+sau đó có thể được đưa vào MLP để thực hiện phân loại hoặc dùng làm vector
+đặc trưng đại diện cho ảnh trong các bài toán như truy xuất ảnh.
+2.4.3 Biểu diễn ngữ nghĩa của văn bản với PhoBERT
+PhoBERT [22] là mô hình ngôn ngữ tiền huấn luyện cho tiếng Việt dựa trên kiến
+trúc RoBERTa, được phát triển bởi VietAI. PhoBERT được huấn luyện trên 20GB
+văn bản tiếng Việt từ Wikipedia và báo điện tử.
+PhoBERT mã hóa các đơn vị ngôn ngữ(từ, cụm từ, câu) thành vector ngữ nghĩa
+nhiều chiều (768 chiều đối với phobert-base và 1024 chiều đối với phobert-
+large ). Các vector này không chỉ chứa thông tin ngữ nghĩa mà còn phản ánh ngữ
+cảnh sử dụng của từ, nhờ vào cơ chế attention trong mô hình Transformer. Điều này
+cho phép biểu diễn linh hoạt và chính xác hơn về mặt ngữ nghĩa.
+Ưu điểm của biểu diễn vector ngữ nghĩa với PhoBERT gồm:
+• Bảo toàn ngữ cảnh: Một từ có thể mang nhiều nghĩa khác nhau tùy thuộc vào
+ngữ cảnh, và PhoBERT phản ánh được sự khác biệt này trong vector biểu diễn.
+35
+
+• Biểu diễn ngữ nghĩa sâu: Mô hình được huấn luyện trên tập dữ liệu đa dạng
+giúp nắm bắt tốt các sắc thái ngôn ngữ và chi tiết ngữ nghĩa.
+• Tối ưu cho tiếng Việt:Với bài toán tổng quát là xây dựng chatbot tiếng Việt thì
+việc hiểu tiếng Việt là điều then chốt. PhoBERT được xây dựng dựa trên đặc thù
+ngôn ngữ tiếng Việt, do đó đạt hiệu quả cao hơn so với các mô hình ngôn ngữ
+huấn luyện trên dữ liệu không chuyên biệt.
+Trong nghiên cứu này, PhoBERT được sử dụng để mã hóa văn bản truy vấn và tài
+liệu thành các vector ngữ nghĩa. Các vector này sau đó được lưu trữ trong cơ sở dữ
+liệu vector (vector store), phục vụ cho quá trình truy xuất thông tin liên quan dựa trên
+mức độ tương đồng ngữ nghĩa trong hệ thống RAG.
+Hình 2.11:Minh họa quá trình biểu diễn ngữ nghĩa của các từ W trong câu đầu vào thành
+vector O của PhoBERT (Nguồn:[22])
+2.4.4 Lưu trữ và tìm kiếm vector với Faiss
+FAISS (Facebook AI Similarity Search) [17] là một thư viện mã nguồn mở do Meta
+AI phát triển, được thiết kế nhằm hỗ trợ lưu trữ và tìm kiếm vector hiệu quả trên quy
+mô lớn. FAISS cung cấp các giải pháp linh hoạt và tối ưu cho bài toán tìm kiếm láng
+giềng gần nhất (Nearest Neighbor Search), đặc biệt là trong các hệ thống sử dụng biểu
+diễn vector từ mô hình học sâu. FAISS được ứng dụng rộng rãi trong các hệ thống tìm
+kiếm ngữ nghĩa, truy xuất ảnh, chatbot tích hợp tri thức (như RAG), và các hệ thống
+gợi ý sản phẩm.
+36
+
+FAISS được xây dựng với mục tiêu tối ưu hiệu suất cả về tốc độ và bộ nhớ. Thư
+viện hỗ trợ:
+• Các phép đo khoảng cách phổ biến như L2 (Euclidean distance) , cosine simi-
+larity, và inner product.
+• Các thuật toánApproximate Nearest Neighbor (ANN) như Inverted File Index
+(IVF), Product Quantization (PQ), và HNSW, giúp tăng tốc tìm kiếm với chi phí
+bộ nhớ thấp.
+• Khả năng xử lý dữ liệu quy mô lớn lên đến hàng tỷ vector.
+• Tối ưu hóa cho cả CPU và GPU, hỗ trợ tính song song và truy vấn hiệu quả trong
+thời gian thực.
+Cấu trúc chỉ mục trong FAISS.FAISS cung cấp nhiều loại chỉ mục (index) phục
+vụ các yêu cầu khác nhau trong lưu trữ và tìm kiếm vector:
+• IndexFlat: chỉ mục đơn giản nhất, lưu toàn bộ vector gốc và tính toán khoảng
+cách trực tiếp; thích hợp cho các tập dữ liệu nhỏ và tìm kiếm chính xác (exact
+search).
+• IndexIVFFlat: sử dụng chiến lược phân cụm dữ liệu thành các centroid và chỉ
+tìm trong các cụm liên quan, giúp tăng tốc đáng kể với dữ liệu lớn.
+• IndexIVFPQ: kết hợp IVF và Product Quantization để giảm chi phí bộ nhớ
+bằng cách mã hóa vector thành các đoạn ngắn hơn.
+• IndexHNSW: sử dụng đồ thị điều hướng nhỏ có thứ bậc để tìm kiếm vector
+nhanh và chính xác, đặc biệt hiệu quả trong các hệ thống truy xuất thời gian
+thực.
+Quy trình tìm kiếm bằng FAISS. Quá trình lưu trữ và tìm kiếm vector bằng
+FAISS thường bao gồm các bước chính sau:
+1. Huấn luyện chỉ mục (nếu cần):Đối với các chỉ mục như IVF hoặc PQ, bước
+huấn luyện trên một tập con dữ liệu được thực hiện để học các centroid hoặc mã
+hóa PQ.
+37
+
+2. Thêm dữ liệu (add vectors): Các vector embedding được đưa vào chỉ mục đã
+chọn để lưu trữ.
+3. Tìm kiếm (search): Khi nhận truy vấn, FAISS mã hóa truy vấn thành vector,
+sau đó thực hiện so sánh độ tương đồng với các vector trong chỉ mục để trả về
+top-k kết quả gần nhất.
+Hình 2.12:Quy trình lưu trữ và tìm kiếm vector với Faiss (Nguồn: [9])
+2.4.5 Kết hợp kết quả tìm kiếm và chọn lọc theo tiêu chí
+Minimum Bayes Risk (MBR)
+Trong các hệ thống tìm kiếm thông tin đa phương thức, việc kết hợp kết quả từ
+nhiều phương pháp tìm kiếm là bước quan trọng nhằm cải thiện hiệu suất và độ chính
+xác của hệ thống. Theo [2], một hướng tiếp cận phổ biến là Late Fusion, trong đó mỗi
+mô thức được xử lý riêng biệt bằng các mô hình độc lập, sau đó các kết quả được kết
+hợp tại tầng ra quyết định thông qua một hàm tổng hợp.
+Một cải tiến đáng chú ý của kỹ thuật này là áp dụng tiêu chí Minimum Bayes Risk
+(MBR) [2] – chiến lược lựa chọn đầu ra sao cho rủi ro kỳ vọng (với một hàm mất mát
+xác định) là nhỏ nhất. MBR giúp tối ưu hóa kết quả cuối cùng thông qua việc đánh
+giá rủi ro kỳ vọng, dựa trên sự tương quan ngữ nghĩa giữa các dữ liệu.
+Minimum Bayes Risk là một chiến lược ra quyết định xuất phát từ lý thuyết xác
+suất, nhằm tối thiểu hóa rủi ro kỳ vọng (expected risk) dựa trên một hàm mất mát xác
+38
+
+định trước. Trong bài toán tìm kiếm thông tin, MBR được áp dụng để lựa chọn kết
+quả đầu ra sao cho mức độ khác biệt ngữ nghĩa trung bình giữa kết quả được chọn và
+các ứng viên còn lại là nhỏ nhất.
+Giả sử có hai mô hình tìm kiếm độc lập, mỗi mô hình sinh ra một tập ứng viên lần
+lượt là Y1 và Y2, cùng với phân phối xác suất tương ứng P1(y) và P2(y). Ta định nghĩa
+hàm mất mát L(y∗, y) đo mức độ sai khác giữa hai kết quả (ví dụ: 1 − sim(y∗, y) với
+sim là độ tương đồng ngữ nghĩa). Khi đó, điểm số MBR cho một ứng viên y∗ được
+tính như sau:
+scoreMBR(y∗) =
+X
+yi∈Y1
+(1 − α) · P1(yi) · L(y∗, yi) +
+X
+yj∈Y2
+α · P2(yj) · L(y∗, yj) (7)
+Trong đó:
+• α ∈ [0, 1] là hệ số trọng số điều chỉnh mức độ đóng góp giữa hai mô hình;
+• P1(yi), P2(yj) là xác suất của các ứng viên theo từng mô hình (có thể được tính
+bằng hàm softmax nghịch đảo khoảng cách truy vấn);
+• L(y∗, y) là hàm mất mát, phản ánh sự khác biệt giữa đầu ra chọn lọc y∗ và ứng
+viên y.
+Ứng viên y∗ có điểm số scoreMBR nhỏ nhất sẽ được chọn làm kết quả cuối cùng.
+Ứng dụng trong tìm kiếm đa phương thức: MBR đặc biệt hữu ích trong các hệ
+thống cần kết hợp nhiều nguồn thông tin khác nhau. Ví dụ, một hệ thống tìm kiếm
+sản phẩm có thể kết hợp:
+• Kết quả tìm kiếm dựa trên đặc trưng ảnh (embedding từ Vision Transformer)
+• Kết quả tìm kiếm dựa trên mô tả văn bản (embedding từ mô hình như PhoBERT).
+Khi mỗi phương pháp trả về một tập ứng viên kèm theo điểm tin cậy, việc hợp nhất
+và chọn lọc dựa trên MBR sẽ giúp xác định kết quả tối ưu theo tiêu chí ngữ nghĩa và
+xác suất.
+Ý nghĩa học thuật và thực tiễn. Việc áp dụng nguyên lý MBR giúp hệ thống
+không chỉ phụ thuộc vào một nguồn truy vấn duy nhất mà còn tận dụng tối đa sự bổ
+sung giữa các phương thức. Nhờ đó, đầu ra của hệ thống trở nên ổn định và chính xác
+39
+
+hơn, đặc biệt hữu ích trong các bài toán tìm kiếm thông minh, tổng hợp tri thức và hệ
+thống đối thoại tích hợp.
+2.5 Tiểu kết chương 2
+Chương 2 trình bày nền tảng lý thuyết cho các thành phần chính của hệ thống, gồm:
+phát hiện và nhận diện khuôn mặt, mô hình truy xuất tăng cường (RAG), đồ thị tri
+thức và tìm kiếm trong không gian vector.
+Trong đó, RetinaFace được sử dụng để phát hiện khuôn mặt nhờ khả năng xử lý
+đa tỷ lệ và độ chính xác cao, còn ArcFace đảm nhiệm nhận diện thông qua học đặc
+trưng khuôn mặt dựa trên khoảng cách góc, giúp tăng cường khả năng phân biệt giữa
+các cá thể.
+Tiếp theo, mô hình RAG được giới thiệu như một sự kết hợp giữa mô hình ngôn
+ngữ lớn (LLM) và cơ chế truy xuất tài liệu nhằm sinh văn bản phù hợp ngữ cảnh.
+GraphRAG là một mở rộng của RAG, tích hợp thêm đồ thị tri thức để tăng cường liên
+kết ngữ nghĩa và hiệu quả truy xuất.
+Về tìm kiếm trong không gian vector, Vision Transformer được dùng để trích xuất
+đặc trưng hình ảnh; PhoBERT phục vụ biểu diễn ngữ nghĩa văn bản tiếng Việt; và
+Faiss hỗ trợ lưu trữ, truy vấn vector hiệu quả. Cuối cùng, Minimum Bayes Risk (MBR)
+được áp dụng để lựa chọn đầu ra có rủi ro thấp nhất, nâng cao chất lượng kết quả sinh.
+Những nội dung lý thuyết được trình bày trong chương này đóng vai trò nền tảng
+cho quá trình thiết kế, triển khai và đánh giá hệ thống trong các chương tiếp theo.
+40
+
+CHƯƠNG 3: XÂY DỰNG HỆ THỐNG CHATBOT CỬA
+HÀNG ĐỒ UỐNG V À CÁC CHỨC NĂNG CÁ NHÂN HÓA
+3.1 Mô tả cơ sở dữ liệu cửa hàng đồ uống
+Để triển khai hệ thống chatbot hỗ trợ truy xuất và tư vấn các thông tin trong cửa
+hàng đồ uống, chúng tôi tiến hành thiết kế một cơ sở dữ liệu nhằm lưu trữ thông tin
+về sản phẩm, người dùng và cửa hàng.
+- Thông tin sản phẩm và danh mục:
+• Product: Lưu thông tin cơ bản về đồ uống như tên sản phẩm, mô tả, hình ảnh
+minh họa, và liên kết đến danh mục phân loại.
+• Categories: Chứa thông tin về nhóm sản phẩm (ví dụ: cà phê, trà, sinh tố)
+với tên và mô tả chi tiết.
+• Variant: Mỗi sản phẩm có thể có nhiều phiên bản (variant) khác nhau về
+thành phần dinh dưỡng, kích thước, hoặc công thức. Bảng này lưu các thông tin
+như lượng đường, calo, vitamin, caffeine và giá bán.
+- Dữ liệu khách hàng và tương tác:
+• customers: Lưu thông tin người dùng bao gồm tên, giới tính, độ tuổi, vị trí,
+ảnh đại diện và vector embedding đại diện cho hồ sơ ngữ nghĩa (sử dụng cho cá
+nhân hóa).
+• Orders và Order_detail: Ghi lại lịch sử đặt hàng, bao gồm các sản phẩm
+đã mua, đánh giá (rate), số lượng và thời điểm. Đây là nguồn dữ liệu quan trọng
+phục vụ cho việc phân tích hành vi và xây dựng hệ thống gợi ý.
+- Thông tin cửa hàng:
+• Store: Lưu thông tin về các chi nhánh bao gồm tên cửa hàng, địa chỉ, số điện
+thoại và khung giờ mở cửa, giúp chatbot có thể hỗ trợ người dùng tra cứu vị trí
+hoặc thời gian phục vụ.
+41
+
+- Quan hệ giữa các bảng:
+• Mỗi sản phẩm (Product) liên kết với một danh mục (Categories).
+• Mỗi phiên bản sản phẩm (Variant) thuộc về một sản phẩm cụ thể.
+• Mỗi đơn hàng ( Orders) được thực hiện bởi một người dùng và liên kết với một
+cửa hàng.
+• Bảng Order_detail đóng vai trò trung gian, ghi chi tiết các mặt hàng trong
+đơn đặt hàng.
+5. Vai trò trong hệ thống chatbot:
+Cơ sở dữ liệu đóng vai trò nền tảng cho việc truy xuất thông tin sản phẩm (hình
+ảnh, mô tả, thành phần), phục vụ cho việc tư vấn lựa chọn đồ uống, hỗ trợ gợi ý theo
+nhu cầu dinh dưỡng, và cá nhân hóa dựa trên lịch sử mua hàng hoặc hồ sơ người dùng.
+Các bảng dữ liệu được thiết kế để dễ dàng tích hợp với các mô hình học sâu trong các
+chức năng như tìm kiếm theo ảnh, truy xuất theo mô tả, sinh mô tả sản phẩm và hệ
+thống gợi ý.
+Hình 3.1:Sơ đồ quan hệ thực thể của cơ sở dữ liệu cửa hàng đồ uống
+42
+
+3.2 Quy trình tương tác người dùng với hệ thống
+Mô tả quy trình tương tác giữa người dùng với hệ thống được minh họa ở Hình 3.2
+như sau:
+• Bắt đầu phiên tương tác:
+– Người dùng truy cập hệ thống thông qua giao diện (web/app).
+– Xác minh danh tính
+* Nếu xác minh thành công → chuyển sang chế độ chat cá nhân hóa.
+* Nếu xác minh thất bại hoặc bỏ qua → tiếp tục trong chế độ chat ẩn
+danh.
+• Chế độ chat cá nhân hóa:
+– Hệ thống:
+* Truy xuất thông tin cá nhân (tên, giới tính, v.v.).
+* Truy xuất lịch sử mua hàng từ cơ sở dữ liệu.
+– Khi người dùng gửi truy vấn:
+* Nếu là văn bản (text):
+· Sử dụng phương pháp RAG (Retrieval-Augmented Generation).
+· Prompt của mô hình ngôn ngữ lớn (LLM) sẽ được cá nhân hóa
+bằng cách thêm thông tin cá nhân và lịch sử mua hàng vào phần
+context trước khi gửi đến LLM.
+* Nếu là hình ảnh:
+· Thực hiện truy xuất thông tin sản phẩm tương tự bằng hình ảnh.
+• Chế độ chat ẩn danh:
+– Người dùng tương tác mà không cần xác thực.
+– Khi gửi truy vấn:
+* Nếu là văn bản: Dùng RAG thông thường (không kèm thông tin cá
+nhân).
+43
+
+* Nếu là hình ảnh: Dùng chức năng truy xuất thông tin sản phẩm tương
+tự bằng hình ảnh.
+Hình 3.2: Quy trình tương tác giữa người dùng với hệ thống chatbot
+3.3 Chức năng xác minh danh tính người dùng thông qua
+khuôn mặt
+3.3.1 Mô tả chức năng
+Trong hệ thống chatbot tư vấn có hỗ trợ cá nhân hóa trải nghiệm, một chức năng
+quan trọng là xác minh danh tính người dùng thông qua ảnh khuôn mặt. Thông qua
+việc phân tích ảnh chụp khuôn mặt thu được từ camera khi truy cập hệ thống, chatbot
+có thể truy xuất thông tin cá nhân tương ứng từ cơ sở dữ liệu, từ đó tùy biến nội dung
+tư vấn phù hợp với từng cá nhân.
+44
+
+• Đầu vào (Input) : Ảnh khuôn mặt người dùng được chụp thông qua camera tại
+thời điểm bắt đầu phiên làm việc với chatbot.
+• Đầu ra (Output): Thông tin cá nhân người dùng và các đơn hàng liên quan đến
+người dùng được truy xuất từ cơ sở dữ liệu nếu quá trình xác minh thành công.
+Thông tin này được sử dụng để cá nhân hóa phản hồi của chatbot trong suốt
+phiên tương tác.
+Hình 3.3: Minh họa đầu vào (input), đầu ra (output) của chức năng xác minh người dùng
+Chức năng xác minh danh tính người dùng được minh họa ở Hình 3.3 gồm các
+phần chính như sau:
+• Phát hiện khuôn mặt và trích xuất vector đặc trưng từ ảnh người dùng và ảnh
+trong cơ sở dữ liệu bằng các mô hình RetinaFace kết hợp với Arcface.
+• So sánh các vector đặc trưng bằng độ tương đồng cosine để tìm ảnh khớp nhất
+trong cơ sở dữ liệu.
+• Nếu ảnh trùng khớp vượt ngưỡng xác định, hệ thống truy xuất thông tin cá nhân
+tương ứng và đưa vào phiên tư vấn.
+45
+
+3.3.2 Quy trình xác minh danh tính người dùng
+3.3.2.1 Mô hình phát hiện và trích xuất đặc trưng khuôn mặt
+Hình 3.4: Minh họa mô hình phát hiện và trích xuất đặc trưng khuôn mặt
+Hình 3.4 minh họa quy trình phát hiện và trích xuất đặc trưng khuôn mặt người dùng
+từ ảnh đầu vào bao gồm ba giai đoạn chính: phát hiện khuôn mặt, cắt vùng khuôn mặt
+và trích xuất đặc trưng, cụ thể như sau:
+1. Phát hiện khuôn mặt bằng RetinaFace: Giai đoạn đầu tiên sử dụng mô hình
+RetinaFace – một kiến trúc phát hiện khuôn mặt hiệu quả, tích hợp khả năng phát
+hiện đồng thời các điểm mốc (facial landmarks). Trong thí nghiệm, RetinaFace
+được huấn luyện sẵn (pre-trained) trên tập dữ liệu WIDER FACE, và sử dụng
+mạng backbone ResNet-50 với đầu ra độ phân giải 640 ×640 pixels. Một số
+thông số gồm:
+• Confidence threshold: 0.9
+• IoU threshold cho NMS (Non-Maximum Suppression): 0.4
+• Tỷ lệ khung hình đầu vào: được resize về 640×640
+• Số lượng điểm mốc được phát hiện: 5 (mắt trái, mắt phải, mũi, miệng trái,
+miệng phải)
+Kết quả của bước này là tọa độ của bounding box và các điểm landmark, phục
+vụ cho bước cắt chính xác vùng chứa khuôn mặt.
+2. Cắt và tiền xử lý vùng khuôn mặt: Dựa trên bounding box do RetinaFace cung
+cấp, hệ thống tiến hành trích xuất vùng ảnh chứa khuôn mặt và thực hiện căn
+46
+
+chỉnh sơ bộ (nếu cần). Kích thước ảnh đầu vào cho bước tiếp theo được resize
+về chuẩn 112×112 pixels nhằm đảm bảo tính đồng nhất khi đưa vào mạng trích
+xuất đặc trưng.
+3. Trích xuất đặc trưng: Ảnh khuôn mặt sau khi được xử lý sẽ được đưa vào mô
+hình ArcFace – một mô hình học sâu được thiết kế cho bài toán nhận diện khuôn
+mặt. ArcFace sử dụng kiến trúc ResNet-50 làm mạng nền, được huấn luyện với
+additive angular margin loss nhằm tăng cường khả năng phân biệt giữa các danh
+tính khác nhau. Cấu hình cụ thể:
+• Backbone: ResNet-50
+• Kích thước đầu vào: 112×112 pixels
+• Embedding output dimension: 512 chiều
+Kết quả của quá trình này là một vector embedding có độ dài cố định, đại diện
+cho đặc trưng khuôn mặt của người dùng. Vector này sẽ được sử dụng trong các
+bước so khớp và xác minh danh tính tiếp theo.
+3.3.2.2 Lưu trữ và xác minh danh tính người dùng
+Hình 3.5: Minh họa quy trình lưu trữ và xác minh danh tính người dùng
+Dựa vào hình 3.5 minh họa hệ thống nhận diện khuôn mặt, quy trình lưu trữ và xác
+minh danh tính người dùng diễn ra qua các bước sau:
+47
+
+• Trích xuất đăc trưng ảnh khuôn mặt đã được lưu trữ: Sử dụng mô hình phát
+hiện và trích xuất đặc trưng khuôn mặt (RetinaFace + ArcFace) để lấy toàn bộ
+vector embedding từ các ảnh khuôn mặt người dùng đã được lưu trữ trong cơ sở
+dữ liệu. Mỗi khuôn mặt sẽ có một vector embedding riêng.
+• Lưu trữ vector embedding : Các vector embedding từ ảnh được lưu trữ vào
+Database với thông tin người dùng đã được lưu trước đó.
+• Trích xuất đặc trưng ảnh người dùng từ camera: Ảnh người dùng thu nhận
+từ camera được đưa vào mô hình RetinaFace + Arcface để lấy vector embedding.
+• So sánh vector embedding để xác minh : So sánh vector embedding của ảnh
+thu nhận từ camera với các vector embedding trong database bằng phương pháp
+Cosine Similarity. Phương pháp này tính độ tương đồng giữa hai vector, với giá
+trị Cosine càng gần 1 thì hai vector càng giống nhau. Công thức tính Cosine
+Similarity như sau:
+Cosine Similarity = cos(θ) =
+⃗A · ⃗B
+∥ ⃗A∥ · ∥ ⃗B∥
+(8)
+Trong đó:
+– ⃗A, ⃗B là hai vector đặc trưng (embedding) cần so sánh.
+– ⃗A · ⃗B là tích vô hướng của hai vector.
+– ∥ ⃗A∥ và ∥ ⃗B∥ là độ dài (chuẩn Euclid) của từng vector.
+• Trả về thông tin người dùng tương ứng: Nếu quá trình xác minh thành công,
+hệ thống sẽ trả về thông tin người dùng đã được lưu trữ trong Database.
+3.3.3 Đánh giá hiệu quả xác thực danh tính người dùng
+3.3.3.1 Mô tả tập dữ liệu đữ liệu đánh giá
+• Nguồn thu nhập dữ liệu: Tập dữ liệu đánh giá được xây dựng từ hai nguồn
+chính: (i) các hình ảnh thu thập từ Internet và (ii) hình ảnh do 2 thành viên cung
+cấp. Tất cả hình ảnh đều là ảnh chân dung, với yêu cầu khuôn mặt phải nằm
+48
+
+chính giữa khung hình nhằm đảm bảo tính khách quan và đồng nhất trong quá
+trình đánh giá.
+• Kích thước tập dữ liệu:Tập dữ liệu bao gồm xấp xỉ 300 ảnh người dùng. Mỗi
+cá nhân được đại diện bởi 4 ảnh chụp khác nhau, giúp mô phỏng các tình huống
+đa dạng trong nhận diện khuôn mặt.
+3.3.3.2 Đánh giá hiệu quả phát hiện khuôn mặt
+• Thiết lập đánh giá: Mô hình RetinaFace được lựa chọn làm phương pháp phát
+hiện khuôn mặt chính trong hệ thống. Để đánh giá hiệu quả tương đối, ba mô
+hình phổ biến khác gồm MTCNN, Haar Cascade, và YOLOv8 được triển khai
+và so sánh trên cùng một tập dữ liệu đã được gán nhãn thủ công vùng khuôn mặt
+(bounding box). Quá trình gán nhãn sử dụng công cụ bán tự động, sau đó được
+hiệu chỉnh thủ công nhằm đảm bảo tính chính xác cao. Hình 3.6 trình bày ví dụ
+về ảnh gốc và vùng khuôn mặt đã được gán nhãn.
+Hình 3.6: Minh họa ảnh gốc và ảnh được gán nhãn vùng khuôn mặt
+• Các chỉ số đánh giá hiệu suất:
+– Intersection over Union (IoU)[15] : Chỉ số này đo lường mức độ giao nhau
+giữa bounding box dự đoán và bounding box thực tế. IoU được tính bằng tỉ
+số giữa diện tích giao và diện tích hợp của hai vùng. Giá trị IoU càng cao
+phản ánh độ chính xác càng tốt của mô hình phát hiện.
+49
+
+Hình 3.7: Minh họa độ đo IoU (Nguồn: [33])
+– Khoảng cách tâm (Center Distance)[35] : Đây là khoảng cách Euclidean
+giữa tâm của bounding box dự đoán và bounding box thực tế. Giá trị nhỏ
+cho thấy mô hình dự đoán gần đúng vị trí trung tâm khuôn mặt. Hình 20
+minh họa cách tính khoảng cách tâm.
+Hình 3.8: Minh họa khoảng cách tâm giữa Ground truth và Predict (Nguồn: [35])
+– Thời gian xử lý (Processing Time): Đo thời gian từ lúc ảnh đầu vào được
+nhận đến khi hoàn tất phát hiện khuôn mặt. Đây là chỉ số quan trọng trong
+các ứng dụng thời gian thực; giá trị càng thấp càng tốt để đảm bảo trải
+nghiệm người dùng.
+• Kết quả đánh giá:
+Mô hình IoU
+trung bình
+Thời gian
+xử lý
+(ms)
+Khoảng cách
+tâm
+(px)
+Tỷ lệ
+IoU = 0
+Tỷ lệ
+0 < IoU < 0.5
+Tổng
+lỗi
+RetinaFace 0.8483 425.5 20.58 0.3% 0.0% 0.3%
+MTCNN 0.8203 795.8 23.48 0.3% 0.0% 0.3%
+YOLO 0.6637 183.3 41.66 0.3% 6.9% 7.2%
+Haar Cascade 0.6629 460.0 38.01 3.1% 1.7% 4.8%
+Bảng 3.1: So sánh hiệu suất và tỷ lệ lỗi của các mô hình phát hiện khuôn mặt.
+50
+
+• Nhận xét:
+– Bảng 3.1 cho thấy mô hình RetinaFace vượt trội về độ chính xác định vị
+khuôn mặt. Cụ thể, RetinaFace đạt giá trị IoU trung bình cao nhất là 0.8483,
+phản ánh khả năng dự đoán vùng khuôn mặt gần sát với mặt thật (ground
+truth). Đồng thời, khoảng cách tâm trung bình giữa vùng dự đoán và thực
+tế của RetinaFace là thấp nhất (20.58 px), cho thấy vị trí phát hiện chính
+xác hơn so với các mô hình còn lại.
+– Về thời gian xử lý, RetinaFace có thời gian trung bình 425.5 ms, nhanh hơn
+MTCNN (795.8 ms) nhưng chậm hơn đáng kể so với YOLO (183.3 ms)
+và Haar Cascade (460.0 ms). Mặc dù YOLO có ưu thế về tốc độ xử lý, tuy
+nhiên mô hình này lại có hiệu quả phát hiện thấp hơn rõ rệt với IoU trung
+bình chỉ đạt 0.6637 và tỷ lệ lỗi tổng cộng lên đến 7.2
+– Tổng quan, RetinaFace thể hiện sự cân bằng tốt giữa độ chính xác và tốc
+độ xử lý, đồng thời có tỷ lệ lỗi thấp nhất, phù hợp để lựa chọn làm mô hình
+chính cho ứng dụng xác thực danh tính người dùng trong môi trường thực
+tế đòi hỏi cả tính chính xác và hiệu năng xử lý ổn định.
+3.3.3.2 Đánh giá hiệu quả xác minh khuôn mặt
+• Thiết lập đánh giá: Để đánh giá khả năng xác minh khuôn mặt của hai mô
+hình ArcFace và FaceNet, một tập hợp gồm tổng cộng 864 cặp ảnh đã được xây
+dựng, bao gồm: 432 cặp ảnh cùng người (positive pairs) và 432 cặp ảnh khác
+người (negative pairs). Toàn bộ ảnh được xử lý qua mô hình phát hiện khuôn
+mặt RetinaFace nhằm cắt chính xác vùng khuôn mặt trước khi đưa vào mô hình
+nhận diện. Hai mô hình được sử dụng để sinh vector đặc trưng (embedding), và
+độ tương đồng giữa hai ảnh được tính toán thông qua cosine similarity.
+• Các chỉ số đánh giá:
+– Accuracy[23] : Tỷ lệ dự đoán đúng trên toàn bộ tập kiểm thử.
+Accuracy = T P + T N
+T P + T N + F P + F N (9)
+51
+
+– Precision[23] : Tỷ lệ cặp được dự đoán là “cùng người” thực sự đúng.
+Precision = T P
+T P + F P (10)
+– Recall[23] : Tỷ lệ cặp “cùng người” được nhận đúng.
+Recall = T P
+T P + F N (11)
+– F1-score[23] : Trung bình điều hòa giữa Precision và Recall.
+F1 = 2 · Precision · Recall
+Precision + Recall (12)
+– False Acceptance Rate (FAR)[16] : Tỷ lệ cặp “khác người” bị nhận nhầm
+là “cùng người”.
+FAR = F P
+F P + T N (13)
+– False Rejection Rate (FRR)[16] : Tỷ lệ cặp “cùng người” bị nhận nhầm là
+“khác người”.
+FRR = F N
+F N + T P (14)
+– Equal Error Rate (EER)[16] : Tỷ lệ lỗi tại điểm mà FAR = FRR. Được
+xác định từ đường cong ROC tại điểm giao nhau giữa hai đường này.
+– Area Under Curve (AUC)[12] : Diện tích dưới đường cong ROC, phản
+ánh tổng thể khả năng phân biệt giữa hai lớp.
+AUC =
+Z 1
+0
+TPR(F P R) d(FPR) (15)
+– Receiver Operating Characteristic (ROC)[12] : Đường cong biểu diễn
+mối quan hệ giữa TPR (Recall) và FPR (FAR) khi thay đổi ngưỡng phân
+loại.
+52
+
+• Kết quả đánh giá:
+Bảng 3.2: So sánh hiệu suất giữa các mô hình nhận diện khuôn mặt tại ngưỡng tối ưu.
+Mô hình Threshold Accuracy F1 Score FAR FRR ERR AUC
+ArcFace 0.2100 0.9965 0.9964 0.0018 0.0016 0.0017 0.9981
+FaceNet 0.2300 0.9207 0.9203 0.0794 0.0793 0.0794 0.9650
+• Nhận xét:
+– Bảng 3.2 cho thấy mô hình ArcFace vượt trội so với FaceNet trên hầu hết
+các chỉ số. Vớithreshold tối ưu dựa trên Equal Error Rate (ERR), ArcFace
+đạt độ chính xác (Accuracy) 99.65% và chỉ số F1-score là 99.64%, cao
+hơn đáng kể so với FaceNet (92.07% và 92.03%).
+– Các chỉ số lỗi False Acceptance Rate (FAR) và False Rejection Rate
+(FRR) của ArcFace đều rất thấp (0.18% và 0.16%), trong khi FaceNet có
+giá trị gần 7.9% cho cả hai chỉ số, cho thấy ArcFace có khả năng phân biệt
+cặp ảnh cùng người và khác người chính xác hơn. ERR của ArcFace cũng
+chỉ là 0.17%, thấp hơn nhiều so với FaceNet (7.94%).
+– Giá trịArea Under Curve (AUC) của ArcFace đạt 0.9981, phản ánh khả
+năng phân biệt xuất sắc giữa hai lớp ảnh. FaceNet tuy có AUC 0.9650
+nhưng vẫn thấp hơn rõ rệt.
+– Kết quả cho thấy ArcFace, kết hợp với mô hình RetinaFace trong bước phát
+hiện khuôn mặt, là lựa chọn phù hợp, mang lại hiệu quả cao và ổn định cho
+hệ thống xác minh khuôn mặt.
+3.3.4 Thiết kế giao diện xác minh người dùng
+Để dễ dàng trực quan hóa quá trình xác minh người dùng, nhóm đã thiết kế giao
+diện cho phần nhận diện khuôn mặt người dùng thông qua camera trước khi quyết
+định chuyển hướng người dùng đến giao diện chat cá nhân hóa hoặc giao diện chat ẩn
+danh.
+53
+
+Mô tả giao diện:
+• Giao diện được thiết kế tối màu để làm nổi bật vùng hiển thị camera và thông
+tin xác minh.
+• Biểu tượng robot và văn bản “Đang xác thực tự động...” xuất hiện nhằm thông
+báo cho người dùng rằng hệ thống đang trong quá trình xử lý.
+• Một bộ đếm ngược thời gian 5 giây giúp người dùng nắm được tiến trình xác
+thực.
+• Camera sẽ bật và hiển thị hình ảnh trực tiếp của người dùng, cùng với thông báo
+trạng thái như “Đang chờ nhận diện...” hoặc “Phiên đã xác nhận. Đang chuyển
+hướng...”.
+• Khi khuôn mặt được phát hiện, một khung nhận diện màu xanh sẽ xuất hiện
+quanh khuôn mặt để phản hồi trực quan cho người dùng.
+Minh hoạ giao diện:
+Hình 3.9:Giao diện xác minh người dùng – Đang nhận diện
+54
+
+Hình 3.10:Giao diện xác minh người dùng – Đã xác minh được người dùng
+3.4 Quy trình triển khai và đánh giá hiệu quả hệ thống
+RAG và GraphRAG
+3.4.1 Xây dựng cơ sở dữ liệu vector và xử lí truy vấn trong
+RAG
+3.4.1.1 Chuyển đổi dữ liệu quan hệ sang cơ sở dữ liệu vector
+Trước khi thực hiện truy vấn ngữ nghĩa bằng kỹ thuật tìm kiếm trong không gian
+vector, hệ thống cần chuyển đổi toàn bộ dữ liệu từ cơ sở dữ liệu quan hệ (dạng bảng)
+sang định dạng phù hợp để lưu trữ trongvector store. Quá trình này bao gồm ba bước
+chính: trích xuất dữ liệu từ các bảng, chuẩn hóa và biểu diễn dữ liệu dưới dạng văn
+bản giàu ngữ nghĩa, sau đó mã hóa các biểu diễn này thành vector nhúng (embedding)
+để lưu trữ.
+a. Trích xuất và xử lý dữ liệu
+- Loại bỏ các trường không chứa ngữ nghĩa như Link_Image, Embedding.
+- Hệ thống sử dụng một đoạn mã Python để kết nối đến cơ sở dữ liệu SQLite, liệt
+kê các bảng hiện có và truy xuất toàn bộ dữ liệu trong từng bảng. Mỗi bản ghi được
+chuyển đổi thành một chuỗi văn bản có ngữ cảnh đầy đủ, giúp mô tả rõ ràng thông tin
+55
+
+của thực thể.
+- Nhằm nâng cao khả năng hiểu ngữ nghĩa của hệ thống ngôn ngữ, ở bước này tên
+các cột trong bảng được ánh xạ sang các cụm từ gần gũi với ngôn ngữ tự nhiên hơn.
+Ví dụ, trường dữ liệu"Name_Product" được chuyển đổi thành "tên sản phẩm".
+Minh họa kết quả sau bước a: " Bảng Product :id danh mục: 1, id
+sản phẩm: 101, tên sản phẩm: Coffee Latte, mô tả: cà phê sữa
+tươi vị nhẹ, phù hợp cho buổi sáng thư giãn"
+b. Tạo vector embedding và lưu trữ
+Sau khi hoàn tất bước biểu diễn dữ liệu dưới dạng văn bản, các chuỗi mô tả này
+được đưa vào mô hình PhoBERT để mã hoá thành các vector nhúng (embedding).
+Mỗi vector thu được là biểu diễn số hoá của toàn bộ ngữ nghĩa chứa trong một bản
+ghi dữ liệu.
+Các vector embedding này được lưu trữ trong cấu trúc FAISS Index, cho phép
+tìm kiếm theo truy vấn ngữ nghĩa một cách hiệu quả. Bên cạnh vector, hệ thống còn
+lưu kèm thông tin metadata như tên bảng, tên các cột và dữ liệu gốc để phục vụ việc
+truy xuất và tham chiếu sau này.
+c. Hoàn tất quá trình chuyển đổi dữ liệu
+Kết quả của quá trình chuyển đổi là một tập hợp các tài liệu đã được mã hoá và
+sẵn sàng cho truy vấn vector. Mỗi tài liệu bao gồm hai phần chính:
+"content": [chuỗi mô tả văn bản], "metadata": bảng,
+cột, dữ liệu gốc
+Trong đó, trường content” chứa chuỗi mô tả dạng văn bản của bản ghi dữ liệu,
+còn metadata” lưu giữ thông tin về nguồn gốc dữ liệu. Các vector embedding tương
+ứng với “content” được lưu trong FAISS để phục vụ cho truy vấn theo ngữ nghĩa.
+Quá trình này đảm bảo rằng toàn bộ cơ sở dữ liệu quan hệ ban đầu được ánh
+xạ đầy đủ vào không gian vector, tạo nền tảng vững chắc cho khả năng tìm kiếm ngữ
+nghĩa tự nhiên từ truy vấn văn bản của người dùng.
+56
+
+3.4.1.2 Xử lý truy vấn của người dùng
+Ở nghiên cứu này, chúng tôi thiết kế quy trình xử lý truy vấn trong RAG (minh họa
+ở Hình 3.11 bao gồm 4 bước chính như sau:
+Hình 3.11:Quy trình xử lí truy vấn người dùng trong RAG
+• B1: Tiếp nhận truy vấn từ người dùng
+Người dùng nhập vào một câu hỏi hoặc yêu cầu thông tin, được gọi là câu truy
+vấn.
+• B2: Phân tích truy vấn và định tuyến phương pháp truy xuất
+Sau khi nhận được truy vấn từ người dùng, hệ thống sử dụng mô hình ngôn ngữ
+lớn (LLM) đóng vai chuyên gia để phân tích ý định truy vấn bằng cách cung cấp
+cho LLM các công cụ có sẵn. Tại bước này, kỹ thuật Query Routing [21] được
+áp dụng nhằm lựa chọn một trong hai phương pháp truy xuất tài liệu phù hợp,
+dựa trên bản chất của truy vấn đầu vào:
+– Truy vấn có cấu trúc ( structured query ): Là các truy vấn yêu cầu thao
+tác dữ liệu chính xác từ cơ sở dữ liệu như: thống kê, tổng hợp, lọc, sắp xếp,
+đếm, so sánh, v.v. Các truy vấn này có thể chuyển hóa trực tiếp thành câu
+lệnh SQL.
+57
+
+Ví dụ:“Đồ uống nào có lượng calories cao nhất?”, “Liệt kê các sản phẩm
+có giá dưới 50.000đ”.
+⇒ Hệ thống định tuyến đến công cụuse_sql_tool sử dụng LLLM để
+tạo câu lệnh SQL.
+– Truy vấn không cấu trúc/thuần ngữ nghĩa ( semantic or unstructured
+query): Là các truy vấn thiên về mô tả, cảm nhận, gợi ý, trò chuyện, hoặc
+không thể biểu diễn rõ ràng thành câu lệnh SQL. Những truy vấn này
+thường yêu cầu hiểu ngữ nghĩa để phản hồi phù hợp.
+Ví dụ:“Trà sữa vị thế nào?”, “Gợi ý thức uống giải nhiệt ngày hè”.
+⇒ Hệ thống định tuyến đến công cụ use_vector_tool để thực hiện
+truy vấn ngữ nghĩa thông qua tìm kiếm vector(vector search).
+Việc lựa chọn chỉ một trong hai phương pháp ở bước này là yếu tố quan trọng
+nhằm đảm bảo tính chính xác và hiệu quả của quá trình truy xuất tài liệu.
+Hình 3.12:Lời nhắc cho LLM ra quyết định chọn một trong hai công cụ use_sql_tool
+và use_vector_tool để điều hướng truy vấn
+• B3: Truy xuất tài liệu liên quan
+Sau khi chọn được phương pháp, hệ thống tiến hành truy xuất top- k tài liệu liên
+quan với truy vấn.
+58
+
+– Nếu LLM chọn phương pháp sử dụng vector search:
+* B3.1: Vector hóa truy vấn của người dùng bằng PhoBERT [22]
+* B3.2: Sử dụng Faiss indexing để truy xuất top- k tài liệu liên quan với
+truy vấn
+– Nếu LLM chọn phương pháp tạo câu lệnh SQL:
+* B3.1: Truy vấn ban đầu được đưa trở lại vào LLM kèm theo lời nhắc
+(prompt) như ở Hình 3.13 nhằm sinh ra một câu lệnh SQL phù hợp.
+* B3.2: Câu lệnh SQL được sinh ra sau đó được thực thi trên cơ sở dữ
+liệu nhằm truy xuất tài liệu liên quan.
+• B4: LLM sinh câu trả lời cuối cùng dựa vào ngữ cảnh truy xuất được
+Cuối cùng, top-k tài liệu được truy xuất sẽ được đưa vào LLM cùng với câu truy
+vấn làm ngữ cảnh đầu vào để sinh ra câu trả lời hoàn chỉnh cho người dùng.
+Hình 3.13:Lời nhắc LLM tạo câu SQL theo truy vấn người dùng
+59
+
+Hình 3.14:Lời nhắc LLM tổng hợp thông tin và đưa ra câu trả lời cuối cùng
+3.4.2 Xây dựng cơ sở dữ liệu đồ thị và xử lí truy vấn trong
+GraphRAG
+3.4.2.1 Xây dựng cơ sở dữ liệu đồ thị trong GraphRAG
+Quá trình xây dựng cơ sở dữ liệu đồ thị trong hệ thống GraphRAG được tiến hành
+theo từng giai đoạn, kết hợp dữ liệu có cấu trúc và phi cấu trúc, đồng thời tận dụng
+sức mạnh của các mô hình ngôn ngữ lớn (LLM) để làm giàu thông tin cho đồ thị tri
+thức.
+• Trích xuất dữ liệu quan hệ và khởi tạo đồ thị cơ bản: Dữ liệu ban đầu được
+trích xuất từ hệ quản trị cơ sở dữ liệu quan hệ, bao gồm các bảng như Category,
+Product, Variant, Order detail, Orders, Store, và Customer. Các bảng này được
+ánh xạ thành các node và quan hệ cơ bản trong Neo4j, tạo thành một đồ thị ban
+đầu thể hiện cấu trúc dữ liệu dạng quan hệ. Quá trình chuyển đổi này giúp biểu
+diễn trực quan mối quan hệ giữa các thực thể, làm nền tảng cho việc mở rộng
+đồ thị sau này.
+• Mở rộng đồ thị với mô tả sản phẩm: Để làm giàu đồ thị, mô hình LLM được sử
+60
+
+dụng để trích xuất entity và relationship từ các mô tả sản phẩm (thường là dạng
+văn bản phi cấu trúc). Các thực thể được nhận diện (ví dụ: thành phần, màu sắc,
+dụng cụ) và quan hệ giữa chúng (ví dụ: “kết hợp với”, “phục vụ trong”) được
+chuẩn hóa và đưa vào Neo4j, bổ sung vào đồ thị tri thức.
+• Phát hiện cộng đồng sản phẩm và mô tả cộng đồng : Trên đồ thị tri thức đã
+mở rộng, thuật toán Leiden được áp dụng để phát hiện các cộng đồng sản phẩm
+– tập hợp các sản phẩm có tính chất tương đồng hoặc liên kết chặt chẽ trong
+đồ thị. Các cộng đồng được gán mô tả bằng cách sử dụng LLM để tổng hợp
+keyword đặc trưng của từng nhóm. Sau đó, các mô tả này được ánh xạ sang
+vector embedding bằng mô hình PhoBERT, giúp biểu diễn ngữ nghĩa của mỗi
+cộng đồng dưới dạng số.
+• Gán node cộng đồng và mở rộng đồ thị cộng đồng:Mỗi cộng đồng sản phẩm
+được đại diện bởi một node riêng trong đồ thị – gọi là node cộng đồng. Node
+này chứa thông tin mô tả và embedding vector tương ứng. Tương tự, trong mỗi
+cộng đồng sản phẩm, các cộng đồng nhỏ hơn ở cấp độ biến thể cũng được phát
+hiện và mô tả, sau đó liên kết ngược với node cộng đồng sản phẩm. Kết quả là
+đồ thị GraphRAG bao gồm không chỉ các thực thể và quan hệ ban đầu, mà còn
+mở rộng thành các lớp cộng đồng ngữ nghĩa có tính phân cấp, phục vụ hiệu quả
+cho việc truy vấn ngữ nghĩa trong hệ thống.
+3.4.2.2 Xử lý truy vấn trong GraphRAG
+Quy trình xử lý truy vấn trong hệ thống GraphRAG được thiết kế theo hướng kết
+hợp giữa khả năng truy xuất chính xác dựa trên đồ thị tri thức và khả năng sinh câu
+trả lời linh hoạt của mô hình ngôn ngữ lớn (LLM). Cụ thể, quá trình được chia thành
+hai giai đoạn chính: Retrieval và Generation.
+• Giai đoạn truy xuất thông tin (Retrieval)
+– Khi người dùng nhập vào một câu truy vấn bằng ngôn ngữ tự nhiên, hệ
+thống tiến hành bước tiền xử lý với hai hướng song song:
+* Trích xuất thực thể (keywords) từ câu hỏi đầu vào bằng mô hình LLM.
+61
+
+* Sinh embedding của câu truy vấn bằng mô hình PhoBERT để hỗ trợ
+so khớp ngữ nghĩa.
+– Dựa trên thông tin trích xuất được, hệ thống áp dụng chiến lược local-first
+để tìm kiếm thực thể trong đồ thị:
+* Tìm trong node category: Nếu từ khóa phù hợp với một node danh
+mục, hệ thống mở rộng truy vấn đến các node sản phẩm và biến thể
+liên quan.
+* Tìm trong node product: Nếu không tìm được danh mục phù hợp, hệ
+thống kiểm tra khả năng khớp với sản phẩm cụ thể.
+* Tìm trong node variant: Nếu tìm được sản phẩm, hệ thống tiếp tục truy
+xuất đến các biến thể chi tiết.
+* Nếu cả ba hướng tìm kiếm cục bộ đều không mang lại kết quả đầy đủ,
+hệ thống chuyển sang truy vấn theo cộng đồng sản phẩm bằng phương
+pháp tìm kiếm kết hợp (hybrid search). Lúc này, embedding truy vấn
+được dùng để so khớp với các vector mô tả trong các node cộng đồng
+sản phẩm, và so khớp keywords câu truy vấn với keywords được lưu
+trữ của cộng đồng sản phẩm.
+– Kết quả của giai đoạn này là tập top-k sản phẩm hoặc cộng đồng sản phẩm
+có liên quan cao nhất đến câu truy vấn đầu vào.
+• Giai đoạn sinh câu trả lời (Generation) Sau khi thu được danh sách tài liệu
+liên quan từ đồ thị (top-k), hệ thống kết hợp truy vấn gốc và nội dung của các
+sản phẩm này để tạo thành một prompt đầu vào cho mô hình LLM. Mô hình
+LLM sau đó sinh ra câu trả lời hoàn chỉnh, mang tính tự nhiên, giải thích và
+thuyết phục hơn, phù hợp với ngữ cảnh của người dùng.
+3.4.3 Đánh giá hiệu quả truy xuất tài liệu (Retrieval)
+Trong hệ thống RAG (Retrieval-Augmented Generation) và GraphRAG, việc đánh
+giá chất lượng truy xuất thông tin là một thành phần cốt lõi, bởi vì khả năng truy xuất
+tài liệu phù hợp sẽ ảnh hưởng trực tiếp đến chất lượng của câu trả lời được tạo ra.
+62
+
+3.4.3.1 Thiết lập thí nghiệm
+a. Thiết lập các tham số
+• Chọn số lượng k tài liệu được truy xuất : Thí nghiệm chọn số lượng tài liệu
+được truy xuất k = 3.
+• Sử dụng PhoBERT để vector hóa truy vấn với số lượng token tối đa là 256.
+b. Xây dựng tập dữ liệu đánh giá
+• Dữ liệu được thiết kế dưới dạng file CSV được minh họa như Hình 3.15, với
+cấu trúc được trình bày trong Bảng 3.3.
+Bảng 3.3: Cấu trúc tập dữ liệu
+Cột Ý nghĩa
+Câu hỏi Câu hỏi người dùng đặt ra.
+ID_Ground Truth
+(GT)
+Danh sách ID của tài liệu cần truy xuất tương ứng với câu
+hỏi (có thể có nhiều ID, phân tách bằng dấu phẩy).
+Bảng chứa GT Tên bảng hoặc collection chứa GT (ví dụ: Categories,
+Product, Variant, Store).
+Top_3_output
+Danh sách top 3 ID mà hệ thống RAG truy xuất, dưới dạng
+chuỗi các ID phân tách bằng dấu phẩy (có thể trùng nhau
+nếu mô hình truy xuất lặp lại kết quả).
+• Độ lớn tập dữ liệu : Tập dữ liệu gồm 100 câu hỏi liên quan đến cửa hàng đồ
+uống.
+• Các bảng phục vụ truy xuất: Gồm 4 bảng chính:
+– Categories: Thể hiện các danh mục đồ uống (ví dụ: Classic Espresso
+Drinks, Smoothies, . . . ).
+– Product: Thông tin sản phẩm cụ thể.
+– Variant: Các biến thể của sản phẩm (khác nhau về kích cỡ, sữa, lượng
+calo, . . . ).
+– Store: Liên quan đến thông tin cửa hàng (ví dụ: địa chỉ, giờ mở cửa, . . . ).
+63
+
+• Đa dạng Ground Truth: Một số câu hỏi có GT là nhiều ID (ví dụ: “4, 5”), phản
+ánh tính chất phức tạp của câu trả lời.
+Hình 3.15:Minh họa một số mẫu câu hỏi trong tập đánh giá khả năng truy xuất của RAG
+3.4.3.2 Các độ đo đánh giá
+Theo [32], các độ đo được chia thành hai nhóm chính: độ đo không dựa trên thứ
+hạng (non-rank based metrics) và độ đo dựa trên thứ hạng (rank-based metrics).
+Độ đo không dựa trên thứ hạng
+Sử dụng các độ đo truyền thống như Precision (10), Recall(11), và F1-Score (12) để
+đánh giá hiệu quả truy xuất:
+Trong đó:
+• T P (True Positives): Tài liệu liên quan đã được truy xuất.
+• F P (False Positives): Tài liệu không liên quan nhưng được truy xuất.
+• F N (False Negatives): Tài liệu liên quan nhưng không được truy xuất.
+Ngoài ra, độ đo Recall@k (Độ bao phủ ở top- k) cũng thường được sử dụng để
+đánh giá khả năng truy xuất trong phạm vi k tài liệu đầu tiên:
+Recall@k = |RD ∩ Topk|
+|RD| (16)
+Trong đó:
+• RD là tập hợp các tài liệu liên quan.
+64
+
+• Topk là danh sách k tài liệu đầu tiên được truy xuất.
+Độ đo dựa trên thứ hạng
+Nhóm độ đo này chú trọng đến vị trí của các tài liệu liên quan trong danh sách kết
+quả, vì tài liệu liên quan xuất hiện sớm thường có giá trị cao hơn.
+• Mean Reciprocal Rank (MRR) :
+MRR = 1
+|Q|
+|Q|X
+i=1
+1
+ranki
+(17)
+Trong đó:
+– Q là tập truy vấn.
+– ranki là vị trí của tài liệu đúng đầu tiên trong truy vấn thứ i.
+• Mean Average Precision (MAP):
+MAP = 1
+|Q|
+|Q|X
+q=1
+1
+|Relq|
+nX
+k=1
+P (k) · rel(k) (18)
+Trong đó:
+– Relq là số lượng tài liệu đúng cho truy vấn q.
+– P (k) là độ chính xác tại vị trík.
+– rel(k) = 1 nếu tài liệu tại vị trík là đúng, ngược lại bằng 0.
+3.4.3.3 Kết quả thí nghiệm
+Thí nghiệm được tiến hành nhằm so sánh hiệu quả truy xuất tài liệu giữa hai hệ thống:
+RAG và GraphRAG mở rộng với truy xuất qua đồ thị tri thức . Cả hai hệ thống
+sử dụng cùng tập dữ liệu đánh giá và được đo lường theo các độ đo đã trình bày tại
+Mục 3.4.3.2. Kết quả tổng hợp được trình bày trong Bảng 3.4.
+65
+
+Bảng 3.4: So sánh kết quả đánh giá giữa RAG và GraphRAG
+Chỉ số RAG GraphRAG
+Recall@3 0.79 0.84
+MRR@3 0.84 0.88
+MAP@3 0.86 0.82
+Precision 0.68 0.84
+Recall 0.77 0.79
+F1-score 0.72 0.81
+Nhận xét:
+Kết quả thí nghiệm cho thấy GraphRAG đạt hiệu suất truy xuất cao hơn so với
+RAG trên hầu hết các chỉ số. Cụ thể,Recall@3 và MRR@3 tăng lần lượt từ 0.79 lên
+0.84 và từ 0.84 lên 0.88, phản ánh khả năng truy xuất tài liệu liên quan ở vị trí cao
+được cải thiện.
+Precision và F1-score cũng tăng khi dùng GraphRAG (68 lên 0.84 và từ 0.72 lên
+0.81), cho thấy GraphRAG giảm thiểu đáng kể các tài liệu không liên quan trong kết
+quả.
+Mặc dù MAP@3 của RAG cao hơn (0.86 so với 0.82), điều này cho thấy RAG có
+khả năng phân bố các tài liệu liên quan đồng đều hơn trong top-3 kết quả truy xuất.
+Ngược lại, GraphRAG có xu hướng tập trung truy xuất một số tài liệu đúng ở vị trí
+đầu, dẫn đến chỉ sốMRR cao hơn nhưng có thể khiến tổng độ chính xác trung bình
+tại nhiều vị trí trong top-3 (MAP) bị giảm nhẹ
+3.4.4 Chất lượng sinh câu trả lời (Generation)
+3.4.4.1 Thiết lập thí nghiệm
+• Xây dựng tập dữ liệu đánh giá:
+– Tiến hành xây dựng tập truy vấn gồm 100 câu hỏi liên quan đến hệ thống
+cửa hàng đồ uống, như Hình 3.16.
+66
+
+Hình 3.16:Một số câu hỏi trong tập dữ liệu đánh giá chất lượng sinh câu trả lời của RAG
+• Phương pháp đánh giá:
+– Sau khi xây dựng bộ truy vấn, tôi sử dụng hệ thống RAG để tạo ra câu trả
+lời tương ứng cho từng câu hỏi.
+– Để đánh giá chất lượng câu trả lời từ RAG, tôi sử dụng phương pháp đóng
+vai chuyên gia [29] — một cách tiếp cận phổ biến trong các nghiên cứu
+đánh giá RAG gần đây.
+– Theo đó, tôi trực tiếp thực hiện đánh giá thủ công từng câu trả lời dựa trên
+hai tiêu chí chính:
+1. Đúng phạm vi (Groundedness): Câu trả lời có liên quan và nằm trong
+phạm vi truy vấn hay không.
+2. Trung thực (Faithfulness): Câu trả lời có trung thực, không bịa đặt
+hay suy diễn ngoài nội dung tài liệu hay không.
+– Mỗi tiêu chí được chấm theo thang điểm nhị phân (0 hoặc 1), và tổng điểm
+cho mỗi câu trả lời nằm trong khoảng từ 0 đến 2.
+– Tôi ghi lại kết quả và phân tích tỷ lệ câu trả lời đạt chất lượng cao (2 điểm),
+trung bình (1 điểm) và thấp (0 điểm).
+3.4.4.2 Kết quả thí nghiệm
+a. Kết quả tổng quan
+67
+
+Bảng 3.5: So sánh kết quả đánh giá chất lượng câu trả lời giữa RAG và GraphRAG
+Tổng điểm Số lượng (RAG) Số lượng (GraphRAG)
+2 64 75
+1 36 25
+b. Phân tích lỗi ở nhóm 1 điểm
+Bảng 3.6: Phân tích nguyên nhân các câu trả lời 1 điểm
+Nhóm lỗi RAG GraphRAG Giải thích
+Đúng phạm vi = 1,
+Trung thực = 0 2 0 Trả lời đúng chủ đề nhưng
+có nội dung bịa đặt.
+Đúng phạm vi = 0,
+Trung thực = 1 34 25
+Câu trả lời trung thực với
+dữ liệu truy xuất, nhưng
+sai trọng tâm truy vấn.
+Nhận xét:
+• GraphRAG cải thiện đáng kể chất lượng sinh câu trả lời, với 75% câu đạt điểm
+tối đa, so với 64% ở RAG. Điều này cho thấy việc bổ sung tri thức cấu trúc từ
+đồ thị hỗ trợ mô hình sinh tập trung hơn vào ngữ cảnh phù hợp.
+• Số lượng câu trả lời chỉ đạt 1 điểm giảm từ 36 xuống 25, phản ánh khả năng
+giảm thiểu lỗi do truy xuất sai hướng trong GraphRAG.
+• Đặc biệt, lỗi do "bịa đặt" thông tin (Trung thực = 0) hoàn toàn không xuất hiện
+trong GraphRAG, cho thấy khi ngữ cảnh được mở rộng tốt và đúng mục tiêu,
+mô hình sinh sẽ trung thực hơn với nguồn tri thức được cung cấp.
+• Phân tích Bảng 3.6 cho thấy phần lớn lỗi sinh câu (ở cả hai mô hình) bắt nguồn
+từ bước truy xuất không chính xác, khẳng định vai trò then chốt của thành phần
+truy xuất trong hệ thống.
+3.4.5 Thiết kế giao diện tương tác với chatbot
+Sau khi hết thời gian xác minh, hệ thống sẽ chuyển hướng người dùng đến giao diện
+tương tác với chatbot. Giao diện hệ thống chatbot được thiết kế đơn giản, trực quan và
+thân thiện với người dùng, gồm ba khu vực chính:
+68
+
+• Khu vực thông tin người dùng (bên trái):
+– Nếu xác minh thành công: Hiển thị tên người dùng, số đơn hàng, mức độ
+thân thiết. Bên dưới là lịch sử mua hàng gồm ngày, sản phẩm, số lượng, giá
+và đánh giá. Phía dưới cùng là phần giới thiệu và các tính năng nổi bật của
+chatbot.
+– Nếu không xác minh được danh tính người dùng: Hiển thị người dùng ẩn
+danh.
+• Khu vực hội thoại trung tâm: Là nơi diễn ra cuộc trò chuyện giữa người dùng
+và chatbot. Tin nhắn của chatbot được hiển thị rõ ràng, nổi bật trên nền tối, tạo
+cảm giác hiện đại và dễ theo dõi.
+• Khu vực nhập truy vấn và điều hướng nhanh: Người dùng có thể nhập
+câu hỏi hoặc chọn nhanh các gợi ý chủ đề như Coffee, Frappuccino, Espresso
+Drinks,... Ngoài ra còn có các nút hỗ trợ như gửi tin, tải tệp, chat bằng giọng nói
+và cài đặt giọng đọc của chatbot.
+Hình 3.17:Giao diện chính để người dùng tương tác với chatbot
+69
+
+3.5 Quy trình triển khai và đánh giá chức năng tìm kiếm
+thông tin sản phẩm tương tự bằng hình ảnh
+3.5.1 Mô tả chức năng
+Trong hệ thống chatbot tư vấn có hỗ trợ cá nhân hóa trải nghiệm, một chức năng
+quan trọng là tìm kiếm thông tin sản phẩm tương tự bằng hình ảnh. Thông qua việc
+phân tích hình ảnh sản phẩm do khách hàng gửi đến, từ đó tư vấn các sản phẩm
+tương tự có trong cửa hàng.
+• Đầu vào (Input): Hình ảnh do người dùng cung cấp thông qua giao diện chat-
+bot. Hình ảnh này là ảnh chụp một sản phẩm đồ uống mà người dùng quan
+tâm.
+• Đầu ra (Output): Câu tư vấn bằng văn bản từ chatbot dựa trên thông tin các
+sản phẩm tương tự trong cửa hàng được tổng hợp từ hệ thống truy xuất. Được
+minh họa ở Hình3.18
+Hình 3.18:Minh họa đầu vào(input), đầu ra(output) của chức năng tìm kiếm thông tin sản
+phẩm tương tự bằng hình ảnh.
+Cơ chế tìm kiếm thông tin sản phẩm tương tự bằng hình ảnh trải qua 3 giai đoạn:
+• Giai đoạn 1: Tìm kiếmtop-k thông tin sản phẩm tương tự dựa trên vector đặc
+trưng trích xuất được từ ảnh.
+• Giai đoạn 2: Tìm kiếmtop-k thông tin sản phẩm tương tự dựa trên mô tả hình
+ảnh được sinh bởi các mô hình ngôn ngữ lớn (LLM).
+70
+
+• Giai đoạn 3: Kết hợp các phương pháp tìm kiếm và chọn ra top-k thông tin tốt
+nhất để tạo câu trả lời.
+3.5.2 Tìm kiếm thông tin sản phẩm tương tự dựa trên vector
+đặc trưng ảnh
+Tìm kiếm thông tin sản phẩm tương tự dựa trên vector đặc trưng được trích xuất từ
+ảnh sản phẩm gồm 3 bước, được minh hoạ ở Hình 3.19:
+1. Thiết lập vector store lưu vector đặc trưng của ảnh sản phẩm trong cơ sở
+dữ liệu:
+• Sử dụng mô hình Vision Transformer (ViT)-16B của PyTorch để trích xuất
+đặc trưng từ ảnh sản phẩm trong cơ sở dữ liệu.
+• Sử dụng chỉ mục IndexFlatL2 để lưu trữ tìm kiếm vector trong vector store
+dựa trên khoảng cách L2."
+Khoảng cách L2 giữa hai vector x = ( x1, x2, ..., xn) và y = ( y1, y2, ..., yn)
+được tính theo công thức sau:
+L2 Distance(x, y) =
+vuut
+nX
+i=1
+(xi − yi)2 (19)
+2. Trích xuất đặc trưng từ ảnh truy vấn của người dùng:
+• Hình ảnh do người dùng cung cấp được đưa vào mô hình ViT để tạo ra
+vector đặc trưng tương ứng.
+3. Tìm kiếm thông tin sản phẩm tương tự:
+• Sử dụng Faiss để tìmtop-k vector trong vector store có mức độ tương đồng
+cao nhất với vector ảnh truy vấn.
+• Truy xuất thông tin chi tiết của các sản phẩm tương ứng với các vector này
+từ metadata hoặc cơ sở dữ liệu liên kết.
+71
+
+Hình 3.19:Minh họa quy trình tìm kiếm thông tin sản phẩm tương tự dựa trên vector đặc
+trưng ảnh sản phẩm
+3.5.3 Tìm kiếm thông tin sản phẩm tương tự dựa trên mô
+tả ảnh được sinh từ LLM
+Quy trình tìm kiếm thông tin sản phẩm tương tự dựa trên mô tả hình ảnh được sinh
+bởi LLM bao gồm bốn bước chính như được minh họa trong Hình 3.20:
+Hình 3.20:Minh họa quy trình tìm kiếm thông tin sản phẩm tương tự dựa trên mô tả hình
+ảnh được sinh bởi LLM
+72
+
+1. Thiết lập vector store của các mô tả sản phẩm trong cơ sở dữ liệu
+• Truy xuất vào cơ sở dữ liệu để lấy danh sách các mô tả sản phẩm.
+• Sử dụng mô hình PhoBERT để vector hóa các mô tả, với độ dài tối đa
+(max_length) là 256 token.
+• Sử dụng Faiss với chỉ mục IndexFlatL2 để lưu trữ các vector mô tả, kèm
+theo metadata như ID sản phẩm, tên sản phẩm nhằm phục vụ việc truy vấn
+sau này.
+2. Tạo mô tả sản phẩm từ ảnh truy vấn
+• Ảnh truy vấn được đưa vào mô hình ngôn ngữ lớn (LLM) kết hợp với lời
+nhắc (prompt) ở Hình 3.21 để quy định các thông tin mô tả đồ uống bao
+gồm:
+– Màu sắc của đồ uống
+– Loại cốc, ly đựng
+– Thành phần có thể có trong đồ uống
+– Lớp phủ bên trên đồ uống
+– Đối tượng và hoàn cảnh sử dụng lý tưởng
+• Các thông tin được nối lại với nhau để tạo thành đoạn mô tả sản phẩm hoàn
+chỉnh.
+3. Vector hóa mô tả bằng PhoBERT
+• Đoạn mô tả sản phẩm sinh ra từ LLM được chuyển đổi thành vector em-
+bedding bằng PhoBERT, sử dụng cùng cấu hình với bước 1.
+4. Truy xuất thông tin sản phẩm tương tự
+• Sử dụng vector embedding từ B3 để tìm top-k mô tả sản phẩm tương tự
+nhất trong Faiss(theo khoảng cách L2).
+• Mỗi vector trong Faiss được liên kết với một tập thông tin phụ trợ (meta-
+data) bao gồm: ID sản phẩm, Tên sản phẩm, v.v.
+73
+
+Hình 3.21:Lời nhắc LLM mô tả hình ảnh đầu vào
+3.5.4 Kết hợp các phương pháp tìm kiếm và chọn top-k
+thông tin tốt nhất để tạo câu trả lời
+3.5.4.1 Quy trình hợp nhất và chọn lọc thông tin theo tiêu chí Minimum
+Bayes Risk
+Trong bài toán tìm kiếm thông tin sản phẩm tương tự bằng hình ảnh, MBR được áp
+dụng để hợp nhất kết quả từ hai phương pháp tìm kiếm: tìm kiếm thông tin dựa trên
+đặc trưng ảnh và tìm kiếm thông tin dựa trên mô tả sản phẩm được sinh ra từ mô hình
+ngôn ngữ lớn (LLM). Trong đó, mô tả sản phẩm là thông tin quan trọng vì nó chứa
+đựng thông tin ngữ nghĩa đại diện cho từng sản phẩm, hỗ trợ hiệu quả cho việc hỏi
+đáp ngữ nghĩa trong hệ thống chatbot.
+Quy trình hợp nhất và chọn lọc thông tin:
+1. Tìm kiếm thông tin từ hai phương pháp độc lập
+Cả hai phương pháp truy xuất thông tin được thực hiện riêng biệt:
+• Tìm kiếm thông tin sản phẩm tương tự dựa trên đặc trưng hình ảnh.
+• Tìm kiếm thông tin sản phẩm tương tự dựa trên mô tả ảnh được sinh ra từ
+LLM.
+74
+
+Mỗi phương pháp trả về một tập kết quả top-k.
+2. Chuẩn hóa khoảng cách và chuyển đổi thành xác suất
+Faiss trả về top-k các kết quả tìm kiếm với điểm tương đồng là giá trị L2 :
+Để có thể kết hợp kết quả từ hai phương pháp, ta chuẩn hóa các điểm khoảng
+cách trả về từ Faiss của mỗi phương pháp tìm kiếm và chuyển đổi chúng thành
+xác suất.:
+• Chuẩn hóa Z-score:
+zi = di − µ
+σ + ϵ (20)
+Trong đó:
+– zi: Giá trị chuẩn hóa của kết quả truy xuấti.
+– di: Khoảng cách L2 giữa kết quả i và truy vấn.
+– µ: Điểm trung bình của tất cả các khoảng cách trong tập truy vấn.
+– σ: Độ lệch chuẩn của các khoảng cách trong tập truy vấn.
+– ϵ: Hằng số nhỏ để tránh chia cho 0.
+• Chuyển sang xác suất bằng softmax nghịch đảo:
+˜P (zi) = e−zi
+P
+j e−zj
+(21)
+Việc chuẩn hóa khoảng cách và chuyển đổi thành xác suất giúp cân bằng kết
+quả từ hai phương pháp truy xuất, đưa chúng về cùng thang đo để so sánh và kết
+hợp. Softmax nghịch đảo biến các giá trị chuẩn hóa thành xác suất phản ánh độ
+tin cậy của từng kết quả.
+3. Hợp nhất kết quả thành tập ứng viên
+Tập ứng viên C được tạo ra bằng cách kết hợp các kết quả từ hai phương pháp
+tìm kiếm:
+C = Timage ∪ Ttext
+Trong đó, Timage là tập kết quả từ phương pháp tìm kiếm dựa trên đặc trưng hình
+ảnh, và Ttext là tập kết quả từ phương pháp dựa trên mô tả sản phẩm.
+75
+
+4. Đo lường mức độ tương đồng ngữ nghĩa
+Sử dụng "mô tả sản phẩm" để đại diện về ngữ nghĩa cho các thông tin sản
+phẩm được trả về. Sử dụng cosine similarity giữa vector mô tả của mỗi ứng viên
+và các mô tả trong truy vấn. Công thức tính như sau:
+cos(vz∗, vz) = vz∗ · vz
+∥vz∗∥∥vz∥ (22)
+Trong đó:
+• cos(vz∗, vz): Độ tương đồng giữa vector ngữ nghĩa của ứng viên z∗ và ứng
+viên z.
+• vz: Vector ngữ nghĩa của ứng viênz.
+• ∥vz∥: Độ dài (chuẩn Euclid) của vector vz.
+Việc sử dụng cosine similarity giúp đánh giá mức độ tương đồng ngữ nghĩa của
+các mô tả sản phẩm ứng viên, từ đó xác định độ phù hợp với yêu cầu truy vấn.
+5. Tính điểm tổng hợp có trọng số theo nguyên lý MBR
+Mỗi ứng viên z∗ sẽ được đánh giá thông qua điểm số tổng hợp, tính bằng cách
+kết hợp mức độ tương đồng ngữ nghĩa và độ tin cậy từ các nguồn khác nhau:
+score(z∗) = α
+X
+zi∈Timage
+˜P (zi) · cos(vz∗, vzi) + (1− α)
+X
+zj∈Ttext
+˜P (zj) · cos(vz∗, vzj ) (23)
+Trong đó:
+• score(z∗): Điểm tổng hợp của ứng viên z∗.
+• α ∈ [0, 1]: Trọng số điều chỉnh ưu tiên kết quả từ phương pháp truy xuất
+dựa trên đặc trưng ảnh
+• ˜P (zi): Xác suất của ứng viên zi
+• ˜P (zj): Xác suất của ứng viên zj
+• cos(vz∗, vzi): Độ tương đồng giữa vector ngữ nghĩa của z∗ và vector của zi.
+• cos(vz∗, vzj ): Độ tương đồng giữa vector ngữ nghĩa giữa vector của z∗ và
+vector của zj.
+76
+
+6. Lọc và chọn thông tin
+Cuối cùng, hệ thống sắp xếp các ứng viên theo điểm số tổng hợp và chọn ra
+top-k kết quả có điểm số cao nhất. Đây chính là tập kết quả cuối cùng được trả
+về:
+ˆZtop-k = Top-k
+
+z∗ ∈ C | score(z∗) lớn nhất	 (24)
+3.5.4.2 Tổng hợp thông tin và tạo câu trả lời bằng LLM
+Tổng hợp thông tin và tạo câu trả lời cuối cùng bằng LLM được minh họa ở Hình
+3.22 trải qua hai bước:
+Hình 3.22:Minh họa quy trình tổng hợp thông tin và tạo câu trả lời bằng LLM
+1. Kết hợp và chọn lọc top-k kết quả bằng kĩ thuật Late Fusion với tiêu chí
+Minimum Bayes Risk (MBR):
+Mỗi ứng viên trong C được gán một điểm tổng hợp phản ánh mức độ tin cậy
+từ hai phương pháp tìm kiếm — đặc trưng hình ảnh và mô tả hình ảnh sinh bởi
+LLM, kết hợp với độ tương đồng ngữ nghĩa giữa các mô tả sản phẩm . Việc
+chọn top-k ứng viên có điểm tổng hợp cao nhất giúp đảm bảo rằng các thông
+tin giữ lại là những thông tin có mức độ phù hợp cao nhất với truy vấn và rủi ro
+thấp nhất.
+2. Sinh câu trả lời cuối cùng bằng mô hình ngôn ngữ lớn (LLM):
+77
+
+Các thông tin top-k sau khi chọn lọc sẽ được sử dụng làm ngữ cảnh đầu vào cho
+LLM, kết hợp với lời nhắc (prompt) ở Hình 3.23 được thiết kế phù hợp với truy
+vấn của người dùng. LLM sẽ sử dụng ngữ cảnh này để sinh ra một câu trả lời tự
+nhiên, đầy đủ và mạch lạc.
+Hình 3.23:Lời nhắc cho LLM tạo câu trả lời
+3.5.5 Đánh giá hiệu năng tìm kiếm sản phẩm tương tự bằng
+hình ảnh
+3.5.5.1 Mô tả tập dữ liệu đánh giá
+• Nguồn thu thập dữ liệu: Dữ liệu đánh giá bao gồm các ảnh sản phẩm được
+thu thập từ Internet, dựa trên tập dữ liệu đồ uống của cửa hàng Starbucks trên
+Kaggle được thu thập bởi Henry Shan [25], nhằm phản ánh đúng nhất điều kiện
+triển khai thực tế và đảm bảo tính khách quan trong quá trình đánh giá .
+• Kích thước tập dữ liệu:Tập dữ liệu bao gồm 120 ảnh, được phân bổ đều tương
+ứng với 30 sản phẩm có trong cơ sở dữ liệu.
+• Cách tổ chức và sắp xếp dữ liệu: Tập dữ liệu đánh giá được xây dựng theo cấu
+trúc thư mục phân cấp (minh họa ở Hình 3.25), trong đó thư mục gốc chứa 30
+thư mục con. Mỗi thư mục con được đặt tên theo một sản phẩm cụ thể, đại diện
+cho 30 loại sản phẩm khác nhau. Bên trong mỗi thư mục chứa 4 ảnh sản phẩm
+tương ứng.
+78
+
+• Đặc điểm dữ liệu: Ảnh sản phẩm được thu thập đa dạng về góc chụp, cự li
+chụp, kiểu dáng và cường độ ánh sáng, nhằm đảm bảo đánh giá khách quan khi
+áp dụng các phương pháp lên tập dữ liệu (minh họa ở Hình 3.24).
+Hình 3.24:Minh họa cấu trúc tổ chức dữ liệu
+Hình 3.25:Ảnh trong tập đánh giá so với ảnh gốc của sản phẩm Banana Chocolate
+Smoothie
+3.5.5.2 Thiết lập thí nghiệm
+• Chọn số lượng thông tin liên quan được truy xuất k = 3.
+79
+
+• Sử dụng phương pháp tìm kiếm dựa trên đặc trưng ảnh, kết hợp với mô tả sản
+phẩm trong ảnh được sinh bởi mô hình ngôn ngữ lớn (LLM) để truy xuất các
+thông tin sản phẩm liên quan từ ảnh đầu vào.
+• Áp dụng phương pháp Late Multimodal Fusion cùng với kỹ thuật Minimum
+Bayes Risk (MBR) để chọn lọc ra top 3 thông tin sản phẩm tốt nhất.
+• Các độ đo được sử dụng bao gồm Top-k Accuracy và Mean Reciprocal Rank
+(MRR) (17), trong đó Top-k Accuracy được tính theo công thức (25):
+Top-k Accuracy = 1
+N
+NX
+i=1
+1(yi ∈ Rk
+i ) (25)
+Trong đó:
+– N: Tổng số ảnh trong tập đánh giá.
+– yi: Tên sản phẩm đúng (ground truth) tương ứng với ảnh thứ i.
+– Rk
+i : Danh sách k tên sản phẩm đầu tiên được hệ thống trả về khi truy vấn
+ảnh thứ i.
+– 1(yi ∈ Rk
+i ): Hàm chỉ báo, trả về 1 nếu yi ∈ Rk
+i , ngược lại trả về 0.
+3.5.5.3 Kết quả thí nghiệm
+Hiệu quả truy xuất thông tin sản phẩm theo từng phương pháp được trình bày trong
+Bảng 3.7.
+Bảng 3.7: Kết quả đánh giá tìm kiếm thông tin sản phẩm
+Phương pháp Top-1 Accuracy Top-3 Accuracy MRR
+Truy xuất thông tin dựa trên mô tả 0.39 0.46 0.42
+Truy xuất thông tin dựa trên vector
+đặc trưng ảnh 0.31 0.43 0.36
+Late Fusion - MBR 0.40 0.55 0.47
+Nhận xét:
+80
+
+• Phương pháp Late Fusion với tiêu chí Minimum Bayes Risk đạt hiệu quả tổng
+thể cao nhất với Top-3 Accuracy = 0.55 và MRR = 0.47 . Việc kết hợp thông
+tin từ mô tả văn bản và đặc trưng ảnh cho thấy hiệu quả rõ rệt trong việc nâng
+cao độ chính xác của hệ thống.
+• Phương pháp dựa trên mô tả đạt Top-1 Accuracy = 0.39 , cao nhất trong 2
+phương pháp khi thực nghiệm riêng lẻ. Điều này nhấn mạnh vai trò của dữ
+liệu ngữ nghĩa trong việc hỗ trợ truy xuất chính xác ngay từ kết quả đầu tiên.
+• Phương pháp dựa trên vector đặc trưng ảnh cho hiệu quả còn hạn chế, do kết quả
+có thể bị ảnh hưởng đáng kể bởi các yếu tố như điều kiện ánh sáng, góc chụp và
+sự không đồng nhất về bố cục trong tập dữ liệu thử nghiệm.
+3.5.5.4 Phân tích và thảo luận
+Ưu điểm:
+• Việc kết hợp phương pháp truy xuất thông tin sản phẩm tương tự dựa trên đặc
+trưng hình ảnh và mô tả ảnh được sinh bởi LLM không chỉ giúp hệ thống nhận
+diện sự tương đồng về mặt thị giác mà còn mở rộng khả năng hiểu và xử lý
+thông tin ở cấp độ ngữ nghĩa. Điều này đặc biệt quan trọng trong bài toán xây
+dựng chatbot tư vấn, nơi việc nắm bắt chính xác ý nghĩa và ngữ cảnh của yêu
+cầu người dùng đóng vai trò then chốt để cung cấp phản hồi phù hợp và hiệu
+quả.
+• Việc kết hợp giữa hai cơ chế truy xuất — dựa trên đặc trưng hình ảnh và mô
+tả sinh bởi mô hình ngôn ngữ lớn (LLM) — cho thấy hiệu quả bổ trợ lẫn nhau,
+giúp cải thiện đáng kể độ chính xác trong quá trình truy xuất. Cách tiếp cận này
+đặc biệt hữu ích trong những trường hợp mà một phương pháp đơn lẻ không đủ
+khả năng truy xuất được thông tin của các sản phẩm có đặc điểm hình thức hoặc
+mô tả tương tự nhau.
+Nhược điểm và thách thức:
+81
+
+• Độ chính xác Top-1 của hệ thống còn hạn chế, cho thấy khả năng truy xuất chính
+xác thông tin sản phẩm chưa thật sự tối ưu.
+• Phương pháp truy xuất dựa trên đặc trưng hình ảnh đơn thuần dễ bị ảnh hưởng
+bởi yếu tố nhiễu từ dữ liệu thực tế như ánh sáng, góc chụp, bố cục hoặc chất
+lượng ảnh trong tập đánh giá như Hình 3.24.
+• Hiệu quả của phương pháp truy xuất dựa trên mô tả ảnh đầu vào được sinh bởi
+LLM còn phụ thuộc nhiều vào mô tả được sinh từ LLM và mô tả của sản phẩm
+trong database.
+• Thực tế tồn nhiều sản phẩm khác nhau nhưng có các đặc điểm tương đồng, như
+màu sắc chủ đạo, kiểu dáng bao bì hoặc bố cục trình bày. Điều này gây khó
+khăn cho các mô hình truy xuất trong việc truy xuất chính xác thông tin các sản
+phẩm. Minh họa cho hiện tượng này được trình bày trong Bảng 3.8
+Bảng 3.8: Ví dụ một số cặp sản phẩm có hình ảnh tương đồng trong tập dữ liệu đánh giá
+Cặp sản phẩm tương đồng A–B Ảnh A Ảnh B
+Brewed Coffee – Caffè Americano
+Caffè Mocha – Hot Chocolate
+White Chocolate Mocha – Mocha
+Light Frappuccino
+82
+
+3.5.6 Giao diện chức năng tìm kiếm sản phẩm tương tự
+bằng hình ảnh
+Ngoài xử lý truy vấn dưới dạng văn bản thì một trong những điểm nổi bật của hệ
+thống là chức năng tìm kiếm sản phẩm bằng hình ảnh. Người dùng có thể dễ dàng
+tải ảnh sản phẩm bằng cách nhấn vào nút tải ảnh (nút được khoanh màu đỏ ở Hình
+3.26). Sau khi ảnh được tải lên,hệ thống sau đó đưa ra các gợi ý sản phẩm phù hợp
+dựa trên đặc điểm nhận diện được.
+• Các gợi ý được trình bày dưới dạng tin nhắn của chatbot, bao gồm tên sản phẩm,
+kích cỡ, giá tiền, và hình ảnh minh hoạ.
+• Các sản phẩm được đề xuất cũng hiển thị trực quan ở phần “Sản phẩm được đề
+cập”, cho phép người dùng dễ dàng so sánh và lựa chọn.
+Chức năng này giúp nâng cao tính tiện ích và thông minh của hệ thống, đồng thời
+hỗ trợ người dùng chưa nhớ rõ tên sản phẩm vẫn có thể tìm được thức uống mong
+muốn chỉ với một tấm ảnh.
+Hình 3.26:Giao diện khi người dùng gửi truy vấn bằng hình ảnh
+83
+
+3.6 Tiểu kết chương 3
+Chương 3 đã trình bày quá trình xây dựng hệ thống chatbot cho cửa hàng đồ uống
+với các chức năng cá nhân hóa. Hệ thống được thiết kế dựa trên cơ sở dữ liệu cụ thể
+và quy trình tương tác người dùng rõ ràng.
+Chức năng xác minh danh tính bằng khuôn mặt giúp nâng cao trải nghiệm người
+dùng. Hệ thống RAG và GraphRAG được triển khai với khả năng truy xuất và sinh
+câu trả lời, với cơ sở dữ liệu vector và đồ thị tri thức hỗ trợ xử lý truy vấn hiệu quả.
+Các thí nghiệm đánh giá cho thấy hệ thống đạt hiệu quả cao trong cả truy xuất tài liệu
+và tạo sinh văn bản.
+Ngoài ra, chức năng tìm kiếm sản phẩm tương tự bằng hình ảnh được triển khai
+với hai hướng: dựa trên vector đặc trưng ảnh và mô tả sinh từ LLM. Kết quả được
+chọn lọc bằng phương pháp Minimum Bayes Risk để tối ưu hóa câu trả lời. Tuy kết
+quả đạt được chỉ ở mức trung bình nhưng các đánh giá hiệu năng cho thấy tính ứng
+dụng cao của hệ thống trong thực tế.
+84
+
+CHƯƠNG 4: KẾT LUẬN V À HƯỚNG PHÁT TRIỂN
+Kết luận
+Khóa luận đã nghiên cứu, thiết kế và triển khai thành công một hệ thống chatbot tư
+vấn cho cửa hàng đồ uống, tích hợp các chức năng cá nhân hóa nhằm nâng cao trải
+nghiệm người dùng. Hệ thống được xây dựng trên cơ sở dữ liệu chi tiết về sản phẩm,
+khách hàng và lịch sử tương tác, phục vụ cho các module chức năng chính.
+Một điểm nổi bật của hệ thống là module xác minh danh tính người dùng thông
+qua nhận diện khuôn mặt. Bằng cách kết hợp mô hình RetinaFace hiệu quả trong phát
+hiện khuôn mặt đa tỷ lệ với mô hình ArcFace cho khả năng trích xuất đặc trưng phân
+biệt, hệ thống đã đạt được độ chính xác xác thực cao (Accuracy 99.65%, F1-score
+99.64%) cùng tỷ lệ lỗi thấp (ERR 0.17%). Kết quả này khẳng định tính tin cậy của
+phương pháp.
+Khóa luận cũng triển khai hệ thống hỏi-đáp thông minh sử dụng RAG và mở rộng
+với đồ thị tri thức GraphRAG). Qua thực nghiệm, phương pháp GraphRAG đã chứng
+minh hiệu quả vượt trội so với RAG trong việc truy xuất tài liệu liên quan, thể hiện
+qua sự cải thiện đáng kể trên các chỉ số Recall@3 (84%) và MRR@3 (88%). Đặc biệt,
+phân tích chất lượng câu trả lời đã chỉ ra rằng GraphRAG không chỉ tăng tỷ lệ câu trả
+lời chất lượng cao (75% đạt điểm tối đa) mà còn loại bỏ hiện tượng "bịa đặt" thông
+tin nhờ khả năng truy xuất tài liệu đầy đủ hơn RAG, nhấn mạnh vai trò của đồ thị tri
+thức trong việc cung cấp ngữ cảnh chính xác và đáng tin cậy cho mô hình sinh.
+Ngoài ra, chúng tôi đã triển khai chức năng tìm kiếm sản phẩm tương tự bằng hình
+ảnh, kết hợp thông tin từ đặc trưng thị giác và mô tả ngữ nghĩa của ảnh được sinh bởi
+mô hình ngôn ngữ lớn. Việc áp dụng kỹ thuật Late Fusion cùng tiêu chí Minimum
+Bayes Risk (MBR) để hợp nhất kết quả từ hai phương pháp này đã cho thấy hiệu quả
+tổng thể cao hơn so với từng phương pháp riêng lẻ (Top-3 Accuracy 55%, MRR 47%),
+mặc dù hiệu năng vẫn còn ở mức trung bình do sự phức tạp và tính biến động của dữ
+liệu hình ảnh thực tế.
+85
+
+Hướng phát triển
+Trên cơ sở những kết quả đạt được từ khóa luận này, chúng tôi nhận thấy còn nhiều
+tiềm năng và hướng phát triển để nâng cao hiệu quả và mở rộng phạm vi ứng dụng
+của hệ thống chatbot.
+Một trong những trọng tâm tiếp theo mà chúng tôi hướng tới là tiếp tục tối ưu hóa
+khả năng truy xuất thông tin. Đối với hệ thống hỏi-đáp, chúng tôi dự định nghiên cứu
+sâu hơn các phương pháp tinh chỉnh quy trình xây dựng và truy vấn đồ thị tri thức
+trong GraphRAG nhằm cải thiện hơn nữa độ chính xác và tốc độ phản hồi đối với các
+truy vấn phức tạp yêu cầu tổng hợp thông tin đa chiều.
+Để tạo ra trải nghiệm tương tác tự nhiên và cá nhân hóa sâu sắc hơn, việc phát
+triển các kỹ thuật quản lý trạng thái hội thoại và bộ nhớ dài hạn là cần thiết. Việc này
+giúp chatbot duy trì ngữ cảnh và hiểu rõ ý định của người dùng qua nhiều lượt tương
+tác.
+Tối ưu hóa hiệu năng xử lý truy vấn để đảm bảo thời gian phản hồi nhanh chóng
+và tăng cường các biện pháp bảo mật dữ liệu người dùng, đặc biệt là dữ liệu nhạy cảm
+như khuôn mặt, nhằm đáp ứng các yêu cầu cần thiết cho việc triển khai an toàn và
+hiệu quả trong môi trường thực tế.
+86
+
+TÀI LIỆU THAM KHẢO
+[1] Eirini Adamopoulou and Lefteris Moussiades. Chatbots: History, technology
+and applications. Machine Learning with Applications , 2, 2020.
+[2] María Alfaro-Contreras, Jose J Valero-Mas, José M I ˜nesta, and Jorge Calvo-
+Zaragoza. Late multimodal fusion for image and audio music transcription.
+Expert Systems with Applications , 216:119491, 2023.
+[3] Neha Arora, Akshay Singh, and Akshita Ahlawat. A survey on personalized
+recommendation systems. International Journal of Computer Applications ,
+182(44), 2019.
+[4] Jiankang Deng, Jia Guo, Niannan Xue, and Stefanos Zafeiriou. Arcface: Ad-
+ditive angular margin loss for deep face recognition. In Proceedings of the
+IEEE/CVF conference on computer vision and pattern recognition, pages 4690–
+4699, 2019.
+[5] Jiankang Deng, Jia Guo, Yuxiang Zhou, Jinke Yu, Irene Kotsia, and Stefanos
+Zafeiriou. Retinaface: Single-stage dense face localisation in the wild. arXiv
+preprint arXiv:1905.00641, 2019.
+[6] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xi-
+aohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for
+image recognition at scale. arXiv preprint arXiv:2010.11929, 2020.
+[7] Hendrik Drachsler and Marco Kalz. Personalized learning. Springer Handbook
+of Learning Analytics , 2015.
+[8] Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva
+Mody, Steven Truitt, Dasha Metropolitansky, Robert Osazuwa Ness, and
+Jonathan Larson. From local to global: A graph rag approach to query-focused
+summarization. arXiv preprint arXiv:2404.16130, 2024.
+87
+
+[9] Facebook Engineering. Faiss: A library for efficient similarity search.
+https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-
+efficient-similarity-search/, 2017. Accessed: 2025-04-10.
+[10] Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yixin
+Dai, Jiawei Sun, Haofen Wang, and Haofen Wang. Retrieval-augmented genera-
+tion for large language models: A survey. arXiv preprint arXiv:2312.10997, 2:1,
+2023.
+[11] Carlos A Gómez-Uribe and Neil Hunt. The netflix recommender system: Al-
+gorithms, business value, and innovation. ACM Transactions on Management
+Information Systems, 6(4), 2015.
+[12] James A Hanley and Barbara J McNeil. The meaning and use of the area under
+a receiver operating characteristic (roc) curve. Radiology, 143(1):29–36, 1982.
+[13] Aidan Hogan, Eva Blomqvist, Michael Cochez, Claudia d’ Amato, Gerard De
+Melo, Claudio Gutierrez, Sabrina Kirrane, José Emilio Labra Gayo, Roberto
+Navigli, Sebastian Neumaier, et al. Knowledge graphs. ACM Computing Surveys
+(Csur), 54(4):1–37, 2021.
+[14] Fabian Hutmacher and Markus Appel. The psychology of personalization in
+digital environments: From motivation to well-being–a theoretical integration.
+Review of General Psychology, 27(1):26–40, 2023.
+[15] Paul Jaccard. Étude comparative de la distribution florale dans une portion des
+alpes et des jura. Bull Soc Vaudoise Sci Nat , 37:547–579, 1901.
+[16] Anil K Jain, Arun Ross, and Salil Prabhakar. An introduction to biometric
+recognition. IEEE Transactions on circuits and systems for video technology ,
+14(1):4–20, 2004.
+[17] Jeff Johnson, Matthijs Douze, and Hervé Jégou. Billion-scale similarity search
+with gpus. IEEE Transactions on Big Data, 7(3):535–547, 2019.
+[18] Patrick et al. Lewis. Retrieval-augmented generation for knowledge-intensive
+nlp tasks. NeurIPS, 2020.
+88
+
+[19] Ziwei Liu, Ping Luo, Shi Qiu, Xiaogang Wang, and Xiaoou Tang. Deepfashion:
+Powering robust clothes recognition and retrieval with rich annotations. In Pro-
+ceedings of the IEEE conference on computer vision and pattern recognition ,
+pages 1096–1104, 2016.
+[20] David D Luxton. mhealth for mental health: Integrating smartphone technology
+in behavioral healthcare. Professional Psychology: Research and Practice, 2016.
+[21] Feiteng Mu, Y ong Jiang, Liwen Zhang, Chu Liu, Wenjie Li, Pengjun Xie, and
+Fei Huang. Query routing for homogeneous tools: An instantiation in the rag
+scenario. arXiv preprint arXiv:2406.12429, 2024.
+[22] Dat Quoc Nguyen and Anh Tuan Nguyen. PhoBERT: Pre-trained language mod-
+els for Vietnamese. In Findings of the Association for Computational Linguis-
+tics: EMNLP 2020, pages 1037–1042, 2020.
+[23] David MW Powers. Evaluation: from precision, recall and f-measure to roc,
+informedness, markedness and correlation. arXiv preprint arXiv:2010.16061 ,
+2020.
+[24] Salesloft. Chatbot: Guide and use cases. https://www .salesloft.com/
+learn/chatbot, 2025. Accessed: 2025-04-10.
+[25] Henry Shan. Starbucks. https://www .kaggle.com/datasets/
+henryshan/starbucks, 2023. Accessed: 2025-04-10.
+[26] Yuchen et al. Sun. Graphrag: A knowledge graph augmented framework for
+retrieval-augmented generation. arXiv preprint arXiv:2309.06188, 2023.
+[27] Vincent A Traag, Ludo Waltman, and Nees Jan Van Eck. From louvain to leiden:
+guaranteeing well-connected communities. Scientific reports, 9(1):1–12, 2019.
+[28] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+Aidan N Gomez, Ł ukasz Kaiser, and Illia Polosukhin. Attention is all you need.
+Advances in neural information processing systems , 30, 2017.
+89
+
+[29] Y ang Wang, Alberto Garcia Hernandez, Roman Kyslyi, and Nicholas Kersting.
+Evaluating quality of answers for retrieval-augmented generation: A strong llm
+is all you need. arXiv preprint arXiv:2406.18064, 2024.
+[30] Luyu et al. Wu. T5-rl: Retrieval-augmented language model fine-tuning. arXiv
+preprint arXiv:2005.11401, 2020.
+[31] Yifan Y ao, Jinhao Duan, Kaidi Xu, Yuanfang Cai, Zhibo Sun, and Yue Zhang.
+A survey on large language model (llm) security and privacy: The good, the bad,
+and the ugly. High-Confidence Computing, page 100211, 2024.
+[32] Hao Yu, Aoran Gan, Kai Zhang, Shiwei Tong, Qi Liu, and Zhaofeng Liu. Eval-
+uation of retrieval-augmented generation: A survey. In CCF Conference on Big
+Data, pages 102–120. Springer, 2024.
+[33] Hao Zhang, Cong Xu, and Shuaijie Zhang. Inner-iou: more effective intersection
+over union loss with auxiliary bounding box. arXiv preprint arXiv:2311.02877,
+2023.
+[34] Yizhe et al. Zhang. Dialogpt: Large-scale generative pre-training for conversa-
+tional response generation. ACL, 2020.
+[35] Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Y e, and Dongwei
+Ren. Distance-iou loss: Faster and better learning for bounding box regression.
+In Proceedings of the AAAI conference on artificial intelligence , volume 34,
+pages 12993–13000, 2020.
+90

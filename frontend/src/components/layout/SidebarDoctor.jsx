@@ -1,4 +1,8 @@
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { apiUrl } from '../../config/api';
+import { AuthContext } from '../../context/AuthContext';
 import {
     HomeOutlined as HomeIcon,
     HistoryOutlined as HistoryIcon,
@@ -6,14 +10,53 @@ import {
     VerifiedUserOutlined as DoctorIcon,
     RateReviewOutlined as ReviewIcon
 } from '@mui/icons-material';
-import { Box, List, ListItemIcon, ListItemText, ListItemButton, Typography, alpha, Badge } from '@mui/material';
+import { Box, List, ListItemIcon, ListItemText, ListItemButton, Typography, alpha, Badge, Skeleton } from '@mui/material';
 
-function SidebarDoctor() {
+function SidebarDoctor({ onItemClick }) {
     const location = useLocation();
+    const { token } = useContext(AuthContext);
+    const [todayCount, setTodayCount] = useState(0);
+    const [pendingCount, setPendingCount] = useState(0);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!token) return;
+            try {
+                // Fetch today's count
+                const countRes = await axios.get(apiUrl('/api/review/count-today'), {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (countRes.data && typeof countRes.data.count === 'number') {
+                    setTodayCount(countRes.data.count);
+                }
+
+                // Fetch pending count
+                const pendingRes = await axios.get(apiUrl('/api/review/pending'), {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (Array.isArray(pendingRes.data)) {
+                    setPendingCount(pendingRes.data.length);
+                } else {
+                    setPendingCount(0);
+                }
+            } catch (err) {
+                console.error("Failed to fetch stats:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+        // Cập nhật lại mỗi 5 phút hoặc khi location thay đổi
+        const interval = setInterval(fetchStats, 5 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [token, location.pathname]);
 
     const menuItems = [
-        { path: '/', label: 'Bảng điều khiển', icon: <HomeIcon /> },
-        { path: '/review', label: 'Review bệnh án', icon: <ReviewIcon />, count: 5 }, // Thêm count để tạo điểm nhấn
+        { path: '/', label: 'Trang chủ', icon: <HomeIcon /> },
+        { path: '/ai-diagnosis', label: 'Chẩn đoán AI', icon: <DoctorIcon /> },
+        { path: '/review', label: 'Review bệnh án', icon: <ReviewIcon />, count: pendingCount },
         { path: '/doctor-history', label: 'Lịch sử đánh giá', icon: <HistoryIcon /> },
     ];
 
@@ -30,27 +73,31 @@ function SidebarDoctor() {
         >
             {/* DOCTOR IDENTIFIER SECTION */}
             <Box sx={{ p: 3, pb: 2 }}>
-                <Box sx={{ 
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    gap: 0.5, 
-                    p: 2, 
-                    borderRadius: '20px', 
-                    background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-                    boxShadow: '0 8px 20px -6px rgba(37, 99, 235, 0.5)',
-                    color: '#fff'
-                }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <DoctorIcon sx={{ fontSize: '1.2rem' }} />
-                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                            Bác sĩ Chuyên khoa
-                        </Typography>
-                    </Box>
-                    <Typography sx={{ fontSize: '0.65rem', opacity: 0.8, fontWeight: 500 }}>
-                        Hệ thống hỗ trợ chẩn đoán AI
-                    </Typography>
-                </Box>
-            </Box>
+  <Box sx={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 0.5,
+    p: 2,
+    borderRadius: '20px',
+    // Nền gradient xanh dương pastel tươi sáng, dịu mắt
+    background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+    // Đổ bóng soft-shadow màu xanh nhẹ để tạo độ nổi tinh tế
+    boxShadow: '0 8px 20px -6px rgba(59, 130, 246, 0.15)',
+    // Màu chữ xanh đen đậm, cực kỳ sắc nét trên nền sáng
+    color: '#1e3a8a' 
+  }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      {/* Icon tự động nhận màu sắc từ thuộc tính color của Box cha */}
+      <DoctorIcon sx={{ fontSize: '1.2rem', color: 'inherit' }} />
+      <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', color: 'inherit' }}>
+        Bác sĩ Chuyên khoa
+      </Typography>
+    </Box>
+    <Typography sx={{ fontSize: '0.65rem', opacity: 0.85, fontWeight: 600, color: 'inherit' }}>
+      Hệ thống hỗ trợ chẩn đoán AI
+    </Typography>
+  </Box>
+</Box>
 
             {/* Menu Section */}
             <List sx={{ flex: 1, px: 2, py: 1, overflow: 'auto' }}>
@@ -76,17 +123,18 @@ function SidebarDoctor() {
                             key={item.path}
                             component={Link}
                             to={item.path}
+                            onClick={onItemClick}
                             sx={{
                                 borderRadius: '12px',
                                 mb: 1,
                                 px: 2,
                                 py: 1.6,
                                 transition: 'all 0.3s ease',
-                                
+
                                 // Màu sắc chủ đạo: Xanh Blue
                                 color: isActive ? '#2563eb' : '#64748b',
                                 bgcolor: isActive ? alpha('#2563eb', 0.06) : 'transparent',
-                                
+
                                 '&:hover': {
                                     bgcolor: isActive ? alpha('#2563eb', 0.1) : '#f8fafc',
                                     color: '#2563eb',
@@ -116,52 +164,53 @@ function SidebarDoctor() {
                                 }}
                             >
                                 {/* Thêm Badge cho mục cần chú ý (như ca bệnh mới) */}
-                                {item.count && !isActive ? (
-                                    <Badge badgeContent={item.count} color="error" variant="dot">
+                                {item.count > 0 && !isActive ? (
+                                    <Badge badgeContent={item.count} color="error">
                                         {item.icon}
                                     </Badge>
                                 ) : item.icon}
                             </ListItemIcon>
-                            
+
                             <ListItemText
-                                primary={item.label}
-                                primaryTypographyProps={{
-                                    fontWeight: isActive ? 700 : 600,
-                                    fontSize: '0.9rem',
-                                }}
+                                primary={
+                                    <Typography sx={{ fontWeight: isActive ? 700 : 600, fontSize: '0.9rem' }}>
+                                        {item.label}
+                                    </Typography>
+                                }
                             />
                         </ListItemButton>
                     );
                 })}
             </List>
 
-            {/* QUICK STATS - Một tính năng nhỏ cho bác sĩ */}
+            {/* QUICK STATS - Một tính năng nhỏ cho bác sĩ
             <Box sx={{ px: 2, mb: 2 }}>
-                <Box sx={{ 
-                    p: 2, 
-                    borderRadius: '16px', 
-                    bgcolor: '#f8fafc', 
-                    border: '1px solid #e2e8f0' 
+                <Box sx={{
+                    p: 2,
+                    borderRadius: '16px',
+                    bgcolor: '#f8fafc',
+                    border: '1px solid #e2e8f0'
                 }}>
                     <Typography sx={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, mb: 1.5 }}>
                         THỐNG KÊ HÔM NAY
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box>
-                            <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b' }}>12</Typography>
+                            {loading ? (
+                                <Skeleton variant="text" width={40} height={30} sx={{ bgcolor: '#e2e8f0' }} />
+                            ) : (
+                                <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b' }}>
+                                    {todayCount}
+                                </Typography>
+                            )}
                             <Typography sx={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 600 }}>CA ĐÃ DUYỆT</Typography>
                         </Box>
                         <AssignmentIcon sx={{ color: '#cbd5e1' }} />
                     </Box>
                 </Box>
-            </Box>
+            </Box> */}
 
             {/* Footer */}
-            <Box sx={{ p: 3, textAlign: 'center', borderTop: '1px solid #f1f5f9' }}>
-                <Typography sx={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 600 }}>
-                    MEDICAL PORTAL v1.0.0
-                </Typography>
-            </Box>
         </Box>
     );
 }

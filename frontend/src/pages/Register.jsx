@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config/api';
 import {
   Container, Typography, TextField, Button, Card, CardContent,
-  Alert, Box, CircularProgress, Divider
+  Box, CircularProgress, Divider
 } from '@mui/material';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import CheckIcon from '@mui/icons-material/Check';
+import ToastNotification from '../components/ToastNotification';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -24,7 +26,7 @@ function Register() {
     setSuccess('');
 
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/register', {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/register`, {
         username,
         email,
         password
@@ -96,20 +98,18 @@ function Register() {
               </Typography>
             </Box>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2, borderRadius: 1 }}>
-                {error}
-              </Alert>
-            )}
-            {success && (
-              <Alert
-                severity="success"
-                icon={<CheckIcon />}
-                sx={{ mb: 2, borderRadius: 1 }}
-              >
-                {success}
-              </Alert>
-            )}
+            <ToastNotification
+              open={Boolean(error)}
+              message={error}
+              severity="error"
+              onClose={() => setError('')}
+            />
+            <ToastNotification
+              open={Boolean(success)}
+              message={success}
+              severity="success"
+              onClose={() => setSuccess('')}
+            />
 
             <form onSubmit={handleRegister}>
               <TextField
@@ -121,7 +121,7 @@ function Register() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 sx={{ mb: 2 }}
-                inputProps={{ autoComplete: 'username' }}
+                slotProps={{ htmlInput: { autoComplete: 'username' } }}
               />
 
               <TextField
@@ -134,7 +134,7 @@ function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 sx={{ mb: 2 }}
-                inputProps={{ autoComplete: 'email' }}
+                slotProps={{ htmlInput: { autoComplete: 'email' } }}
               />
 
               <TextField
@@ -147,7 +147,7 @@ function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 sx={{ mb: 1 }}
-                inputProps={{ autoComplete: 'new-password' }}
+                slotProps={{ htmlInput: { autoComplete: 'new-password' } }}
                 helperText="Tối thiểu 6 ký tự"
               />
 

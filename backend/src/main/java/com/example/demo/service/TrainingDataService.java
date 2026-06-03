@@ -6,6 +6,7 @@ import com.example.demo.repository.DiagnosisRepository;
 import com.example.demo.repository.ExpertReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -22,6 +23,9 @@ public class TrainingDataService {
 
     @Autowired
     private ExpertReviewRepository expertReviewRepository;
+
+    @Value("${ai.service.retrain-url}")
+    private String aiRetrainUrl;
 
     @Autowired
     private DiagnosisRepository diagnosisRepository;
@@ -134,7 +138,7 @@ public class TrainingDataService {
     private Map<String, Object> callAiServiceRetrain(List<File> imageFiles, List<String> labels) {
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String aiUrl = "http://localhost:8000/retrain";
+            String aiUrl = aiRetrainUrl;
 
             // Tạo multipart request
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();

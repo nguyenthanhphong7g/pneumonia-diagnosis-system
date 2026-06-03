@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
-import { useContext, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { Box, Drawer, useMediaQuery, useTheme } from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from './context/AuthContext';
 import Sidebar from './components/layout/Sidebar';
 import SidebarPatient from './components/layout/SidebarPatient';
@@ -9,6 +10,8 @@ import SidebarAdmin from './components/layout/SidebarAdmin';
 import Header from './components/layout/Header';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import Home from './pages/Home';
+import AdminHome from './pages/AdminHome';
+import DoctorHome from './pages/DoctorHome';
 import History from './pages/History';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -22,6 +25,10 @@ function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+
+  useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
 
   // Choose sidebar based on user role
   let SidebarComponent = null;
@@ -40,13 +47,37 @@ function App() {
       <Header onToggleSidebar={user ? () => setSidebarOpen(!sidebarOpen) : undefined} />
 
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0, paddingTop: '64px' }}>
-        {/* Show sidebar only if user is logged in */}
-        {user && SidebarComponent && sidebarOpen && (
+        {/* Mobile sidebar */}
+        {user && SidebarComponent && isMobile && (
+          <Drawer
+            variant="temporary"
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            ModalProps={{ keepMounted: true }}
+            PaperProps={{
+              sx: {
+                width: 'min(84vw, 320px)',
+                backgroundColor: '#fff',
+                top: '64px',
+                height: 'calc(100% - 64px)',
+                borderTopLeftRadius: 0,
+                borderTopRightRadius: 0,
+              },
+            }}
+          >
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <SidebarComponent onItemClick={() => setSidebarOpen(false)} />
+            </Box>
+          </Drawer>
+        )}
+
+        {/* Desktop sidebar */}
+        {user && SidebarComponent && !isMobile && sidebarOpen && (
           <Box
             sx={{
-              display: { xs: 'none', md: 'flex' },
+              display: 'flex',
               flexDirection: 'column',
-              width: '280px',
+              width: { md: '240px', lg: '280px' },
               borderRight: '1px solid #e0e0e0',
               backgroundColor: '#ffffff',
               height: 'calc(100vh - 64px)',
@@ -73,15 +104,68 @@ function App() {
           }}
         >
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/review" element={<DoctorReview />} />
-            <Route path="/doctor-history" element={<DoctorHistory />} />
-            <Route path="/profile" element={<UserProfile />} />
+            <Route
+              path="/"
+              element={
+                user?.role === 'ADMIN'
+                  ? <Navigate to="/admin-home" replace />
+                  : user?.role === 'DOCTOR'
+                    ? <DoctorHome />
+                    : <Home />
+              }
+            />
+            <Route
+              path="/admin-home"
+              element={
+                <ProtectedAdminRoute allowedRoles={['ADMIN']}>
+                  <AdminHome />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedAdminRoute allowedRoles={['PATIENT']}>
+                  <History />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/review"
+              element={
+                <ProtectedAdminRoute allowedRoles={['DOCTOR']}>
+                  <DoctorReview />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/ai-diagnosis"
+              element={
+                <ProtectedAdminRoute allowedRoles={['ADMIN', 'DOCTOR']}>
+                  <Home />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/doctor-history"
+              element={
+                <ProtectedAdminRoute allowedRoles={['DOCTOR']}>
+                  <DoctorHistory />
+                </ProtectedAdminRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedAdminRoute allowedRoles={['ADMIN', 'DOCTOR', 'PATIENT']}>
+                  <UserProfile />
+                </ProtectedAdminRoute>
+              }
+            />
             <Route
               path="/admin-dashboard"
               element={
-                <ProtectedAdminRoute>
+                <ProtectedAdminRoute allowedRoles={['ADMIN']}>
                   <AdminDashboardAdvanced />
                 </ProtectedAdminRoute>
               }

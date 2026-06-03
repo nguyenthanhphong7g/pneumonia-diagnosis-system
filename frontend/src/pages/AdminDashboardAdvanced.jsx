@@ -3,10 +3,11 @@ import axios from 'axios';
 
 // Import MUI Components
 import {
-    Box, Card, CardContent, Typography, Button, Grid, LinearProgress, Alert,
+    Box, Card, CardContent, Typography, Button, Grid, LinearProgress,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress,
-    Chip, Divider, Tabs, Tab, Stack, IconButton, TablePagination
+    Chip, Divider, Tabs, Tab, Stack, IconButton, TablePagination,
+    TextField, InputAdornment, MenuItem, FormControl, Select, InputLabel
 } from '@mui/material';
 
 // Import MUI Icons - Dùng cách an toàn nhất
@@ -24,9 +25,15 @@ import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined';
 import AssessmentOutlined from '@mui/icons-material/AssessmentOutlined';
 import RateReviewOutlined from '@mui/icons-material/RateReviewOutlined';
 import HistoryEduOutlined from '@mui/icons-material/HistoryEduOutlined';
+import SearchOutlined from '@mui/icons-material/SearchOutlined';
+import FilterAltOutlined from '@mui/icons-material/FilterAltOutlined';
 
 // Kiểm tra kỹ đường dẫn này, nếu file UserManagement.jsx nằm cùng thư mục components thì đúng
 import UserManagement from '../components/UserManagement';
+import ToastNotification from '../components/ToastNotification';
+import { API_BASE_URL } from '../config/api';
+import DiagnosisMediaViewer from '../components/DiagnosisMediaViewer';
+import { formatModelName, resolveModelName } from '../utils/diagnosisDisplay';
 const AdminDashboardAdvanced = () => {
     const [stats, setStats] = useState(null);
     const [unusedReviews, setUnusedReviews] = useState([]);
@@ -50,7 +57,14 @@ const AdminDashboardAdvanced = () => {
     const [historyPage, setHistoryPage] = useState(0);
     const [historyRowsPerPage, setHistoryRowsPerPage] = useState(5);
 
-    const API_BASE = 'http://localhost:8080/api';
+    // Filter states
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterLabel, setFilterLabel] = useState('all');
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterModel, setFilterModel] = useState('all');
+    const [filterDate, setFilterDate] = useState('');
+
+    const API_BASE = `${API_BASE_URL}/api`;
 
     // Load stats
     useEffect(() => {
@@ -58,6 +72,24 @@ const AdminDashboardAdvanced = () => {
         loadDiagnosisStats();
         loadRetrainHistory();
     }, []);
+
+    const filteredDiagnoses = diagnoses.filter(d => {
+        const matchesSearch = d.id?.toString().includes(searchTerm) ||
+            d.imagePath?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesLabel = filterLabel === 'all' || d.label === filterLabel;
+        const matchesStatus = filterStatus === 'all' ||
+            (filterStatus === 'reviewed' && d.reviewed) ||
+            (filterStatus === 'pending' && !d.reviewed);
+
+        // Lọc theo Model
+        const modelName = formatModelName(resolveModelName(d?.modelName, d?.model, d?.aiModel, d?.model_name)).toLowerCase();
+        const matchesModel = filterModel === 'all' || modelName.includes(filterModel.toLowerCase());
+
+        // Lọc theo Ngày
+        const matchesDate = !filterDate || (d.createdAt && d.createdAt.startsWith(filterDate));
+
+        return matchesSearch && matchesLabel && matchesStatus && matchesModel && matchesDate;
+    });
 
     // Auto refresh every 30 seconds
     useEffect(() => {
@@ -100,7 +132,7 @@ const AdminDashboardAdvanced = () => {
 
     const loadDiagnosisStats = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) return;
 
             // Fetch all diagnoses with review info
@@ -110,7 +142,6 @@ const AdminDashboardAdvanced = () => {
 
             const diagnosisData = res.data || [];
             setDiagnoses(diagnosisData);
-
             // Calculate stats
             const stats = {
                 total: diagnosisData.length,
@@ -150,7 +181,7 @@ const AdminDashboardAdvanced = () => {
 
             setMessage({
                 type: 'success',
-                text: '✅ ' + response.data.message + ' - ' + response.data.samples_processed + ' samples processed',
+                text: '✅ ' + response.data.message + ' - đã xử lý ' + response.data.samples_processed + ' mẫu',
             });
 
             // Reload stats after retrain
@@ -159,7 +190,7 @@ const AdminDashboardAdvanced = () => {
             console.error('Error retraining:', error);
             setMessage({
                 type: 'error',
-                text: '❌ Lỗi khi retrain: ' + (error.response?.data?.message || error.message),
+                text: '❌ Lỗi khi huấn luyện lại: ' + (error.response?.data?.message || error.message),
             });
         } finally {
             setRetraining(false);
@@ -184,7 +215,15 @@ const AdminDashboardAdvanced = () => {
         };
     };
 
-    const paginatedDiagnoses = diagnoses.slice(
+    const getModelName = (record) => formatModelName(resolveModelName(record?.modelName, record?.model, record?.aiModel, record?.model_name));
+
+    const buildApiPath = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http://') || path.startsWith('https://')) return path;
+        return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+    };
+
+    const paginatedDiagnoses = filteredDiagnoses.slice(
         diagnosisPage * diagnosisRowsPerPage,
         diagnosisPage * diagnosisRowsPerPage + diagnosisRowsPerPage
     );
@@ -229,9 +268,9 @@ const AdminDashboardAdvanced = () => {
                     }}
                 >
                     {[
-                        { label: 'Model Retrain', icon: <BarChartOutlined />, id: 0 },
-                        { label: 'User Management', icon: <PersonAddIcon />, id: 1 },
-                        { label: 'Diagnosis Stats', icon: <AnalyticsOutlined />, id: 2 }
+                        { label: 'Huấn luyện mô hình', icon: <BarChartOutlined />, id: 0 },
+                        { label: 'Quản lý người dùng', icon: <PersonAddIcon />, id: 1 },
+                        { label: 'Thống kê chẩn đoán', icon: <AnalyticsOutlined />, id: 2 }
                     ].map((tab, index) => (
                         <Tab
                             key={tab.id}
@@ -267,7 +306,7 @@ const AdminDashboardAdvanced = () => {
                     <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box>
                             <Typography variant="h4" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: '-1px', mb: 0.5 }}>
-                                Diagnosis Statistics
+                                Thống kê chẩn đoán
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'success.main' }} />
@@ -286,14 +325,14 @@ const AdminDashboardAdvanced = () => {
                     </Box>
 
                     {/* Stats Grid */}
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
+                    <Grid container spacing={0} sx={{ mb: 4, gap: 2 }}>
                         {[
                             { label: 'TỔNG CA', value: diagnosisStats?.total || 0, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.08)', icon: <AssessmentOutlined /> },
                             { label: 'VIÊM PHỔI', value: diagnosisStats?.pneumonia || 0, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.08)', icon: <WarningOutlined /> },
                             { label: 'BÌNH THƯỜNG', value: diagnosisStats?.normal || 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)', icon: <CheckCircleOutlined /> },
-                            { label: 'REVIEWED / PENDING', value: `${diagnosisStats?.reviewed || 0} / ${diagnosisStats?.pending || 0}`, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.08)', icon: <RateReviewOutlined /> },
+                            { label: 'ĐÃ DUYỆT / CHỜ DUYỆT', value: `${diagnosisStats?.reviewed || 0} / ${diagnosisStats?.pending || 0}`, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.08)', icon: <RateReviewOutlined /> },
                         ].map((item, index) => (
-                            <Grid item xs={12} sm={6} md={3} key={index}>
+                            <Grid item xs={12} sm={6} md={3} key={index} sx={{ flex: '1 1 auto' }}>
                                 <Card sx={{
                                     borderRadius: 4,
                                     border: '1px solid',
@@ -321,15 +360,85 @@ const AdminDashboardAdvanced = () => {
 
                     {/* Data Table */}
                     <Card sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
-                        <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 700 }}>Danh sách chẩn đoán</Typography>
-                            <Typography variant="body2" color="text.secondary">{diagnoses.length} kết quả gần đây</Typography>
+                        <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9' }}>
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>Danh sách chẩn đoán</Typography>
+                                <Typography variant="body2" color="text.secondary">{filteredDiagnoses.length} kết quả tìm được</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+                                <TextField
+                                    placeholder="Tìm ID hoặc tên file..."
+                                    size="small"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchOutlined sx={{ fontSize: 20, color: 'text.secondary' }} />
+                                            </InputAdornment>
+                                        ),
+                                        sx: { borderRadius: 2, bgcolor: '#f8fafc', width: { xs: '100%', sm: 220 } }
+                                    }}
+                                />
+                                <FormControl size="small" sx={{ minWidth: 150 }}>
+                                    <InputLabel>Kết quả AI</InputLabel>
+                                    <Select
+                                        value={filterLabel}
+                                        label="Kết quả AI"
+                                        onChange={(e) => setFilterLabel(e.target.value)}
+                                        sx={{ borderRadius: 2, bgcolor: '#f8fafc' }}
+                                    >
+                                        <MenuItem value="all">Tất cả</MenuItem>
+                                        <MenuItem value="Pneumonia">Viêm phổi</MenuItem>
+                                        <MenuItem value="Normal">Bình thường</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <FormControl size="small" sx={{ minWidth: 150 }}>
+                                    <InputLabel>Trạng thái</InputLabel>
+                                    <Select
+                                        value={filterStatus}
+                                        label="Trạng thái"
+                                        onChange={(e) => setFilterStatus(e.target.value)}
+                                        sx={{ borderRadius: 2, bgcolor: '#f8fafc' }}
+                                    >
+                                        <MenuItem value="all">Tất cả</MenuItem>
+                                        <MenuItem value="reviewed">Đã duyệt</MenuItem>
+                                        <MenuItem value="pending">Chưa duyệt</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <FormControl size="small" sx={{ minWidth: 150 }}>
+                                    <InputLabel>Mô hình AI</InputLabel>
+                                    <Select
+                                        value={filterModel}
+                                        label="Mô hình AI"
+                                        onChange={(e) => setFilterModel(e.target.value)}
+                                        sx={{ borderRadius: 2, bgcolor: '#f8fafc' }}
+                                    >
+                                        <MenuItem value="all">Tất cả mô hình</MenuItem>
+                                        <MenuItem value="DenseNet">DenseNet169</MenuItem>
+                                        <MenuItem value="Fusion">Gated Fusion</MenuItem>
+                                        <MenuItem value="ViT">Vision Transformer (ViT)</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <TextField
+                                    type="date"
+                                    size="small"
+                                    value={filterDate}
+                                    onChange={(e) => setFilterDate(e.target.value)}
+                                    sx={{
+                                        minWidth: 160,
+                                        '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc' }
+                                    }}
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </Box>
                         </Box>
                         <TableContainer>
                             <Table>
                                 <TableHead sx={{ bgcolor: '#f8fafc' }}>
                                     <TableRow>
                                         <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>#</TableCell>
+                                        <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>Mô hình</TableCell>
                                         <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>Kết quả AI</TableCell>
                                         <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>Kết luận BS</TableCell>
                                         <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>Bác sĩ</TableCell>
@@ -341,7 +450,7 @@ const AdminDashboardAdvanced = () => {
                                 <TableBody>
                                     {diagnoses.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
+                                            <TableCell colSpan={8} align="center" sx={{ py: 8 }}>
                                                 <Typography color="text.secondary">Chưa có dữ liệu chẩn đoán</Typography>
                                             </TableCell>
                                         </TableRow>
@@ -351,7 +460,15 @@ const AdminDashboardAdvanced = () => {
                                                 <TableCell sx={{ color: 'text.secondary' }}>{diagnosisPage * diagnosisRowsPerPage + idx + 1}</TableCell>
                                                 <TableCell>
                                                     <Chip
-                                                        label={item.aiLabel || item.label}
+                                                        label={getModelName(item)}
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ fontWeight: 700, borderStyle: 'dashed' }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={(item.aiLabel || item.label) === 'Pneumonia' ? 'Viêm phổi' : 'Bình thường'}
                                                         size="small"
                                                         sx={{ fontWeight: 700, bgcolor: (item.aiLabel || item.label) === 'Pneumonia' ? '#fee2e2' : '#dcfce7', color: (item.aiLabel || item.label) === 'Pneumonia' ? '#ef4444' : '#10b981' }}
                                                     />
@@ -359,7 +476,7 @@ const AdminDashboardAdvanced = () => {
                                                 <TableCell>
                                                     {item.finalLabel ? (
                                                         <Typography variant="body2" sx={{ fontWeight: 600, color: item.finalLabel === 'Pneumonia' ? 'error.main' : 'success.main' }}>
-                                                            {item.finalLabel}
+                                                            {item.finalLabel === 'Pneumonia' ? 'Viêm phổi' : 'Bình thường'}
                                                         </Typography>
                                                     ) : '—'}
                                                 </TableCell>
@@ -374,7 +491,7 @@ const AdminDashboardAdvanced = () => {
                                                     }}>
                                                         <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'currentColor' }} />
                                                         <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                                                            {item.reviewed ? 'ĐÃ REVIEW' : 'CHỜ REVIEW'}
+                                                            {item.reviewed ? 'ĐÃ DUYỆT' : 'CHỜ DUYỆT'}
                                                         </Typography>
                                                     </Box>
                                                 </TableCell>
@@ -420,6 +537,7 @@ const AdminDashboardAdvanced = () => {
                             <Stack spacing={2} sx={{ mt: 1 }}>
                                 {[
                                     { label: 'Mã định danh', value: selectedPatientDetails?.id },
+                                    { label: 'Model sử dụng', value: getModelName(selectedPatientDetails) },
                                     { label: 'Kết quả AI', value: selectedPatientDetails?.aiLabel || selectedPatientDetails?.label, isBadge: true },
                                     { label: 'Bác sĩ kết luận', value: selectedPatientDetails?.finalLabel, highlight: true },
                                     { label: 'Người thực hiện', value: selectedPatientDetails?.doctorName },
@@ -438,6 +556,15 @@ const AdminDashboardAdvanced = () => {
                                         </Typography>
                                     </Box>
                                 ))}
+                                {selectedPatientDetails && (
+                                    <Box sx={{ pt: 1 }}>
+                                        <DiagnosisMediaViewer
+                                            originalSrc={buildApiPath(selectedPatientDetails.imagePath)}
+                                            gradcamSrc={selectedPatientDetails.gradcamPath ? buildApiPath(selectedPatientDetails.gradcamPath) : null}
+                                            height={320}
+                                        />
+                                    </Box>
+                                )}
                             </Stack>
                         </DialogContent>
                         <DialogActions sx={{ p: 2 }}>
@@ -450,157 +577,44 @@ const AdminDashboardAdvanced = () => {
             {/* Tab 1: Model Retrain */}
             {activeTab === 0 && (
                 <Box sx={{ animation: 'fadeIn 0.5s ease-in-out' }}>
-                    {/* Tab 3: Diagnosis Statistics */}
-                    {activeTab === 2 && (
-                        <Box sx={{ animation: 'fadeIn 0.5s ease-in-out' }}>
-                            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <Box>
-                                    <Typography variant="h4" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: '-0.4px', mb: 0.5 }}>
-                                        Diagnosis Statistics
-                                    </Typography>
-                                    <Typography variant="body1" color="text.secondary">
-                                        Thống kê toàn bộ kết quả chẩn đoán và trạng thái bác sĩ xác nhận
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<RefreshOutlined />}
-                                    onClick={loadDiagnosisStats}
-                                    sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
-                                >
-                                    Làm mới thống kê
-                                </Button>
-                            </Box>
-
-                            <Grid container spacing={3} sx={{ mb: 3 }}>
-                                {[
-                                    { label: 'TOTAL CASES', value: diagnosisStats?.total || 0, color: '#1976d2', bg: '#e3f2fd' },
-                                    { label: 'PNEUMONIA', value: diagnosisStats?.pneumonia || 0, color: '#d32f2f', bg: '#ffebee' },
-                                    { label: 'NORMAL', value: diagnosisStats?.normal || 0, color: '#2e7d32', bg: '#e8f5e9' },
-                                    { label: 'REVIEWED / PENDING', value: `${diagnosisStats?.reviewed || 0} / ${diagnosisStats?.pending || 0}`, color: '#7b1fa2', bg: '#f3e5f5' },
-                                ].map((item, index) => (
-                                    <Grid item xs={12} sm={6} md={3} key={index}>
-                                        <Card sx={{ borderRadius: 3, bgcolor: item.bg, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-                                            <CardContent>
-                                                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                                                    {item.label}
-                                                </Typography>
-                                                <Typography variant="h4" sx={{ fontWeight: 800, color: item.color, mt: 1 }}>
-                                                    {item.value}
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Grid>
-                                ))}
-                            </Grid>
-
-                            <Card sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: 2 }}>
-                                <Box sx={{ p: 2.5, bgcolor: '#f8f9fa', borderBottom: '1px solid #eee' }}>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                                        Danh sách ca chẩn đoán gần nhất
-                                    </Typography>
-                                </Box>
-                                <TableContainer>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow sx={{ '& th': { fontWeight: 700, color: 'text.secondary' } }}>
-                                                <TableCell>#</TableCell>
-                                                <TableCell>Kết quả AI</TableCell>
-                                                <TableCell>Review bác sĩ</TableCell>
-                                                <TableCell>Ngày tạo</TableCell>
-                                                <TableCell align="right">Chi tiết</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {diagnoses.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                                                        Chưa có dữ liệu chẩn đoán
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : (
-                                                diagnoses.slice(0, 12).map((item, idx) => (
-                                                    <TableRow key={item.id || idx} hover>
-                                                        <TableCell>{idx + 1}</TableCell>
-                                                        <TableCell>
-                                                            <Chip
-                                                                label={item.label || 'Unknown'}
-                                                                size="small"
-                                                                color={item.label === 'Pneumonia' ? 'error' : 'success'}
-                                                                sx={{ fontWeight: 600 }}
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Chip
-                                                                label={item.reviewed ? 'Đã review' : 'Chờ review'}
-                                                                size="small"
-                                                                color={item.reviewed ? 'primary' : 'warning'}
-                                                                variant={item.reviewed ? 'filled' : 'outlined'}
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {item.createdAt ? new Date(item.createdAt).toLocaleString('vi-VN') : '—'}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Button
-                                                                size="small"
-                                                                startIcon={<VisibilityOutlined />}
-                                                                onClick={() => {
-                                                                    setSelectedPatientDetails(item);
-                                                                    setDetailsDialog(true);
-                                                                }}
-                                                                sx={{ textTransform: 'none' }}
-                                                            >
-                                                                Xem
-                                                            </Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Card>
-
-                            <Dialog
-                                open={detailsDialog}
-                                onClose={() => setDetailsDialog(false)}
-                                maxWidth="sm"
-                                fullWidth
-                                PaperProps={{ sx: { borderRadius: 3 } }}
-                            >
-                                <DialogTitle sx={{ fontWeight: 800 }}>Chi tiết chẩn đoán</DialogTitle>
-                                <DialogContent dividers>
-                                    {!selectedPatientDetails ? (
-                                        <Typography color="text.secondary">Không có dữ liệu</Typography>
-                                    ) : (
-                                        <Box sx={{ display: 'grid', gap: 1.5 }}>
-                                            <Typography><strong>ID:</strong> {selectedPatientDetails.id || '—'}</Typography>
-                                            <Typography><strong>Kết quả AI:</strong> {selectedPatientDetails.label || '—'}</Typography>
-                                            <Typography><strong>Trạng thái review:</strong> {selectedPatientDetails.reviewed ? 'Đã review' : 'Chờ review'}</Typography>
-                                            <Typography><strong>Bác sĩ kết luận:</strong> {selectedPatientDetails.finalLabel || '—'}</Typography>
-                                            <Typography><strong>Ghi chú bác sĩ:</strong> {selectedPatientDetails.doctorComment || '—'}</Typography>
-                                            <Typography><strong>Ngày tạo:</strong> {selectedPatientDetails.createdAt ? new Date(selectedPatientDetails.createdAt).toLocaleString('vi-VN') : '—'}</Typography>
+                    {/* Training Stats Grid */}
+                    <Grid container spacing={0} sx={{ mb: 4, gap: 2 }}>
+                        {[
+                            { label: 'Tổng số mẫu', value: stats?.totalReviews || 0, color: '#2563eb', icon: <AssessmentOutlined /> },
+                            { label: 'Đã huấn luyện', value: stats?.usedForTraining || 0, color: '#10b981', icon: <CheckCircleOutlined /> },
+                            { label: 'Chờ huấn luyện', value: stats?.unusedForTraining || 0, color: '#f59e0b', icon: <WarningOutlined /> },
+                            { label: 'Viêm phổi / Bình thường', value: `${stats?.pneumoniaCount || 0} / ${stats?.normalCount || 0}`, color: '#ef4444', icon: <RateReviewOutlined /> }
+                        ].map((item, index) => (
+                            <Grid item xs={12} sm={6} md={3} key={index} sx={{ flex: '1 1 auto' }}>
+                                <Card sx={{ borderRadius: 3, height: '100%', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+                                    <CardContent sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <Box>
+                                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', display: 'block', mb: 1 }}>
+                                                {item.label}
+                                            </Typography>
+                                            <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b' }}>
+                                                {item.value}
+                                            </Typography>
                                         </Box>
-                                    )}
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={() => setDetailsDialog(false)}>Đóng</Button>
-                                </DialogActions>
-                            </Dialog>
-                        </Box>
-                    )}
+                                        <Box sx={{ p: 1, borderRadius: 2, bgcolor: `${item.color}15`, color: item.color, display: 'flex' }}>
+                                            {item.icon}
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
 
-                    {/* 4. Training Progress & Actions Container */}
-                    <Grid container spacing={3} sx={{ mb: 4 }}>
+                    {/* Training Progress & Actions Container */}
+                    <Grid container spacing={0} sx={{ mb: 4, alignItems: 'stretch', gap: 2 }}>
                         {/* Progress Card */}
-                        <Grid item xs={12} md={7}>
+                        <Grid item xs={12} md={6} sx={{ flex: '1 1 auto' }}>
                             <Card sx={{ borderRadius: 3, height: '100%', boxShadow: 2 }}>
                                 <CardContent sx={{ p: 3 }}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 700 }}>📈 Training Data Readiness</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 700 }}>📈 Mức sẵn sàng dữ liệu huấn luyện</Typography>
                                         <Chip
-                                            label={`${Math.round(getProgressPercentage())}% Ready`}
+                                            label={`${Math.round(getProgressPercentage())}% Sẵn sàng`}
                                             color="primary"
                                             sx={{ fontWeight: 700 }}
                                         />
@@ -620,10 +634,10 @@ const AdminDashboardAdvanced = () => {
                                     />
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                                         <Typography variant="body2" color="text.secondary">
-                                            <strong>{stats?.usedForTraining}</strong> samples đã huấn luyện
+                                            <strong>{stats?.usedForTraining}</strong> mẫu đã huấn luyện
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            <strong>{stats?.unusedForTraining}</strong> samples mới chờ nạp
+                                            <strong>{stats?.unusedForTraining}</strong> mẫu mới chờ nạp
                                         </Typography>
                                     </Box>
                                 </CardContent>
@@ -631,10 +645,10 @@ const AdminDashboardAdvanced = () => {
                         </Grid>
 
                         {/* Quick Actions Card */}
-                        <Grid item xs={12} md={5}>
+                        <Grid item xs={12} md={6} sx={{ flex: '1 1 auto' }}>
                             <Card sx={{ borderRadius: 3, height: '100%', boxShadow: 2, position: 'relative', overflow: 'hidden' }}>
                                 <CardContent sx={{ p: 3 }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>🔄 Retrain Actions</Typography>
+                                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>🔄 Tác vụ huấn luyện lại</Typography>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                         <Button
                                             variant="contained"
@@ -645,7 +659,7 @@ const AdminDashboardAdvanced = () => {
                                             disabled={retraining || (stats?.unusedForTraining || 0) === 0}
                                             sx={{ borderRadius: 2, py: 1.5, fontWeight: 700 }}
                                         >
-                                            {retraining ? 'Đang xử lý...' : `Retrain Unused (${stats?.unusedForTraining})`}
+                                            {retraining ? 'Đang xử lý...' : `Huấn luyện với mẫu mới (${stats?.unusedForTraining})`}
                                         </Button>
                                         <Button
                                             variant="outlined"
@@ -655,7 +669,7 @@ const AdminDashboardAdvanced = () => {
                                             disabled={retraining || (stats?.totalReviews || 0) === 0}
                                             sx={{ borderRadius: 2, py: 1.5, fontWeight: 700 }}
                                         >
-                                            Retrain All Samples ({stats?.totalReviews})
+                                            Huấn luyện lại toàn bộ mẫu ({stats?.totalReviews})
                                         </Button>
                                     </Box>
                                 </CardContent>
@@ -687,13 +701,13 @@ const AdminDashboardAdvanced = () => {
                                                 <TableCell sx={{ fontWeight: 600, color: 'text.secondary' }}>{pendingPage * pendingRowsPerPage + idx + 1}</TableCell>
                                                 <TableCell>
                                                     <Chip
-                                                        label={review.finalLabel}
+                                                        label={review.finalLabel=== 'Pneumonia' ? 'Viêm phổi' : 'Bình thường'}
                                                         color={review.finalLabel === 'Pneumonia' ? 'error' : 'success'}
                                                         size="small"
                                                         sx={{ fontWeight: 600, borderRadius: 1 }}
                                                     />
                                                 </TableCell>
-                                                <TableCell sx={{ color: 'text.secondary', maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                <TableCell sx={{ color: 'text.secondary', maxWidth: { xs: 180, sm: 240, md: 300 }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                     {review.doctorComment || '—'}
                                                 </TableCell>
                                                 <TableCell align="right">
@@ -724,7 +738,7 @@ const AdminDashboardAdvanced = () => {
                     <Card sx={{ borderRadius: 3, overflow: 'hidden', boxShadow: 2 }}>
                         <Box sx={{ p: 2.5, bgcolor: '#f8f9fa', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 1 }}>
                             <HistoryEduOutlined color="action" />
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Lịch sử Retrain</Typography>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Lịch sử huấn luyện lại</Typography>
                         </Box>
                         <TableContainer>
                             <Table>
@@ -742,7 +756,7 @@ const AdminDashboardAdvanced = () => {
                                             <TableCell>{history.date} <Typography variant="caption" color="text.secondary">{history.time}</Typography></TableCell>
                                             <TableCell>
                                                 <Chip
-                                                    label={history.type === 'unused' ? 'Partial' : 'Full'}
+                                                    label={history.type === 'unused' ? 'Một phần' : 'Toàn bộ'}
                                                     size="small"
                                                     variant="outlined"
                                                     color={history.type === 'unused' ? 'primary' : 'success'}
@@ -779,15 +793,15 @@ const AdminDashboardAdvanced = () => {
                         PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
                     >
                         <DialogTitle sx={{ fontWeight: 800, fontSize: '1.5rem' }}>
-                            Xác nhận Retrain
+                            Xác nhận huấn luyện lại
                         </DialogTitle>
                         <DialogContent>
                             <Typography sx={{ mb: 2 }}>
                                 Hệ thống sẽ sử dụng <strong>{retrainType === 'unused' ? stats?.unusedForTraining : stats?.totalReviews}</strong> mẫu dữ liệu để tối ưu hóa mô hình.
                             </Typography>
-                            <Alert severity="warning" variant="outlined" sx={{ borderRadius: 2 }}>
+                            <Typography variant="body2" sx={{ color: '#475569', mt: 1 }}>
                                 Quá trình này có thể mất vài phút. Vui lòng không đóng trình duyệt.
-                            </Alert>
+                            </Typography>
                         </DialogContent>
                         <DialogActions sx={{ p: 2, gap: 1 }}>
                             <Button onClick={() => setOpenDialog(false)} color="inherit" sx={{ fontWeight: 600 }}>Hủy bỏ</Button>
@@ -827,7 +841,7 @@ const AdminDashboardAdvanced = () => {
                                 <TextField
                                     size="small"
                                     placeholder="Tìm kiếm bác sĩ..."
-                                    sx={{ width: 300 }}
+                                    sx={{ width: { xs: '100%', sm: 300 } }}
                                 />
                                 <Button
                                     variant="contained"
@@ -844,7 +858,7 @@ const AdminDashboardAdvanced = () => {
                                         <TableRow>
                                             <TableCell><strong>Tên bác sĩ</strong></TableCell>
                                             <TableCell><strong>Chuyên khoa</strong></TableCell>
-                                            <TableCell><strong>Số lượt review</strong></TableCell>
+                                            <TableCell><strong>Số lượt chẩn đoán</strong></TableCell>
                                             <TableCell><strong>Trạng thái</strong></TableCell>
                                             <TableCell align="right"><strong>Thao tác</strong></TableCell>
                                         </TableRow>

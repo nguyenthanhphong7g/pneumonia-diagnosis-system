@@ -7,7 +7,7 @@ import {
 } from '@mui/icons-material';
 import { Box, List, ListItemIcon, ListItemText, ListItemButton, Typography, alpha, Paper } from '@mui/material';
 
-function SidebarPatient() {
+function SidebarPatient({ onItemClick }) {
   const location = useLocation();
 
   const menuItems = [
@@ -28,26 +28,34 @@ function SidebarPatient() {
     >
       {/* SECTION CHÀO MỪNG */}
       <Box sx={{ p: 3, pb: 2 }}>
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            borderRadius: '20px',
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            boxShadow: '0 8px 16px -4px rgba(16, 185, 129, 0.3)'
-          }}
-        >
-          <HealthIcon sx={{ fontSize: '1.5rem' }} />
-          <Box>
-            <Typography sx={{ fontSize: '0.85rem', fontWeight: 800 }}>Sức khỏe của bạn</Typography>
-            <Typography sx={{ fontSize: '0.65rem', opacity: 0.9 }}>Cập nhật mỗi ngày</Typography>
-          </Box>
-        </Paper>
-      </Box>
+  <Paper
+    elevation={0}
+    sx={{
+      p: 2,
+      borderRadius: '20px',
+      // Nền gradient xanh lá mint/pastel tươi sáng, tạo cảm giác an tâm, nhẹ nhàng
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      // Màu chữ xanh lá cây đậm (Forest Green), cực kỳ nổi bật và sắc nét
+      color: '#14532d', 
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2,
+      // Đổ bóng soft-shadow tone xanh mint dịu nhẹ
+      boxShadow: '0 8px 20px -6px rgba(22, 163, 74, 0.15)'
+    }}
+  >
+    {/* Icon tự động nhận màu đậm từ Paper cha nhờ color: 'inherit' */}
+    <HealthIcon sx={{ fontSize: '1.5rem', color: 'inherit' }} />
+    <Box>
+      <Typography sx={{ fontSize: '0.85rem', fontWeight: 800, color: 'inherit' }}>
+        Sức khỏe của bạn
+      </Typography>
+      <Typography sx={{ fontSize: '0.65rem', opacity: 0.85, fontWeight: 600, color: 'inherit' }}>
+        Cập nhật mỗi ngày
+      </Typography>
+    </Box>
+  </Paper>
+</Box>
 
       {/* Danh sách Menu */}
       <List sx={{ flex: 1, px: 2, py: 1, overflow: 'auto' }}>
@@ -73,6 +81,7 @@ function SidebarPatient() {
               key={item.path}
               component={Link}
               to={item.path}
+              onClick={onItemClick}
               sx={{
                 borderRadius: '12px',
                 mb: 1,
@@ -110,11 +119,11 @@ function SidebarPatient() {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontWeight: isActive ? 700 : 600,
-                  fontSize: '0.9rem',
-                }}
+                primary={
+                  <Typography sx={{ fontWeight: isActive ? 700 : 600, fontSize: '0.9rem' }}>
+                    {item.label}
+                  </Typography>
+                }
               />
             </ListItemButton>
           );
@@ -122,32 +131,8 @@ function SidebarPatient() {
       </List>
 
       {/* BOX TRỢ GIÚP */}
-      <Box sx={{ px: 2, mb: 3 }}>
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: '16px',
-            bgcolor: '#f8fafc',
-            border: '1px dotted #e2e8f0',
-            textAlign: 'center'
-          }}
-        >
-          <HelpIcon sx={{ color: '#94a3b8', fontSize: '1.2rem', mb: 1 }} />
-          <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>
-            Cần hỗ trợ?
-          </Typography>
-          <Typography sx={{ fontSize: '0.65rem', color: '#94a3b8', mt: 0.5 }}>
-            Liên hệ bác sĩ ngay nếu có thắc mắc.
-          </Typography>
-        </Box>
-      </Box>
 
       {/* Footer */}
-      <Box sx={{ p: 2, textAlign: 'center', opacity: 0.5 }}>
-        <Typography sx={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 600, letterSpacing: '1px' }}>
-          PATIENT PORTAL V1.0.0
-        </Typography>
-      </Box>
     </Box>
   );
 }

@@ -41,12 +41,16 @@ function Header({ onToggleSidebar }) {
         zIndex: 1201,
       }}
     >
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 2, md: 6 }, height: '100%' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 1.5, sm: 2, md: 6 }, height: '100%' }}>
 
         {/* LEFT: LOGO HI-TECH */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {user && isMobile && (
-            <IconButton onClick={onToggleSidebar} sx={{ mr: 1, bgcolor: '#f8fafc' }}>
+            <IconButton
+              onClick={onToggleSidebar}
+              sx={{ mr: 1, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', zIndex: 1 }}
+              aria-label="Mở menu"
+            >
               <MenuIcon />
             </IconButton>
           )}
@@ -54,32 +58,36 @@ function Header({ onToggleSidebar }) {
           <Box
             onClick={() => navigate('/')}
             sx={{
-              display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, cursor: 'pointer',
               transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.02)' }
             }}
           >
             <Box sx={{
-              width: 45, height: 45, borderRadius: '14px',
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
+              width: { xs: 38, sm: 45 }, height: { xs: 38, sm: 45 }, borderRadius: '14px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.3)',
               position: 'relative',
-              '&::after': { // Tạo hiệu ứng vòng sáng bao quanh logo
-                content: '""', position: 'absolute', inset: -3,
-                borderRadius: '16px', border: '2px solid #3b82f6', opacity: 0.2
-              }
+              overflow: 'hidden'
             }}>
-              <Typography sx={{ fontSize: '1.6rem' }}>🫁</Typography>
+              <img
+                src="/logo_pneu.png"
+                alt="Pneumonia.AI Logo"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'center'
+                }}
+              />
             </Box>
 
             <Box>
               <Typography variant="h6" sx={{
-                fontWeight: 900, fontSize: '1.2rem', color: '#0f172a',
+                fontWeight: 900, fontSize: { xs: '0.95rem', sm: '1.2rem' }, color: '#0f172a',
                 letterSpacing: '-0.8px', lineHeight: 1
               }}>
                 Pneumonia<Box component="span" sx={{ color: '#2563eb' }}>.AI</Box>
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.65rem' }}>
+              <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', fontSize: { xs: '0.58rem', sm: '0.65rem' } }}>
                 Advanced Diagnostics
               </Typography>
             </Box>
@@ -87,15 +95,15 @@ function Header({ onToggleSidebar }) {
         </Box>
 
         {/* RIGHT: PROFILE & ACTIONS */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 3 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1, md: 3 } }}>
           {user ? (
             <>
               {/* Notification Icon - Cho giống Dashboard xịn */}
-              <IconButton sx={{ color: '#64748b', bgcolor: '#f8fafc', border: '1px solid #f1f5f9' }}>
+              <IconButton sx={{ color: '#64748b', bgcolor: '#f8fafc', border: '1px solid #f1f5f9', width: { xs: 34, sm: 40 }, height: { xs: 34, sm: 40 } }}>
                 <NotificationIcon fontSize="small" />
               </IconButton>
 
-              <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 1, height: 24 }} />
+              <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: { xs: 0.5, sm: 1 }, height: 24 }} />
 
               <Box
                 onClick={handleMenuOpen}
@@ -108,24 +116,24 @@ function Header({ onToggleSidebar }) {
                 }}
                 sx={{
                   display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer',
-                  p: '6px 12px', borderRadius: '16px', bgcolor: '#f8fafc',
+                  p: { xs: '4px 8px', sm: '6px 12px' }, borderRadius: '16px', bgcolor: '#f8fafc',
                   border: '1px solid #e2e8f0', transition: '0.3s',
                   '&:hover': { bgcolor: '#fff', boxShadow: '0 10px 20px -5px rgba(0,0,0,0.05)', borderColor: '#3b82f6' }
                 }}
               >
                 <Avatar sx={{
-                  width: 38, height: 38, fontWeight: 800, fontSize: '0.9rem',
+                  width: { xs: 32, sm: 38 }, height: { xs: 32, sm: 38 }, fontWeight: 800, fontSize: '0.9rem',
                   background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
                   boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
                 }}>
                   {user.username?.[0].toUpperCase()}
                 </Avatar>
-                <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                   <Typography sx={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b' }}>
-                    Dr. {user.username}
+                    {user.username}
                   </Typography>
                   <Typography sx={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 700 }}>
-                    {user.role?.toUpperCase() || 'SPECIALIST'}
+                    {(user.role=== 'ADMIN' ? 'QUẢN TRỊ VIÊN' : user.role === 'DOCTOR' ? 'BÁC SĨ' : 'BỆNH NHÂN').toUpperCase() || 'SPECIALIST'}
                   </Typography>
                 </Box>
               </Box>
@@ -135,7 +143,7 @@ function Header({ onToggleSidebar }) {
                 TransitionComponent={Fade}
                 PaperProps={{
                   sx: {
-                    mt: 2, borderRadius: '20px', minWidth: 240, p: 1,
+                    mt: 2, borderRadius: '20px', minWidth: 260, p: 1,
                     boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
                     border: '1px solid #f1f5f9'
                   }
@@ -171,7 +179,7 @@ function Header({ onToggleSidebar }) {
                   '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 15px 20px -5px rgba(37, 99, 235, 0.4)' }
                 }}
               >
-                Bắt đầu
+                Đăng ký
               </Button>
             </Box>
           )}

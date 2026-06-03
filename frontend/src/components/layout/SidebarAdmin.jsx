@@ -1,21 +1,22 @@
 import React from 'react';
 import { Box, List, ListItemIcon, ListItemText, ListItemButton, Typography, Chip, alpha } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  DashboardOutlined as DashboardIcon, 
+import {
+  DashboardOutlined as DashboardIcon,
   HomeOutlined as HomeIcon,
   AdminPanelSettingsOutlined as AdminIcon,
   StorageOutlined as DatabaseIcon,
-  MemoryOutlined as ModelIcon
+  MemoryOutlined as ModelIcon,
+  PsychologyOutlined as DiagnosisIcon
 } from '@mui/icons-material';
 
 const SidebarAdmin = () => {
   const location = useLocation();
 
   const menuItems = [
-    { path: '/', label: 'Quay lại Trang chủ', icon: <HomeIcon /> },
-    { path: '/admin-dashboard', label: 'Model Dashboard', icon: <DashboardIcon />, badge: 'Core' },
-    { path: '/system-logs', label: 'Logs Hệ thống', icon: <DatabaseIcon /> }, // Demo thêm cho đẹp
+    { path: '/admin-home', label: 'Tổng quan', icon: <DashboardIcon /> },
+    { path: '/ai-diagnosis', label: 'Chẩn đoán AI', icon: <DiagnosisIcon /> },
+    { path: '/admin-dashboard', label: 'Bảng điều khiển', icon: <DashboardIcon />, badge: 'Core' },
   ];
 
   return (
@@ -30,22 +31,32 @@ const SidebarAdmin = () => {
       }}
     >
       {/* HEADER SECTION - ADMIN IDENTIFIER */}
-      <Box sx={{ p: 3, pb: 1 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 1.5, 
-          p: 1.5, 
-          borderRadius: '16px', 
-          bgcolor: alpha('#7c3aed', 0.05),
-          border: `1px solid ${alpha('#7c3aed', 0.1)}`
-        }}>
-          <AdminIcon sx={{ color: '#7c3aed' }} />
-          <Typography sx={{ fontSize: '0.85rem', fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Admin Control
-          </Typography>
-        </Box>
-      </Box>
+      <Box sx={{ p: 3, pb: 2 }}>
+  <Box sx={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 0.5,
+    p: 2,
+    borderRadius: '20px',
+    // Nền gradient tím pastel tươi sáng, nhẹ nhàng
+    background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
+    // Đổ bóng nhẹ dạng soft-shadow để ô nổi lên tinh tế
+    boxShadow: '0 8px 20px -6px rgba(168, 85, 247, 0.2)',
+    // Đổi toàn bộ chữ và icon bên trong thành màu tím đen đậm để không bị chìm
+    color: '#3b0764' 
+  }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      {/* Icon thừa hưởng màu từ bố mẹ (color: 'inherit') để tự động ăn theo màu tím đen */}
+      <AdminIcon sx={{ fontSize: '1.2rem', color: 'inherit' }} />
+      <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', color: 'inherit' }}>
+        Quản trị viên
+      </Typography>
+    </Box>
+    <Typography sx={{ fontSize: '0.65rem', opacity: 0.8, fontWeight: 600, color: 'inherit' }}>
+      Bảng điều khiển hệ thống
+    </Typography>
+  </Box>
+</Box>
 
       {/* Menu Section */}
       <List sx={{ flex: 1, px: 2, py: 2, overflow: 'auto' }}>
@@ -77,11 +88,11 @@ const SidebarAdmin = () => {
                 py: 1.5,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
-                
+
                 // Màu sắc Admin: Tím chủ đạo
                 color: isActive ? '#7c3aed' : '#64748b',
                 bgcolor: isActive ? alpha('#7c3aed', 0.04) : 'transparent',
-                
+
                 '&:hover': {
                   bgcolor: isActive ? alpha('#7c3aed', 0.08) : '#f8fafc',
                   color: '#7c3aed',
@@ -112,28 +123,27 @@ const SidebarAdmin = () => {
               >
                 {item.icon}
               </ListItemIcon>
-              
+
               <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontWeight: isActive ? 700 : 600,
-                  fontSize: '0.9rem',
-                  letterSpacing: '-0.01em',
-                }}
+                primary={
+                  <Typography sx={{ fontWeight: isActive ? 700 : 600, fontSize: '0.9rem', letterSpacing: '-0.01em' }}>
+                    {item.label}
+                  </Typography>
+                }
               />
 
               {item.badge && isActive && (
-                <Chip 
-                  label={item.badge} 
-                  size="small" 
-                  sx={{ 
-                    height: 18, 
-                    fontSize: '0.6rem', 
+                <Chip
+                  label={item.badge}
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: '0.6rem',
                     fontWeight: 900,
                     bgcolor: '#7c3aed',
                     color: '#fff',
                     borderRadius: '6px'
-                  }} 
+                  }}
                 />
               )}
             </ListItemButton>
@@ -142,42 +152,9 @@ const SidebarAdmin = () => {
       </List>
 
       {/* MODEL STATUS CARD - Phần dành riêng cho Admin */}
-      <Box sx={{ p: 2 }}>
-        <Box
-          sx={{
-            p: 2,
-            borderRadius: '20px',
-            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-            color: '#fff',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 10px 20px -5px rgba(0,0,0,0.2)'
-          }}
-        >
-          {/* Hình trang trí chìm */}
-          <ModelIcon sx={{ position: 'absolute', right: -10, bottom: -10, fontSize: '4rem', opacity: 0.1, color: '#7c3aed' }} />
-          
-          <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', mb: 1, textTransform: 'uppercase' }}>
-            Model Status
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box sx={{ width: 8, height: 8, bgcolor: '#22c55e', borderRadius: '50%', boxShadow: '0 0 10px #22c55e' }} />
-            <Typography sx={{ fontSize: '0.85rem', fontWeight: 700 }}>
-              Active (VGG-16)
-            </Typography>
-          </Box>
-          <Typography sx={{ fontSize: '0.65rem', mt: 1, color: '#64748b' }}>
-            Accuracy: 94.2% | Latency: 120ms
-          </Typography>
-        </Box>
-      </Box>
 
       {/* Version Footer */}
-      <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
-        <Typography sx={{ fontSize: '0.65rem', color: '#cbd5e1', fontWeight: 600 }}>
-          ADMIN PANEL V1.0.0
-        </Typography>
-      </Box>
+      
     </Box>
   );
 };
