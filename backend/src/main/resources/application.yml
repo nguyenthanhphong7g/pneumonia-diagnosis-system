@@ -1,16 +1,18 @@
 spring:
   datasource:
-    url: jdbc:postgresql://db:5432/pneumonia
-    username: ${DB_USER:postgres}
-    password: ${DB_PASS:example}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=pneumonia;encrypt=false;trustServerCertificate=true
+    username: ${DB_USER:sa}
+    password: ${DB_PASS:123456}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
   jpa:
     hibernate:
-      ddl-auto: update  # create tables automatically if missing
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
   sql:
     init:
-      mode: always   # run schema.sql & data.sql on startup
+      mode: never
