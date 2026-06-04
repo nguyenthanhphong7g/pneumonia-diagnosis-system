@@ -428,22 +428,23 @@ export default function Home() {
                               Thời gian chẩn đoán: {result.inference_time_ms || 0} ms
                             </Typography>
 
-                            {/* Khai báo biến bổ trợ để lấy thời gian model động */}
+                            {/* Khai báo biến bổ trợ để lấy thời gian model và GradCAM */}
                             {(() => {
-                              // Tìm key đầu tiên trong timings_ms (ví dụ: 'gated_fusion', 'cnn', v.v.)
                               const modelKey = result.timings_ms ? Object.keys(result.timings_ms)[0] : null;
-                              const modelTime = modelKey ? (result.timings_ms[modelKey] || 0) : 0;
+                              const timingModelTime = modelKey ? (result.timings_ms[modelKey] || 0) : 0;
+                              const explicitModelTime = result.model_time_ms || 0;
+                              const modelTime = explicitModelTime || timingModelTime;
                               const totalTime = result.inference_time_ms || 0;
-                              const gradcamTime = Math.max(0, totalTime - modelTime);
+                              const gradcamTime = result.gradcam_time_ms !== undefined && result.gradcam_time_ms !== null
+                                ? result.gradcam_time_ms
+                                : Math.max(0, totalTime - modelTime);
 
                               return (
                                 <>
-                                  {/* 2. Hiển thị tên Model và thời gian tự động */}
                                   <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.25 }}>
                                     - Mô hình ({modelKey ? modelKey.replace(/_/g, ' ').replace('ms', '').trim() : 'Mô hình'}): {modelTime} ms
                                   </Typography>
 
-                                  {/* 3. Hiển thị GradCAM = Tổng - Mô hình */}
                                   <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
                                     - GradCAM: {gradcamTime} ms
                                   </Typography>

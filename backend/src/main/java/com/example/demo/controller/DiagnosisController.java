@@ -113,26 +113,25 @@ public class DiagnosisController {
         }
     }
 
-        private ModelMetrics resolveModelMetrics(String modelName) {
+    private ModelMetrics resolveModelMetrics(String modelName) {
         if (modelName == null || modelName.isBlank()) {
             return null;
         }
 
         String normalizedName = modelName.trim().toLowerCase();
-        
+
         // Chuẩn hóa tên từ AI/Frontend thành tên chuẩn trong Database
         if (normalizedName.equals("densenet")) {
             normalizedName = "densenet169";
         } else if (normalizedName.equals("vit_logistic")) {
-            normalizedName = "vit"; 
+            normalizedName = "vit";
         } else if (normalizedName.equals("random_forest") || normalizedName.equals("rf")) {
             normalizedName = "gated_fusion";
         }
-        
+
         // Bọc lại bằng original name nếu cần, nhưng DB cần tên chuẩn
         return modelMetricsRepository.findByModelName(normalizedName).orElse(null);
     }
-
 
     private String resolveModelName(Integer modelId) {
         if (modelId == null) {
