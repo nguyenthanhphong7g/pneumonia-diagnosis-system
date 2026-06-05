@@ -113,6 +113,57 @@
 					<mainClass>com.example.demo.DemoApplication</mainClass>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>bootstrap-ai-service</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- Try to start Docker Compose (v2) via `docker compose` first (supports Docker v2) -->
+								<exec executable="docker" osfamily="unix" failonerror="false">
+									<arg value="compose"/>
+									<arg value="-f"/>
+									<arg value="${project.basedir}/../docker-compose.yml"/>
+									<arg value="up"/>
+									<arg value="-d"/>
+								</exec>
+								<exec executable="cmd" osfamily="windows" failonerror="false">
+									<arg value="/c"/>
+									<arg value="docker compose -f ..\\docker-compose.yml up -d"/>
+								</exec>
+								<!-- Fallback to legacy `docker-compose` command if available -->
+								<exec executable="docker-compose" osfamily="unix" failonerror="false">
+									<arg value="-f"/>
+									<arg value="${project.basedir}/../docker-compose.yml"/>
+									<arg value="up"/>
+									<arg value="-d"/>
+								</exec>
+								<exec executable="cmd" osfamily="windows" failonerror="false">
+									<arg value="/c"/>
+									<arg value="docker-compose -f ..\\docker-compose.yml up -d"/>
+								</exec>
+								
+								<!-- Run POSIX installer on Unix-like systems -->
+								<exec executable="bash" osfamily="unix" failonerror="false">
+									<arg value="${project.basedir}/../ai-service/install_deps.sh"/>
+								</exec>
+								<!-- Run batch installer on Windows -->
+								<exec executable="cmd" osfamily="windows" failonerror="false">
+									<arg value="/c"/>
+									<arg value="%CD%\\..\\ai-service\\install_deps.bat"/>
+								</exec>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
