@@ -144,6 +144,18 @@ if [ ! -f "$MAIN_PY" ]; then
     exit 1
 fi
 
+SETUP_SCRIPT="$AI_SERVICE_DIR/setup_env.sh"
+if [ -f "$SETUP_SCRIPT" ]; then
+    echo -e "${BLUE}🔧 Running AI Service setup script: $SETUP_SCRIPT${NC}"
+    bash "$SETUP_SCRIPT"
+fi
+
+PYTHON_EXEC="$AI_SERVICE_DIR/venv/bin/python"
+if [ ! -x "$PYTHON_EXEC" ]; then
+    echo -e "${YELLOW}⚠️  AI Service venv not found, using system python${NC}"
+    PYTHON_EXEC="python3"
+fi
+
 echo -e "${BLUE}🚀 Starting AI Service from: $MAIN_PY${NC}"
 echo -e "${BLUE}   Directory: $AI_SERVICE_DIR${NC}"
 
@@ -152,7 +164,7 @@ export PORT=8000
 export HOST=0.0.0.0
 
 cd "$AI_SERVICE_DIR"
-python3 main.py > ai-service.log 2>&1 &
+"$PYTHON_EXEC" main.py > ai-service.log 2>&1 &
 AI_SERVICE_PID=$!
 
 echo -e "${GREEN}✅ AI Service process started (PID: $AI_SERVICE_PID)${NC}"

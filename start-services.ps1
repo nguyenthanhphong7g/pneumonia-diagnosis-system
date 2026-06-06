@@ -116,6 +116,18 @@ if (-not (Test-Path $mainPy)) {
     exit 1
 }
 
+$setupScript = Join-Path $AIServiceDir "setup_env.ps1"
+if (Test-Path $setupScript) {
+    Write-Host "🔧 Running AI Service setup script: $setupScript" -ForegroundColor $InfoColor
+    & $setupScript
+}
+
+$pythonExe = Join-Path $AIServiceDir "venv\Scripts\python.exe"
+if (-not (Test-Path $pythonExe)) {
+    Write-Host "⚠️  AI Service venv not found, using system python" -ForegroundColor $WarningColor
+    $pythonExe = "python"
+}
+
 Write-Host "🚀 Starting AI Service from: $mainPy" -ForegroundColor $InfoColor
 Write-Host "   Directory: $AIServiceDir" -ForegroundColor $InfoColor
 
@@ -123,7 +135,7 @@ $env:PYTHONUNBUFFERED = 1
 $env:PORT = "8000"
 $env:HOST = "0.0.0.0"
 
-$AIProcess = Start-Process -FilePath python -ArgumentList $mainPy -WorkingDirectory $AIServiceDir -PassThru -NoNewWindow
+$AIProcess = Start-Process -FilePath $pythonExe -ArgumentList $mainPy -WorkingDirectory $AIServiceDir -PassThru -NoNewWindow
 Write-Host "✅ AI Service process started (PID: $($AIProcess.Id))" -ForegroundColor $SuccessColor
 
 # Give it a moment to start

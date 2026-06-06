@@ -27,6 +27,20 @@ python -m venv venv
 pip install -r requirements-frozen.txt
 ```
 
+Hoặc bạn có thể chạy script tự động tạo và cài đặt môi trường:
+
+```powershell
+cd d:\TieuLuan\pneumonia-diagnosis-system\ai-service
+.\setup_env.ps1
+```
+
+Với macOS/Linux, dùng:
+
+```bash
+cd /path/to/pneumonia-diagnosis-system/ai-service
+./setup_env.sh
+```
+
 Nếu bạn đã có môi trường sẵn thì chỉ cần activate lại môi trường đó.
 
 ## 3. Cần chuẩn bị gì trước khi train
