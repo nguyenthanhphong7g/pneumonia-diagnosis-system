@@ -35,11 +35,14 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = { "http://localhost:5173", "http://localhost:5174" })
 public class DiagnosisController {
+    private static final long MAX_UPLOAD_SIZE_BYTES = 10L * 1024 * 1024; // 10 MB
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png");
 
     @Autowired
     private DiagnosisRepository diagnosisRepository;
@@ -264,6 +267,32 @@ public class DiagnosisController {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 
+            // Validate upload file before saving.
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Tên file không hợp lệ"));
+            }
+
+            String lowerFilename = originalFilename.toLowerCase();
+            int idx = lowerFilename.lastIndexOf('.');
+            if (idx < 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Chỉ chấp nhận định dạng ảnh: jpg, jpeg, png"));
+            }
+
+            String extension = lowerFilename.substring(idx + 1);
+            if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Chỉ chấp nhận định dạng ảnh: jpg, jpeg, png"));
+            }
+
+            if (file.getSize() <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "File ảnh không được để trống"));
+            }
+
+            if (file.getSize() > MAX_UPLOAD_SIZE_BYTES) {
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                        .body(Map.of("error", "Kích thước file vượt quá 10 MB"));
+            }
+
             // ==================== LƯU ẢNH VÀO THƯ MỤC UPLOADS ====================
             String uploadDir = "D:/TieuLuan/pneumonia-diagnosis-system/backend/uploads/";
             java.io.File uploadFolder = new java.io.File(uploadDir);
@@ -271,7 +300,8 @@ public class DiagnosisController {
                 uploadFolder.mkdirs();
             }
 
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            String safeFilename = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
+            String fileName = System.currentTimeMillis() + "_" + safeFilename;
             java.io.File dest = new java.io.File(uploadDir + fileName);
 
             // Lưu file an toàn (tránh lỗi temp file của Tomcat)

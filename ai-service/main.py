@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import logging
@@ -124,6 +124,18 @@ except Exception as e:
 # APP
 # =========================================================
 app = FastAPI()
+
+MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+async def ensure_upload_size(file: UploadFile):
+    data = await file.read()
+    size = len(data)
+    file.file.seek(0)
+    if size <= 0:
+        raise HTTPException(status_code=400, detail="File ảnh không được để trống")
+    if size > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(status_code=413, detail="Kích thước file vượt quá 5 MB")
+    return size
 
 app.add_middleware(
     CORSMiddleware,
@@ -360,6 +372,93 @@ def get_densenet_model():
     if last_exc is not None:
         logger.error(f"All DenseNet load attempts failed: {last_exc}")
     return None
+
+# =========================================================
+# VGG16 model loading (placeholder – no Grad‑CAM)
+# =========================================================
+vgg16_base_model = None
+vgg16_lr_model = None
+
+def get_vgg16_model():
+    """Load VGG16 base (ImageNet pretrained) and LR classifier."""
+    global vgg16_base_model, vgg16_lr_model
+    try:
+        if vgg16_base_model is None:
+            from tensorflow.keras.applications import VGG16
+            vgg16_base_model = VGG16(weights="imagenet", include_top=False, input_shape=(128, 128, 3))
+            logger.info("[MODEL] VGG16 base loaded (ImageNet pretrained)")
+        
+        if vgg16_lr_model is None:
+            lr_path = "models_kaggle/vgg16_lr.pkl"
+            if not os.path.exists(lr_path):
+                lr_path = "models/vgg16_lr.pkl"
+            vgg16_lr_model = joblib.load(lr_path)
+            logger.info(f"✅ VGG16 LogisticRegression loaded successfully from {lr_path}")
+            
+        return vgg16_base_model, vgg16_lr_model
+    except Exception as e:
+        logger.exception("Failed to load VGG16 models: %s", e)
+        return None, None
+
+def vgg16_infer(image, requested_from=None):
+    """Run inference with VGG16 (feature extraction + LR) – **no Grad‑CAM**.
+    Returns a dict compatible with the existing response format.
+    """
+    base_model, lr_model = get_vgg16_model()
+    if base_model is None or lr_model is None:
+        logger.error("VGG16 model unavailable for inference")
+        return None
+    try:
+        logger.info("🚀 Running VGG16 inference...")
+        # 1. Trích xuất đặc trưng với VGG16 base
+        img_np = np.array(image.resize((128, 128))).astype("float32")
+        img_np = np.stack((img_np,) * 3, axis=-1) if len(img_np.shape) == 2 else img_np
+        
+        start = time.perf_counter()
+        
+        # Predict features
+        features = base_model.predict(np.expand_dims(img_np, axis=0), verbose=0)
+        features_flattened = features.reshape(1, -1)
+        
+        # 2. Phân loại với Logistic Regression
+        pred = lr_model.predict(features_flattened)[0]
+        prob = lr_model.predict_proba(features_flattened)[0]
+        
+        inference_ms = int((time.perf_counter() - start) * 1000)
+        
+        label = "Pneumonia" if int(pred) == 1 else "Normal"
+        confidence = float(np.max(prob))
+        
+        result = {
+            "model": "vgg16",
+            "label": label,
+            "confidence": confidence,
+            "probabilities": {
+                "normal": float(prob[0]),
+                "pneumonia": float(prob[1])
+            },
+            "runtime_ms": inference_ms
+        }
+        if requested_from:
+            result["fallback_from"] = requested_from
+            
+        # Attach DenseNet Grad‑CAM for visual consistency
+        try:
+            densenet = get_densenet_model()
+            if densenet is not None:
+                gc = predict_with_gradcam(densenet, image)
+                if gc is not None and gc.get("superimposed") is not None:
+                    superimposed_rgb = cv2.cvtColor(gc.get("superimposed"), cv2.COLOR_BGR2RGB)
+                    pil = Image.fromarray(superimposed_rgb)
+                    buf = BytesIO()
+                    pil.save(buf, format="PNG")
+                    result["gradcam_base64"] = base64.b64encode(buf.getvalue()).decode("utf-8")
+        except Exception as e:
+            logger.warning(f"GradCAM generation for VGG16 fallback failed: {e}")
+        return result
+    except Exception as e:
+        logger.error(f"VGG16 prediction failed: {e}")
+        return None
 # =========================================================
 class GradcamRequest(BaseModel):
     image: str
@@ -467,11 +566,20 @@ def get_models():
             "metrics": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "auc": 0.0},
             "runtime_ms": 0,
         },
+        # {
+        #     "model_id": "densenet",
+        #     "name": "DenseNet169",
+        #     "version": "v1.0",
+        #     "description": "DenseNet baseline with Grad-CAM support",
+        #     "status": "ready",
+        #     "metrics": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "auc": 0.0},
+        #     "runtime_ms": 0,
+        # },
         {
-            "model_id": "densenet",
-            "name": "DenseNet169",
+            "model_id": "vgg16",
+            "name": "VGG16 Base + LogisticRegression",
             "version": "v1.0",
-            "description": "DenseNet baseline with Grad-CAM support",
+            "description": "Mô hình VGG16 (Grad-CAM fallback từ DenseNet)",
             "status": "ready",
             "metrics": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "auc": 0.0},
             "runtime_ms": 0,
@@ -490,11 +598,14 @@ async def predict(file: UploadFile = File(...), model: str | None = Form(None)):
     # Per-model timings (ms)
     timings = {}
 
+    # Validate upload size
+    await ensure_upload_size(file)
+
     # Load image
     image = Image.open(file.file).convert("RGB")
 
     # Prefer model selected by the user; fall back to environment configuration.
-    preferred = (model or os.getenv("PREFERRED_MODEL", "densenet")).lower().strip()
+    preferred = (model or os.getenv("PREFERRED_MODEL", "vgg16")).lower().strip()
 
     # Pre-extract features (used by gated_fusion and vit paths). Failures are non-fatal.
     vit_feat = wst_feat = rad_feat = sta_feat = None
@@ -606,6 +717,12 @@ async def predict(file: UploadFile = File(...), model: str | None = Form(None)):
             t1 = time.perf_counter()
             timings['densenet_ms'] = int((t1 - t0) * 1000)
 
+    elif preferred in ('vgg16', 'vgg'):
+        t0 = time.perf_counter()
+        result = vgg16_infer(image)
+        t1 = time.perf_counter()
+        timings['vgg16_ms'] = int((t1 - t0) * 1000)
+
     elif preferred == 'densenet':
         # Force DenseNet only
         t0 = time.perf_counter()
@@ -633,6 +750,7 @@ async def predict(file: UploadFile = File(...), model: str | None = Form(None)):
 @app.post("/compare")
 @app.post("/api/compare")
 async def compare(file: UploadFile = File(...), models: str | None = Form(None)):
+    await ensure_upload_size(file)
     try:
         image = Image.open(file.file).convert("RGB")
 
@@ -640,7 +758,7 @@ async def compare(file: UploadFile = File(...), models: str | None = Form(None))
         if models:
             model_list = [m.strip() for m in models.split(",") if m.strip()]
         else:
-            model_list = ["gated_fusion", "densenet"]
+            model_list = ["gated_fusion", "vit", "vgg16"]
 
         # pre-extract features once for efficiency
         try:
@@ -705,6 +823,11 @@ async def compare(file: UploadFile = File(...), models: str | None = Form(None))
                 except Exception as e:
                     logger.warning(f"DenseNet compare failed for {mid}: {e}")
 
+            elif mid in ("vgg16", "vgg"):
+                res = vgg16_infer(image, requested_from=mid)
+                if res is not None:
+                    res["requested_model"] = mid
+
             elapsed = int((time.perf_counter() - start) * 1000)
             if res is None:
                 results.append({"model": mid, "error": "model unavailable or failed", "runtime_ms": elapsed})
@@ -734,7 +857,6 @@ def make_gradcam_heatmap(img_array, model, pred_index=None):
 # =========================================================
 # GRADCAM API
 # =========================================================
-from fastapi import UploadFile, File
 from fastapi.responses import Response
 
 # Support both direct and /api-prefixed GradCAM URLs used by frontend/backend
@@ -744,8 +866,8 @@ async def gradcam_api(file: UploadFile = File(...)):
     try:
         print("\n" + "="*70)
         print("[GRADCAM] REQUEST RECEIVED")
-        print(f"[GRADCAM] File: {file.filename}, Size: {len(file.file.read())} bytes")
-        file.file.seek(0)  # Reset file pointer
+        size = await ensure_upload_size(file)
+        print(f"[GRADCAM] File: {file.filename}, Size: {size} bytes")
         
         print("[GRADCAM] Opening image...")
         image = Image.open(file.file).convert("RGB")
