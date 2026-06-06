@@ -112,6 +112,23 @@ def start_ai_service() -> Tuple[bool, Optional[subprocess.Popen]]:
     
     logger.info(f"🚀 Starting AI Service from: {main_py}")
     
+    # Run setup script if available
+    setup_script = AI_SERVICE_DIR / ("setup_env.ps1" if sys.platform == "win32" else "setup_env.sh")
+    if setup_script.exists():
+        logger.info(f"🔧 Running AI Service setup script: {setup_script}")
+        try:
+            if sys.platform == "win32":
+                subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", str(setup_script)], check=True)
+            else:
+                subprocess.run(["bash", str(setup_script)], check=True)
+        except subprocess.CalledProcessError as e:
+            logger.error(f"❌ AI Service setup script failed: {e}")
+            return False, None
+
+    # Prefer virtualenv python if available
+    venv_python = AI_SERVICE_DIR / ("venv/Scripts/python.exe" if sys.platform == "win32" else "venv/bin/python")
+    python_executable = str(venv_python) if venv_python.exists() else sys.executable
+
     try:
         # Set environment
         env = os.environ.copy()
@@ -121,7 +138,7 @@ def start_ai_service() -> Tuple[bool, Optional[subprocess.Popen]]:
         
         # Start process
         process = subprocess.Popen(
-            [sys.executable, "main.py"],
+            [python_executable, "main.py"],
             cwd=str(AI_SERVICE_DIR),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

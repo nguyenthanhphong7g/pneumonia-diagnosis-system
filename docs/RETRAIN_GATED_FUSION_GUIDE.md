@@ -17,6 +17,18 @@ source venv/bin/activate
 pip install -r requirements-frozen.txt
 ```
 
+Hoặc sử dụng script tự động:
+
+```powershell
+cd ai-service
+.\setup_env.ps1
+```
+
+```bash
+cd ai-service
+./setup_env.sh
+```
+
 ### 2. Cấu Trúc Thư Mục Bắt Buộc
 ```
 ai-service/
