@@ -444,7 +444,7 @@ export default function Home() {
                             </Typography>
 
                             {/* Khai báo biến bổ trợ để lấy thời gian model và GradCAM */}
-                            {(() => {
+                            {/* {(() => {
                               const modelKey = result.timings_ms ? Object.keys(result.timings_ms)[0] : null;
                               const timingModelTime = modelKey ? (result.timings_ms[modelKey] || 0) : 0;
                               const explicitModelTime = result.model_time_ms || 0;
@@ -465,7 +465,7 @@ export default function Home() {
                                   </Typography>
                                 </>
                               );
-                            })()}
+                            })()} */}
                           </Box>
                         </CardContent>
                       </Card>
@@ -694,7 +694,7 @@ export default function Home() {
                         })}
 
                         {/* Runtime Row */}
-                        <Box sx={{ display: 'grid', gridTemplateColumns: '80px 70px 70px 70px', gap: 0.25, py: 0.5 }}>
+                        {/* <Box sx={{ display: 'grid', gridTemplateColumns: '80px 70px 70px 70px', gap: 0.25, py: 0.5 }}>
                           <Typography variant="caption" sx={{ fontWeight: 600, color: '#475569', fontSize: '0.7rem' }}>Tốc độ xử lý</Typography>
                           <Box sx={{ textAlign: 'center', bgcolor: '#f0f9ff', p: 0.25, borderRadius: '4px' }}>
                             <Typography variant="caption" sx={{ fontWeight: 700, color: '#0369a1', fontSize: '0.7rem' }}>
@@ -711,7 +711,7 @@ export default function Home() {
                               {compareMetrics.vgg16?.expectedRuntimeMs || '—'} ms
                             </Typography>
                           </Box>
-                        </Box>
+                        </Box> */}
                       </Box>
                     </Box>
                   ) : (
@@ -734,13 +734,13 @@ export default function Home() {
                     <RenderMetricBar label="⚖️ Chỉ số cân bằng" value={metrics.f1Score} color="#8b5cf6" />
                     <RenderMetricBar label="📊 Chỉ số hiệu năng" value={metrics.auc} color="#ec4899" />
 
-                    <Divider sx={{ my: 2 }} />
+                    {/* <Divider sx={{ my: 2 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#f0f9ff', p: 1.5, borderRadius: '10px' }}>
                       <Typography variant="caption" sx={{ color: '#0369a1', fontWeight: 700 }}>⚡ Tốc độ xử lý:</Typography>
                       <Typography variant="body2" sx={{ fontWeight: 900, color: '#0284c7' }}>
                         {metrics.expectedRuntimeMs} ms
                       </Typography>
-                    </Box>
+                    </Box> */}
                   </Box>
                 ) : (
                   <Box sx={{ textAlign: 'center', py: 4, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>

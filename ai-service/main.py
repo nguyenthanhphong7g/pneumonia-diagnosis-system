@@ -81,7 +81,7 @@ import time
 # =========================================================
 logger.info("Loading GradCAM utility...")
 try:
-    from gradcam_utils import predict_with_gradcam
+    from components.gradcam.gradcam_utils import predict_with_gradcam
     logger.info("✅ GradCAM utils loaded")
 except Exception as e:
     logger.error(f"❌ Failed to load gradcam_utils: {e}")
@@ -89,7 +89,7 @@ except Exception as e:
 
 logger.info("Loading feature extractors...")
 try:
-    from models.extractors import (
+    from components.extractors.extractors import (
         extract_vit_from_pil,
         extract_wst_from_pil,
         extract_radiomics_stats_from_pil
@@ -104,7 +104,7 @@ except Exception as e:
 
 logger.info("Loading Fusion API...")
 try:
-    from models import fusion_api
+    from components.gated_fusion import fusion_api
     logger.info("✅ Fusion API loaded")
 except Exception as e:
     logger.error(f"❌ Failed to load fusion_api: {e}")
@@ -113,7 +113,7 @@ except Exception as e:
 
 logger.info("Loading prediction validator...")
 try:
-    from models.prediction_validator import validate_vit_features, safe_vit_prediction
+    from components.classifiers.prediction_validator import validate_vit_features, safe_vit_prediction
     logger.info("✅ Prediction validator loaded")
 except Exception as e:
     logger.warning(f"⚠️  Prediction validator not available: {e}")
@@ -208,64 +208,7 @@ except Exception:
 # DenseNet candidate filenames (used for status checks and lazy loader)
 DENSENET_CANDIDATES = ["models/artifacts/fixed_model.keras", "models/artifacts/pneumonia_densenet169.keras", "models/artifacts/pneumonia_densenet169.h5", "fixed_model.keras", "pneumonia_densenet169.keras", "pneumonia_densenet169.h5"]
 
-# DenseNet Model
-# DenseNet Model (lazy loader)
-densenet_model = None
-
-def get_densenet_model():
-    """Lazily attempt to load and cache the DenseNet model on first use.
-
-    Avoids startup failures when model deserialization is incompatible; callers
-    should handle a None return value.
-    """
-    global densenet_model
-    if densenet_model is not None:
-        return densenet_model
-
-    candidate_files = ["fixed_model.keras", "pneumonia_densenet169.keras", "pneumonia_densenet169.h5"]
-    last_exc = None
-    for fname in candidate_files:
-        if not os.path.exists(fname):
-            logger.debug(f"DenseNet candidate missing: {fname}")
-            continue
-        try:
-            try:
-                densenet_model = keras.models.load_model(fname, compile=False)
-                logger.info(f"✅ DenseNet169 loaded successfully from {fname} (keras.models.load_model)")
-            except Exception as e_load:
-                logger.warning(f"keras.models.load_model failed for {fname}: {e_load}")
-                try:
-                    from tensorflow import keras as tfkeras
-                    densenet_model = tfkeras.models.load_model(fname, compile=False)
-                    logger.info(f"✅ DenseNet169 loaded successfully from {fname} (tf.keras.models.load_model)")
-                except Exception as e_tfload:
-                    logger.warning(f"tf.keras.models.load_model also failed for {fname}: {e_tfload}")
-                    if fname.lower().endswith('.h5'):
-                        try:
-                            from tensorflow.keras.applications import DenseNet169 as TF_DenseNet169
-                            model_tmp = TF_DenseNet169(weights=None, classes=2, input_shape=(224,224,3))
-                            model_tmp.load_weights(fname)
-                            densenet_model = model_tmp
-                            logger.info(f"✅ DenseNet169 architecture created and weights loaded from {fname}")
-                        except Exception as e_weights:
-                            logger.warning(f"Loading weights into DenseNet169 failed for {fname}: {e_weights}")
-                            raise e_weights
-                    else:
-                        raise e_tfload
-
-            if densenet_model is not None:
-                try:
-                    logger.info(f"[MODEL] DenseNet has {len(densenet_model.layers)} layers")
-                except Exception:
-                    logger.debug("Could not introspect model layers")
-                return densenet_model
-        except Exception as e:
-            logger.exception(f"Failed to load DenseNet from {fname}")
-            last_exc = e
-
-    if last_exc is not None:
-        logger.error(f"All DenseNet load attempts failed: {last_exc}")
-    return None
+from components.densenet.inference import get_densenet_model
 
 # LogisticRegression Model
 lr_model = None
@@ -376,89 +319,7 @@ def get_densenet_model():
 # =========================================================
 # VGG16 model loading (placeholder – no Grad‑CAM)
 # =========================================================
-vgg16_base_model = None
-vgg16_lr_model = None
-
-def get_vgg16_model():
-    """Load VGG16 base (ImageNet pretrained) and LR classifier."""
-    global vgg16_base_model, vgg16_lr_model
-    try:
-        if vgg16_base_model is None:
-            from tensorflow.keras.applications import VGG16
-            vgg16_base_model = VGG16(weights="imagenet", include_top=False, input_shape=(128, 128, 3))
-            logger.info("[MODEL] VGG16 base loaded (ImageNet pretrained)")
-        
-        if vgg16_lr_model is None:
-            lr_path = "models_kaggle/vgg16_lr.pkl"
-            if not os.path.exists(lr_path):
-                lr_path = "models/vgg16_lr.pkl"
-            vgg16_lr_model = joblib.load(lr_path)
-            logger.info(f"✅ VGG16 LogisticRegression loaded successfully from {lr_path}")
-            
-        return vgg16_base_model, vgg16_lr_model
-    except Exception as e:
-        logger.exception("Failed to load VGG16 models: %s", e)
-        return None, None
-
-def vgg16_infer(image, requested_from=None):
-    """Run inference with VGG16 (feature extraction + LR) – **no Grad‑CAM**.
-    Returns a dict compatible with the existing response format.
-    """
-    base_model, lr_model = get_vgg16_model()
-    if base_model is None or lr_model is None:
-        logger.error("VGG16 model unavailable for inference")
-        return None
-    try:
-        logger.info("🚀 Running VGG16 inference...")
-        # 1. Trích xuất đặc trưng với VGG16 base
-        img_np = np.array(image.resize((128, 128))).astype("float32")
-        img_np = np.stack((img_np,) * 3, axis=-1) if len(img_np.shape) == 2 else img_np
-        
-        start = time.perf_counter()
-        
-        # Predict features
-        features = base_model.predict(np.expand_dims(img_np, axis=0), verbose=0)
-        features_flattened = features.reshape(1, -1)
-        
-        # 2. Phân loại với Logistic Regression
-        pred = lr_model.predict(features_flattened)[0]
-        prob = lr_model.predict_proba(features_flattened)[0]
-        
-        inference_ms = int((time.perf_counter() - start) * 1000)
-        
-        label = "Pneumonia" if int(pred) == 1 else "Normal"
-        confidence = float(np.max(prob))
-        
-        result = {
-            "model": "vgg16",
-            "label": label,
-            "confidence": confidence,
-            "probabilities": {
-                "normal": float(prob[0]),
-                "pneumonia": float(prob[1])
-            },
-            "runtime_ms": inference_ms
-        }
-        if requested_from:
-            result["fallback_from"] = requested_from
-            
-        # Attach DenseNet Grad‑CAM for visual consistency
-        try:
-            densenet = get_densenet_model()
-            if densenet is not None:
-                gc = predict_with_gradcam(densenet, image)
-                if gc is not None and gc.get("superimposed") is not None:
-                    superimposed_rgb = cv2.cvtColor(gc.get("superimposed"), cv2.COLOR_BGR2RGB)
-                    pil = Image.fromarray(superimposed_rgb)
-                    buf = BytesIO()
-                    pil.save(buf, format="PNG")
-                    result["gradcam_base64"] = base64.b64encode(buf.getvalue()).decode("utf-8")
-        except Exception as e:
-            logger.warning(f"GradCAM generation for VGG16 fallback failed: {e}")
-        return result
-    except Exception as e:
-        logger.error(f"VGG16 prediction failed: {e}")
-        return None
+from components.vgg16.inference import get_vgg16_model, vgg16_infer
 # =========================================================
 class GradcamRequest(BaseModel):
     image: str
@@ -477,62 +338,6 @@ def extract_features(image):
 # =========================================================
 # DenseNet top-level inference helper (reusable by endpoints)
 # =========================================================
-def densenet_infer(image, requested_from=None):
-    try:
-        model = get_densenet_model()
-        if model is None:
-            raise RuntimeError("DenseNet model is not loaded or incompatible")
-        img_np = np.array(image.resize((224, 224))).astype("float32") / 255.0
-        model_start = time.perf_counter()
-        preds = model.predict(np.expand_dims(img_np, axis=0), verbose=0)
-        model_end = time.perf_counter()
-        model_time_ms = int((model_end - model_start) * 1000)
-
-        pred_class = int(np.argmax(preds[0]))
-        confidence = float(np.max(preds[0]))
-        label = "Pneumonia" if pred_class == 1 else "Normal"
-        result = {
-            "model": "densenet",
-            "label": label,
-            "confidence": confidence,
-            "model_time_ms": model_time_ms,
-            "probabilities": {
-                "normal": float(preds[0][0]) if preds.shape[1] > 1 else float(1 - confidence),
-                "pneumonia": float(preds[0][1]) if preds.shape[1] > 1 else float(confidence)
-            },
-            "timestamp": datetime.now().isoformat()
-        }
-        # Attempt to generate GradCAM image and include as base64 in response
-        try:
-            from gradcam_utils import predict_with_gradcam
-            gradcam_start = time.perf_counter()
-            gc = predict_with_gradcam(model, image)
-            gradcam_end = time.perf_counter()
-            gradcam_time_ms = int((gradcam_end - gradcam_start) * 1000)
-            result["gradcam_time_ms"] = gradcam_time_ms
-            if gc is not None and gc.get("superimposed") is not None:
-                # Convert BGR (cv2 format) to RGB (PIL format) to fix color swap
-                superimposed_rgb = cv2.cvtColor(gc.get("superimposed"), cv2.COLOR_BGR2RGB)
-                pil = Image.fromarray(superimposed_rgb)
-                buf = BytesIO()
-                pil.save(buf, format="PNG")
-                b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-                result["gradcam_base64"] = b64
-        except Exception as e:
-            logger.warning(f"GradCAM generation failed inside densenet_infer: {e}")
-            result["gradcam_time_ms"] = 0
-        if requested_from:
-            result["fallback_from"] = requested_from
-        result["inference_time_ms"] = result.get("model_time_ms", 0) + result.get("gradcam_time_ms", 0)
-        result["timings_ms"] = {
-            "model_time_ms": result.get("model_time_ms", 0),
-            "gradcam_time_ms": result.get("gradcam_time_ms", 0),
-        }
-        return result
-    except Exception as e:
-        logger.error(f"DenseNet prediction failed: {e}")
-        return None
-
 # =========================================================
 # HOME
 # =========================================================
@@ -850,6 +655,7 @@ def get_last_conv_layer(model):
 # =========================================================
 def make_gradcam_heatmap(img_array, model, pred_index=None):
     # wrapper kept for compatibility but we use predict_with_gradcam helper
+    from components.gradcam.gradcam_utils import predict_with_gradcam
     result = predict_with_gradcam(model, img_array)
     # predict_with_gradcam returns 'heatmap' and 'superimposed'
     return result.get("heatmap")
@@ -882,6 +688,7 @@ async def gradcam_api(file: UploadFile = File(...)):
         model = get_densenet_model()
         if model is None:
             raise RuntimeError("DenseNet model is not loaded or incompatible for GradCAM")
+        from components.gradcam.gradcam_utils import predict_with_gradcam
         result = predict_with_gradcam(model, image_np)
         print(f"[GRADCAM] Result keys: {result.keys()}")
         
