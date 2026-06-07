@@ -53,7 +53,7 @@ except Exception:
 # IMPORT FEATURE EXTRACTORS
 # =========================================================
 
-from .extractors import (
+from components.extractors.extractors import (
     extract_vit_from_pil,
     extract_wst_from_pil,
     extract_radiomics_stats_from_pil

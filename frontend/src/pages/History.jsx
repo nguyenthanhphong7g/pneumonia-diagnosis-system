@@ -434,7 +434,7 @@ function History() {
                                         </Box>
 
                                         <Box sx={{ p: 2, borderRadius: '16px', bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                                            <Typography variant="overline" sx={{ color: '#94a3b8', fontWeight: 800 }}>Model sử dụng</Typography>
+                                            <Typography variant="overline" sx={{ color: '#94a3b8', fontWeight: 800 }}>Mô hình sử dụng</Typography>
                                             <Typography variant="body1" sx={{ fontWeight: 800, color: '#1e293b' }}>
                                                 {selectedModelName}
                                             </Typography>

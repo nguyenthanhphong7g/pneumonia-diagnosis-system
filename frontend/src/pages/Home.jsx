@@ -22,6 +22,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 export default function Home() {
   const { token } = useContext(AuthContext);
   const apiBaseUrl = AI_SERVICE_URL;
+  const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
@@ -80,6 +81,8 @@ export default function Home() {
           backendModelName = 'gated_fusion';
         } else if (modelId.includes('vit') || modelId.includes('logistic')) {
           backendModelName = 'vit';
+        } else if (modelId.includes('vgg')) {
+          backendModelName = 'vgg16';
         }
 
         try {
@@ -119,7 +122,7 @@ export default function Home() {
 
   const fetchCompareMetrics = async () => {
     setLoadingCompareMetrics(true);
-    const modelNames = ['gated_fusion', 'vit', 'densenet169'];
+    const modelNames = ['gated_fusion', 'vit', 'vgg16'];
     const fetchedMetrics = {};
 
     for (const modelName of modelNames) {
@@ -150,6 +153,14 @@ export default function Home() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+      setSelectedFile(null);
+      setPreview(null);
+      setResult(null);
+      setGradcamImg(null);
+      setError('Kích thước file vượt quá 10 MB');
+      return;
+    }
     setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
     setResult(null);
@@ -167,6 +178,10 @@ export default function Home() {
 
   const handlePredict = async () => {
     if (!selectedFile) return;
+    if (selectedFile.size > MAX_UPLOAD_SIZE_BYTES) {
+      setError('Kích thước file vượt quá 10 MB');
+      return;
+    }
     setLoading(true);
     setError(null);
     setCompareResults(null); // Clear compare results when doing single predict
@@ -348,7 +363,7 @@ export default function Home() {
                       <input hidden type="file" accept="image/*" onChange={handleFileChange} />
                       <CloudUploadIcon sx={{ fontSize: 60, color: '#475569', mb: 1 }} />
                       <Typography sx={{ color: '#94a3b8', fontWeight: 600 }}>Tải ảnh X-quang lồng ngực</Typography>
-                      <Typography variant="caption" sx={{ color: '#64748b' }}>Hỗ trợ định dạng JPG, PNG</Typography>
+                      <Typography variant="caption" sx={{ color: '#64748b' }}>Hỗ trợ định dạng JPG, JPEG, PNG</Typography>
                     </Box>
                   ) : (
                     <img src={preview} alt="Input" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -429,7 +444,7 @@ export default function Home() {
                             </Typography>
 
                             {/* Khai báo biến bổ trợ để lấy thời gian model và GradCAM */}
-                            {(() => {
+                            {/* {(() => {
                               const modelKey = result.timings_ms ? Object.keys(result.timings_ms)[0] : null;
                               const timingModelTime = modelKey ? (result.timings_ms[modelKey] || 0) : 0;
                               const explicitModelTime = result.model_time_ms || 0;
@@ -450,7 +465,7 @@ export default function Home() {
                                   </Typography>
                                 </>
                               );
-                            })()}
+                            })()} */}
                           </Box>
                         </CardContent>
                       </Card>
@@ -637,7 +652,7 @@ export default function Home() {
                           <Box></Box>
                           <Box sx={{ textAlign: 'center', color: '#0369a1', fontSize: '0.7rem', fontWeight: 700 }}>Gated Fusion</Box>
                           <Box sx={{ textAlign: 'center', color: '#16a34a', fontSize: '0.7rem', fontWeight: 700 }}>Vision Transformer</Box>
-                          <Box sx={{ textAlign: 'center', color: '#d97706', fontSize: '0.7rem', fontWeight: 700 }}>DenseNet169</Box>
+                          <Box sx={{ textAlign: 'center', color: '#d97706', fontSize: '0.7rem', fontWeight: 700 }}>VGG16</Box>
                         </Box>
 
                         {/* Metric Rows */}
@@ -653,8 +668,8 @@ export default function Home() {
                             (compareMetrics.gated_fusion[key] || compareMetrics.gated_fusion[metricKey.replace('f1Score', 'f1_score')] || 0) : 0;
                           const vitVal = compareMetrics.vit ?
                             (compareMetrics.vit[key] || compareMetrics.vit[metricKey.replace('f1Score', 'f1_score')] || 0) : 0;
-                          const denseVal = compareMetrics.densenet169 ?
-                            (compareMetrics.densenet169[key] || compareMetrics.densenet169[metricKey.replace('f1Score', 'f1_score')] || 0) : 0;
+                          const denseVal = compareMetrics.vgg16 ?
+                            (compareMetrics.vgg16[key] || compareMetrics.vgg16[metricKey.replace('f1Score', 'f1_score')] || 0) : 0;
 
                           return (
                             <Box key={label} sx={{ display: 'grid', gridTemplateColumns: '80px 70px 70px 70px', gap: 0.25, py: 0.5, borderBottom: '1px solid #f1f5f9' }}>
@@ -679,7 +694,7 @@ export default function Home() {
                         })}
 
                         {/* Runtime Row */}
-                        <Box sx={{ display: 'grid', gridTemplateColumns: '80px 70px 70px 70px', gap: 0.25, py: 0.5 }}>
+                        {/* <Box sx={{ display: 'grid', gridTemplateColumns: '80px 70px 70px 70px', gap: 0.25, py: 0.5 }}>
                           <Typography variant="caption" sx={{ fontWeight: 600, color: '#475569', fontSize: '0.7rem' }}>Tốc độ xử lý</Typography>
                           <Box sx={{ textAlign: 'center', bgcolor: '#f0f9ff', p: 0.25, borderRadius: '4px' }}>
                             <Typography variant="caption" sx={{ fontWeight: 700, color: '#0369a1', fontSize: '0.7rem' }}>
@@ -693,10 +708,10 @@ export default function Home() {
                           </Box>
                           <Box sx={{ textAlign: 'center', bgcolor: '#fef3c7', p: 0.25, borderRadius: '4px' }}>
                             <Typography variant="caption" sx={{ fontWeight: 700, color: '#d97706', fontSize: '0.7rem' }}>
-                              {compareMetrics.densenet169?.expectedRuntimeMs || '—'} ms
+                              {compareMetrics.vgg16?.expectedRuntimeMs || '—'} ms
                             </Typography>
                           </Box>
-                        </Box>
+                        </Box> */}
                       </Box>
                     </Box>
                   ) : (
@@ -719,13 +734,13 @@ export default function Home() {
                     <RenderMetricBar label="⚖️ Chỉ số cân bằng" value={metrics.f1Score} color="#8b5cf6" />
                     <RenderMetricBar label="📊 Chỉ số hiệu năng" value={metrics.auc} color="#ec4899" />
 
-                    <Divider sx={{ my: 2 }} />
+                    {/* <Divider sx={{ my: 2 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#f0f9ff', p: 1.5, borderRadius: '10px' }}>
                       <Typography variant="caption" sx={{ color: '#0369a1', fontWeight: 700 }}>⚡ Tốc độ xử lý:</Typography>
                       <Typography variant="body2" sx={{ fontWeight: 900, color: '#0284c7' }}>
                         {metrics.expectedRuntimeMs} ms
                       </Typography>
-                    </Box>
+                    </Box> */}
                   </Box>
                 ) : (
                   <Box sx={{ textAlign: 'center', py: 4, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
